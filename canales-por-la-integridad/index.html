@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Canales por la Integridad | Directorio de Denuncias</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+    /* ============================================================
+       DESIGN TOKENS (sin cambios, solo agregamos ajuste para el contador)
+    ============================================================ */
+    :root {
+        --navy:       #05111F;
+        --navy-mid:   #0C2033;
+        --navy-light: #163250;
+        --blue:       #1A5C8F;
+        --blue-bright:#2B82C9;
+        --cyan:       #00C2E0;
+        --cyan-dim:   #0093AA;
+        --amber:      #F5A623;
+        --green:      #22C55E;
+        --surface:    #F0F5FB;
+        --surface-card:#FFFFFF;
+        --text-main:  #0C1F30;
+        --text-muted: #5E7A8E;
+        --text-light: #A8BFCC;
+        --border:     rgba(26,92,143,0.14);
+        --radius-xl:  24px;
+        --radius-2xl: 32px;
+        --shadow-sm:  0 2px 8px rgba(5,17,31,0.06);
+        --shadow-md:  0 6px 24px rgba(5,17,31,0.10);
+        --shadow-lg:  0 16px 48px rgba(5,17,31,0.14);
+        --font-head:  'Sora', sans-serif;
+        --font-body:  'DM Sans', sans-serif;
+    }
+
+    /* ============================================================
+       RESET & BASE 
+    ============================================================ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+        font-family: var(--font-body);
+        background: var(--surface);
+        color: var(--text-main);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font-family: var(--font-body); cursor: pointer; }
+
+    .container { max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+
+    /* ============================================================
+       HEADER / NAV 
+    ============================================================ */
+    .site-header {
+        position: sticky; top: 0; z-index: 200;
+        background: rgba(5,17,31,0.92);
+        backdrop-filter: blur(20px) saturate(1.5);
+        border-bottom: 1px solid rgba(0,194,224,0.10);
+        transition: box-shadow 0.3s;
+    }
+    .site-header.scrolled { box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
+
+    .navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 0;
+    gap: 1.5rem;
+}
+.gov-logo { 
+    height: 56px; 
+    width: auto; 
+    flex-shrink: 0; 
+    display: block; 
+}
+    .nav-menu {
+        list-style: none;
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        margin-left: auto;
+    }
+    .nav-menu a {
+        display: inline-block;
+        padding: 0.45rem 0.9rem;
+        border-radius: 50px;
+        font-family: var(--font-head);
+        font-size: 0.77rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.7);
+        transition: all 0.2s;
+    }
+    .nav-menu a:hover, .nav-menu a.active {
+        color: var(--cyan);
+        background: rgba(0,194,224,0.08);
+    }
+    .nav-menu a.nav-cta {
+        background: var(--cyan);
+        color: var(--navy);
+        font-weight: 700;
+    }
+    .nav-menu a.nav-cta:hover { background: #00ddf7; }
+
+    /* Menú con dropdowns */
+    .nav-menu > li { position: relative; }
+    .nav-menu > li > a { cursor: default; }
+    .nav-menu > li > a .fa-chevron-down {
+        font-size: 0.6rem;
+        margin-left: 4px;
+        transition: transform 0.2s;
+    }
+    .nav-menu > li:hover > a .fa-chevron-down { transform: rotate(180deg); }
+
+    .submenu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 220px;
+        background: var(--navy-mid);
+        border-radius: 16px;
+        padding: 0.5rem 0;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+        border: 1px solid rgba(0,194,224,0.15);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(8px);
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+        list-style: none;
+        z-index: 300;
+    }
+    .nav-menu > li:hover .submenu,
+    .nav-menu > li.open .submenu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .submenu li a {
+        display: block;
+        padding: 0.5rem 1.2rem;
+        border-radius: 0;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0.02em;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+    }
+    .submenu li a:hover {
+        background: rgba(0,194,224,0.08);
+        color: var(--cyan);
+        border-left-color: var(--cyan);
+    }
+    .submenu li a i { margin-right: 8px; width: 16px; text-align: center; }
+
+    .menu-toggle {
+        display: none; background: none; border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 10px; padding: 8px 12px; color: white; font-size: 1.1rem;
+    }
+
+    /* ============================================================
+       HERO 
+    ============================================================ */
+    .hero {
+        position: relative;
+        background: var(--navy);
+        overflow: hidden;
+        padding: 6rem 0 5rem;
+        text-align: center;
+    }
+    .hero-bg {
+        position: absolute; inset: 0; z-index: 0;
+        background-image: url('https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1600');
+        background-size: cover; background-position: center 30%;
+        filter: grayscale(30%) brightness(0.35) saturate(0.6);
+    }
+    .hero::before {
+        content: '';
+        position: absolute; inset: 0; z-index: 1;
+        background:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.45), transparent),
+            radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.18), transparent),
+            linear-gradient(180deg, rgba(5,17,31,0.55) 0%, rgba(5,17,31,0.82) 100%);
+    }
+    .hero::after {
+        content: '';
+        position: absolute; inset: 0; z-index: 1;
+        background-image:
+            linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 2; }
+
+    .hero-eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 18px; border-radius: 50px;
+        border: 1px solid rgba(0,194,224,0.35);
+        background: rgba(0,194,224,0.08);
+        font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
+        text-transform: uppercase; color: var(--cyan);
+        margin-bottom: 1.6rem;
+    }
+    .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+
+    .hero h1 {
+        font-family: var(--font-head);
+        font-size: clamp(2.6rem, 6vw, 4.2rem);
+        font-weight: 800;
+        line-height: 1.1;
+        color: #FFFFFF;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.5rem;
+    }
+    .hero h1 em {
+        font-style: normal;
+        background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-lema {
+        font-size: 1.05rem;
+        color: rgba(255,255,255,0.5);
+        font-style: italic;
+        margin-bottom: 1.2rem;
+    }
+    .hero-sub {
+        max-width: 600px; margin: 0 auto 2.5rem;
+        font-size: 1rem; color: rgba(255,255,255,0.65); line-height: 1.7;
+    }
+
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--cyan); color: var(--navy);
+        font-family: var(--font-head); font-weight: 700; font-size: 0.9rem;
+        padding: 0.85rem 2rem; border-radius: 50px;
+        border: none; transition: all 0.25s;
+        box-shadow: 0 0 32px rgba(0,194,224,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(0,194,224,0.5); background: #00ddf7; }
+    .btn-outline {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: transparent; color: rgba(255,255,255,0.8);
+        font-family: var(--font-head); font-weight: 600; font-size: 0.9rem;
+        padding: 0.85rem 2rem; border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.2); transition: all 0.25s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4); }
+
+    /* ============================================================
+       STATS RIBBON 
+    ============================================================ */
+    .stats-ribbon {
+        background: var(--navy-mid);
+        border-top: 1px solid rgba(0,194,224,0.08);
+        border-bottom: 1px solid rgba(0,194,224,0.08);
+        padding: 1.6rem 0;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+        gap: 1px;
+        background: rgba(0,194,224,0.08);
+        border: 1px solid rgba(0,194,224,0.08);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+    }
+    .stat-cell {
+        background: var(--navy-mid);
+        padding: 1.2rem;
+        text-align: center;
+        transition: background 0.2s;
+    }
+    .stat-cell:hover { background: rgba(0,194,224,0.06); }
+    .stat-icon { font-size: 1.3rem; color: var(--cyan); margin-bottom: 0.4rem; }
+    .stat-num { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; }
+    .stat-lbl { font-size: 0.72rem; font-weight: 500; color: var(--text-light); margin-top: 0.2rem; letter-spacing: 0.03em; text-transform: uppercase; }
+
+    /* ============================================================
+       SECTION SHELL 
+    ============================================================ */
+    .section { padding: 4rem 0; }
+    .section-tag {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+        text-transform: uppercase; color: var(--cyan);
+        margin-bottom: 0.75rem;
+    }
+    .section-tag::before { content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px; }
+    h2.section-title {
+        font-family: var(--font-head);
+        font-size: clamp(1.7rem, 3vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: var(--text-main);
+        line-height: 1.15;
+        margin-bottom: 0.5rem;
+    }
+    h2.section-title.on-dark { color: #fff; }
+    .section-sub { font-size: 0.97rem; color: var(--text-muted); max-width: 560px; }
+    .section-header { margin-bottom: 2.5rem; }
+    .section-header.center { text-align: center; }
+    .section-header.center .section-sub { margin: 0 auto; }
+
+    /* ============================================================
+       INFO / ABOUT CARD 
+    ============================================================ */
+    .info-band {
+        background: linear-gradient(135deg, var(--navy), var(--navy-light));
+        border-radius: var(--radius-2xl);
+        padding: 3.5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+    }
+    .info-band::before {
+        content:'';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 350px; height: 350px;
+        border-radius: 50%;
+        background: radial-gradient(rgba(0,194,224,0.15), transparent 70%);
+        pointer-events: none;
+    }
+    .info-band-text .lead {
+        font-family: var(--font-head);
+        font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700;
+        color: #fff; line-height: 1.4;
+        margin-bottom: 1.5rem;
+        word-break: break-word;
+    }
+    .info-band-text .lead em { font-style:normal; color: var(--cyan); }
+
+    .accordion { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 1rem; }
+    .accordion-item { border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .accordion-q {
+        width: 100%; background: none; border: none;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        gap: 12px;
+        padding: 0.9rem 0; text-align: left;
+        font-family: var(--font-head); font-weight: 600; font-size: clamp(0.78rem, 2.5vw, 0.9rem);
+        color: rgba(255,255,255,0.85); cursor: pointer; transition: color 0.2s;
+        line-height: 1.4;
+    }
+    .accordion-q:hover { color: var(--cyan); }
+    .accordion-q .acc-icon { font-size: 0.75rem; color: var(--cyan); transition: transform 0.3s; flex-shrink:0; margin-top: 3px; }
+    .accordion-item.open .accordion-q .acc-icon { transform: rotate(180deg); }
+    .accordion-a {
+        max-height: 0; overflow: hidden;
+        transition: max-height 0.35s ease-out, padding 0.3s;
+        font-size: 0.88rem; color: rgba(255,255,255,0.55); padding: 0;
+    }
+    .accordion-item.open .accordion-a { max-height: 200px; padding-bottom: 1rem; }
+
+    .info-band-img { text-align: center; position: relative; z-index: 1; }
+    .info-band-img img {
+        max-width: 560px; width: 100%; border-radius: 20px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+
+    /* ============================================================
+       DEFINITION CARDS CAROUSEL 
+    ============================================================ */
+    .def-swiper { padding: 1rem 0.5rem 3rem !important; }
+    .def-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        height: 100%;
+        display: flex; flex-direction: column;
+        gap: 0.8rem;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s;
+    }
+    .def-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: rgba(43,130,201,0.3); }
+    .def-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        background: linear-gradient(135deg, #EBF5FF, #D2EAFF);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: var(--blue-bright);
+    }
+    .def-card h3 {
+        font-family: var(--font-head);
+        font-size: 1.05rem; font-weight: 700;
+        color: var(--text-main);
+    }
+    .def-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; flex: 1; }
+
+    /* ============================================================
+       CHANNEL TYPE PILLS 
+    ============================================================ */
+    .channels-row {
+        display: flex; flex-wrap: wrap; gap: 1rem;
+        margin-top: 2rem; justify-content: center;
+    }
+    .channel-pill {
+        display: flex; align-items: center; gap: 12px;
+        padding: 1rem 1.8rem;
+        background: #fff; border: 1px solid var(--border);
+        border-radius: 50px; box-shadow: var(--shadow-sm);
+        cursor: default; transition: all 0.25s;
+    }
+    .channel-pill:hover {
+        border-color: var(--blue-bright);
+        box-shadow: 0 8px 28px rgba(43,130,201,0.15);
+        transform: translateY(-3px);
+    }
+    .channel-pill-icon {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: linear-gradient(135deg, #EBF5FF, #D2EAFF);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; color: var(--blue-bright);
+    }
+    .channel-pill span { font-weight: 600; font-size: 0.88rem; color: var(--text-main); }
+
+    /* ============================================================
+       FILTER BAR 
+    ============================================================ */
+    .filter-bar {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-2xl);
+        padding: 2rem 2.5rem;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 2rem;
+    }
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; align-items: end; }
+    .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .filter-label {
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+        text-transform: uppercase; color: var(--blue);
+    }
+    .filter-group select,
+    .filter-group input[type="text"] {
+        width: 100%; padding: 0.75rem 1rem;
+        border: 1.5px solid var(--border);
+        border-radius: 50px;
+        font-family: var(--font-body); font-size: 0.88rem;
+        color: var(--text-main); background: var(--surface);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        appearance: none;
+    }
+    .filter-group select:focus,
+    .filter-group input:focus { outline: none; border-color: var(--blue-bright); box-shadow: 0 0 0 3px rgba(43,130,201,0.12); }
+
+    .voice-row { display: flex; gap: 8px; }
+    .voice-btn {
+        flex-shrink: 0;
+        width: 44px; height: 44px; border-radius: 50%;
+        background: var(--surface); border: 1.5px solid var(--border);
+        color: var(--blue-bright); font-size: 0.95rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
+    }
+    .voice-btn:hover { background: var(--blue-bright); color: #fff; }
+    .voice-btn.listening { background: #FEE2E2; border-color: #EF4444; color: #EF4444; animation: ring 1.2s infinite; }
+    @keyframes ring { 0%{ box-shadow:0 0 0 0 rgba(239,68,68,0.4); } 70%{ box-shadow:0 0 0 8px rgba(239,68,68,0); } 100%{ box-shadow:0 0 0 0 rgba(239,68,68,0); } }
+
+    /* Toggle switch */
+    .fav-row { display: flex; align-items: center; gap: 10px; padding-top: 0.6rem; }
+    .fav-row span { font-size: 0.82rem; color: var(--text-muted); }
+    .toggle-sw { position:relative; display:inline-block; width:48px; height:24px; flex-shrink:0; }
+    .toggle-sw input { opacity:0; width:0; height:0; }
+    .toggle-track {
+        position:absolute; inset:0; background:#E5E7EB;
+        border-radius:34px; cursor:pointer; transition: background 0.3s;
+    }
+    .toggle-track::before {
+        content:''; position:absolute;
+        width:18px; height:18px; left:3px; bottom:3px;
+        background:#fff; border-radius:50%; transition:transform 0.3s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-sw input:checked + .toggle-track { background: var(--blue-bright); }
+    .toggle-sw input:checked + .toggle-track::before { transform: translateX(24px); }
+
+    .filter-actions { display:flex; justify-content:flex-end; margin-top:1.5rem; }
+    .btn-reset {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--navy); color: #fff;
+        font-family: var(--font-head); font-weight: 600; font-size: 0.82rem;
+        padding: 0.65rem 1.5rem; border-radius: 50px; border: none;
+        transition: all 0.2s;
+    }
+    .btn-reset:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+    /* ============================================================
+       COUNTER BADGES 
+    ============================================================ */
+    .counter-row {
+        display: flex; gap: 1rem; justify-content: center;
+        flex-wrap: wrap; margin-bottom: 2rem;
+    }
+    .counter-badge {
+        display: flex; align-items: center; gap: 14px;
+        padding: 1rem 1.8rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        box-shadow: var(--shadow-sm);
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+    .counter-badge-icon { font-size: 1.4rem; color: var(--blue-bright); }
+    .counter-val { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; }
+    .counter-lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+
+    /* Estilo específico para el contador de protocolo (fondo y texto inicial) */
+    .counter-badge.protocolo {
+        border-color: rgba(34,197,94,0.3);
+        background: linear-gradient(135deg, #f0fdf4, #fff);
+    }
+    .counter-badge.protocolo .counter-badge-icon { color: #16A34A; }
+    .counter-badge.protocolo .counter-val { color: #16A34A; }
+
+    /* Tema oscuro override para contador de protocolo */
+    #directorio.theme-dark .counter-badge {
+        background: var(--navy-mid);
+        border-color: rgba(0,194,224,0.15);
+    }
+    #directorio.theme-dark .counter-badge.protocolo {
+        border-color: rgba(34,197,94,0.4);
+        background: rgba(34,197,94,0.08);
+    }
+    #directorio.theme-dark .counter-badge.protocolo .counter-badge-icon { color: #4ADE80; }
+    #directorio.theme-dark .counter-badge.protocolo .counter-val { color: #4ADE80; }
+
+    /* ============================================================
+       DIRECTORY CARDS 
+    ============================================================ */
+    .dir-swiper { padding: 1rem 0.5rem 3rem !important; }
+    .swiper-slide { height: auto !important; display: flex; align-items: stretch; }
+
+    .flip-card { perspective: 1600px; width: 100%; min-height: 500px; }
+    .flip-inner {
+        position: relative; width: 100%; height: 100%;
+        transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4,0.2,0.2,1);
+    }
+    .flipped .flip-inner { transform: rotateY(180deg); }
+
+    .flip-front, .flip-back {
+        position: absolute; width: 100%; height: 100%;
+        backface-visibility: hidden;
+        border-radius: var(--radius-xl);
+        background: #fff;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        display: flex; flex-direction: column;
+        overflow: hidden;
+    }
+    .flip-back { transform: rotateY(180deg); overflow-y: auto; }
+
+    /* Card header strip */
+    .card-strip {
+        background: linear-gradient(135deg, var(--navy), var(--navy-light));
+        padding: 1.4rem 1.4rem 1.2rem;
+        position: relative; overflow: hidden;
+        min-height: 110px;
+        display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .card-strip::after {
+        content:''; position:absolute; top:-30px; right:-30px;
+        width:110px; height:110px; border-radius:50%;
+        background: rgba(0,194,224,0.12);
+        pointer-events: none;
+    }
+    .card-name {
+        font-family: var(--font-head);
+        font-size: 0.95rem; font-weight: 700; color: #fff;
+        line-height: 1.3; position: relative; z-index: 1;
+        margin-bottom: 0.6rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: calc(0.95rem * 1.3 * 3);
+    }
+    .card-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 6px;
+        position: relative;
+        z-index: 1;
+        margin-top: auto;
+    }
+    .card-channels-badge {
+        background: rgba(0,194,224,0.25);
+        color: var(--cyan);
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+        padding: 3px 12px; border-radius: 50px;
+        border: 1px solid rgba(0,194,224,0.35);
+        white-space: nowrap;
+    }
+    /* Protocolo badge: solo ícono y texto "Protocolo de actuación" */
+    .protocolo-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 50px;
+        white-space: nowrap;
+        background: rgba(34,197,94,0.12);
+        color: #16A34A;
+        border: 1px solid rgba(34,197,94,0.25);
+    }
+    .protocolo-badge.no {
+        background: rgba(100,116,139,0.12);
+        color: #64748B;
+        border-color: rgba(100,116,139,0.2);
+    }
+    /* Dark theme override */
+    .theme-dark .protocolo-badge {
+        background: rgba(34,197,94,0.18);
+        color: #4ADE80;
+        border-color: rgba(34,197,94,0.35);
+    }
+    .theme-dark .protocolo-badge.no {
+        background: rgba(148,163,184,0.12);
+        color: #94A3B8;
+        border-color: rgba(148,163,184,0.2);
+    }
+    .fav-btn {
+        background: none; border: none; font-size: 1.1rem;
+        color: rgba(255,255,255,0.4); transition: color 0.2s; padding: 4px;
+    }
+    .fav-btn .fa-star.active { color: var(--amber); }
+
+    /* Card body (sin cambios) */
+    .card-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .channel-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.6rem 0;
+        border-bottom: 1px dashed rgba(94,122,142,0.15);
+        font-size: 0.85rem;
+    }
+    .channel-row:last-of-type { border-bottom: none; }
+    .channel-row-left { display: flex; align-items: center; gap: 9px; color: var(--text-muted); font-weight: 500; }
+    .channel-row-left i { width: 16px; text-align: center; color: var(--blue-bright); font-size: 0.8rem; }
+    .chip-active { background: #DCFCE7; color: #16A34A; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 50px; }
+    .chip-inactive { color: #CBD5E1; font-size: 0.78rem; }
+
+    .btn-expand-card {
+        position: absolute; top: 0.9rem; right: 3rem;
+        width: 32px; height: 32px; border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.8); font-size: 0.75rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s; z-index: 2; cursor: pointer;
+        backdrop-filter: blur(4px);
+    }
+    .btn-expand-card:hover {
+        background: var(--cyan); color: var(--navy);
+        border-color: var(--cyan);
+        transform: scale(1.1);
+    }
+    .btn-expand-card-foot {
+        flex: 1; padding: 0.75rem;
+        background: transparent; color: var(--cyan-dim);
+        font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+        border: 1.5px solid rgba(43,130,201,0.3); border-radius: 50px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all 0.25s;
+    }
+    .btn-expand-card-foot:hover {
+        background: rgba(43,130,201,0.1); border-color: var(--blue-bright);
+        color: var(--blue-bright); transform: translateY(-2px);
+    }
+    .card-foot-row { display: flex; gap: 0.5rem; padding: 0 1.4rem 1.4rem; }
+
+    .btn-flip-card {
+        width: 100%; padding: 0.75rem;
+        background: var(--navy); color: #fff;
+        font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+        border: none; border-radius: 50px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all 0.25s;
+    }
+    .btn-flip-card:hover { background: var(--blue); transform: translateY(-2px); }
+
+    /* Back face (sin cambios) */
+    .back-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+    .detail-row {
+        display: flex; flex-direction: column;
+        padding: 0.6rem 0;
+        border-bottom: 1px dashed rgba(94,122,142,0.12);
+    }
+    .detail-row:last-of-type { border-bottom: none; }
+    .detail-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--blue-bright); margin-bottom: 2px; }
+    .detail-val { font-size: 0.82rem; color: var(--text-main); word-break: break-word; }
+    .detail-val a { color: var(--blue-bright); text-decoration: underline; }
+    .detail-val a:hover { color: var(--cyan); }
+
+    .map-links { display: flex; gap: 8px; margin-top: 0.8rem; }
+    .map-link {
+        flex: 1; padding: 7px;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 50px; font-size: 0.75rem; font-weight: 600;
+        color: var(--blue); text-align: center;
+        display: flex; align-items: center; justify-content: center; gap: 5px;
+        transition: all 0.2s;
+    }
+    .map-link:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    .map-embed { margin-top: 0.8rem; border-radius: 14px; overflow: hidden; height: 130px; }
+    .map-embed iframe { width: 100%; height: 100%; border: 0; }
+
+    .back-foot { padding: 0 1.4rem 1.4rem; display: flex; gap: 0.6rem; }
+    .btn-share {
+        flex: 1; padding: 0.7rem;
+        background: #25D366; color: #fff;
+        font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
+        border: none; border-radius: 50px;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        transition: all 0.2s;
+    }
+    .btn-share:hover { background: #1DBE5A; transform: translateY(-1px); }
+    .btn-back-card {
+        flex: 1; padding: 0.7rem;
+        background: var(--surface); color: var(--text-main);
+        font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
+        border: 1px solid var(--border); border-radius: 50px;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        transition: all 0.2s;
+    }
+    .btn-back-card:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .flip-back .card-strip {
+        min-height: unset;
+        height: auto;
+        flex-shrink: 0;
+    }
+    .flip-back .card-name {
+        display: block !important;
+        -webkit-line-clamp: unset !important;
+        overflow: visible !important;
+        min-height: unset !important;
+        white-space: normal;
+        word-break: break-word;
+        margin-bottom: 0.5rem;
+    }
+
+    /* ============================================================
+       SWIPER NAV 
+    ============================================================ */
+    .swiper-nav-btn {
+        position: absolute;
+        top: 50%; transform: translateY(-50%);
+        width: 48px; height: 48px;
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; z-index: 10;
+        box-shadow: 0 4px 18px rgba(5,17,31,0.12);
+        color: var(--navy); font-size: 0.9rem;
+        transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    .swiper-nav-btn:hover {
+        background: var(--navy);
+        color: #fff;
+        border-color: var(--navy);
+        transform: translateY(-50%) scale(1.08);
+        box-shadow: 0 8px 28px rgba(5,17,31,0.22);
+    }
+    .swiper-nav-btn:active {
+        transform: translateY(-50%) scale(0.96);
+        box-shadow: 0 2px 8px rgba(5,17,31,0.12);
+    }
+    .swiper-prev { left: -24px; }
+    .swiper-next { right: -24px; }
+    @media (max-width: 720px) {
+        .swiper-prev { left: 4px; }
+        .swiper-next { right: 4px; }
+    }
+
+    /* ============================================================
+       EXPORT BUTTONS 
+    ============================================================ */
+    .export-row { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+    .btn-export {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 0.8rem 2rem;
+        background: transparent; color: var(--navy);
+        font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+        border: 1.5px solid var(--navy); border-radius: 50px;
+        transition: all 0.2s;
+    }
+    .btn-export:hover { background: var(--navy); color: #fff; }
+    .btn-export.excel { color: #16A34A; border-color: #16A34A; }
+    .btn-export.excel:hover { background: #16A34A; color: #fff; }
+
+    /* ============================================================
+       FAQ 
+    ============================================================ */
+    .faq-wrap { max-width: 740px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+        width: 100%; background: none; border: none;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 1.1rem 0; text-align: left;
+        font-family: var(--font-head); font-weight: 600; font-size: 0.92rem;
+        color: var(--text-main); cursor: pointer; transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--blue-bright); }
+    .faq-q i { font-size: 0.75rem; color: var(--blue-bright); transition: transform 0.3s; flex-shrink:0; }
+    .faq-item.open .faq-q i { transform: rotate(180deg); }
+    .faq-a {
+        max-height: 0; overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s;
+        font-size: 0.88rem; color: var(--text-muted); line-height: 1.7;
+        padding: 0 1rem;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding-bottom: 1.1rem; }
+
+    /* ============================================================
+       FOOTER 
+    ============================================================ */
+    .footer {
+        background: var(--navy);
+        color: rgba(255,255,255,0.6);
+        padding: 3.5rem 0 1.5rem;
+        margin-top: 3rem;
+    }
+    .footer-grid { 
+        display: grid; 
+        grid-template-columns: 2fr 1fr 1fr 1.2fr 1fr; 
+        gap: 2rem; 
+        padding-bottom: 2.5rem; 
+        border-bottom: 1px solid rgba(255,255,255,0.08); 
+    }
+    .footer-brand img { height: 52px; width: auto; margin-bottom: 1rem; }
+    .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
+    .footer-col h4 {
+        font-family: var(--font-head);
+        font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase; color: rgba(255,255,255,0.9);
+        margin-bottom: 1rem;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+    .footer-links a { font-size: 0.85rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--cyan); }
+    
+    .footer-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .footer-contact span {
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .footer-contact a { color: var(--cyan); }
+    .footer-contact a:hover { text-decoration: underline; }
+
+    .social-row {
+        display: flex;
+        gap: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.7);
+        transition: all 0.2s;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .social-btn:hover {
+        background: var(--cyan);
+        color: var(--navy);
+        border-color: var(--cyan);
+        transform: translateY(-2px);
+    }
+
+    .footer-bottom {
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 1rem;
+        padding-top: 1.5rem;
+        font-size: 0.75rem; color: rgba(255,255,255,0.3);
+    }
+    .footer-logos { display: flex; gap: 1.5rem; align-items: center; }
+    .footer-logos img { height: 36px; width: auto;   opacity: 0.6; }
+    .logo-gobierno { height: 36px; }
+    .logo-canales { height: 36px; }
+
+    /* ============================================================
+       VIGILANDO SECTION
+    ============================================================ */
+    .vigilando-section {
+        position: relative; overflow: hidden;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+        border-radius: var(--radius-2xl);
+        padding: 0;
+        margin: 3rem 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 360px;
+        box-shadow: 0 24px 64px rgba(5,17,31,0.22);
+    }
+    .vigilando-section::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none; z-index: 0;
+    }
+    .vigilando-section::after {
+        content: '';
+        position: absolute; top: -80px; right: -80px;
+        width: 380px; height: 380px; border-radius: 50%;
+        background: radial-gradient(rgba(0,194,224,0.14), transparent 70%);
+        pointer-events: none; z-index: 0;
+    }
+    .vigilando-text {
+        position: relative; z-index: 1;
+        padding: 3.5rem 3rem 3.5rem 3.5rem;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .vigilando-eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 5px 16px; border-radius: 50px;
+        border: 1px solid rgba(0,194,224,0.3); background: rgba(0,194,224,0.08);
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+        color: var(--cyan); margin-bottom: 1.4rem; width: fit-content;
+    }
+    .vigilando-eyebrow i { font-size: 0.75rem; }
+    .vigilando-title {
+        font-family: var(--font-head);
+        font-size: clamp(1.6rem, 3vw, 2.3rem);
+        font-weight: 800; color: #fff;
+        letter-spacing: -0.025em; line-height: 1.15;
+        margin-bottom: 1rem;
+    }
+    .vigilando-title em {
+        font-style: normal;
+        background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .vigilando-desc {
+        font-size: 0.95rem; color: rgba(255,255,255,0.62);
+        line-height: 1.78; margin-bottom: 2rem; max-width: 420px;
+    }
+    .vigilando-actions { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+    .vigilando-btn-primary {
+        display: inline-flex; align-items: center; gap: 9px;
+        background: var(--cyan); color: var(--navy);
+        font-family: var(--font-head); font-weight: 800; font-size: 0.88rem;
+        padding: 0.85rem 2rem; border-radius: 50px; border: none;
+        transition: all 0.25s;
+        box-shadow: 0 0 28px rgba(0,194,224,0.35);
+        text-decoration: none;
+    }
+    .vigilando-btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 36px rgba(0,194,224,0.5);
+        background: #00ddf7;
+    }
+    .vigilando-btn-secondary {
+        display: inline-flex; align-items: center; gap: 9px;
+        background: transparent; color: rgba(255,255,255,0.8);
+        font-family: var(--font-head); font-weight: 600; font-size: 0.88rem;
+        padding: 0.85rem 1.8rem; border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.22); transition: all 0.25s;
+        text-decoration: none;
+    }
+    .vigilando-btn-secondary:hover {
+        background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.45);
+    }
+    .vigilando-visual {
+        position: relative; z-index: 1;
+        display: flex; align-items: center; justify-content: center;
+        padding: 2.5rem 2.5rem 2.5rem 1rem;
+    }
+    .vigilando-cards-stack {
+        position: relative; width: 100%; max-width: 340px;
+    }
+    .vg-badge-wrap {
+        display: flex; justify-content: flex-end;
+        margin-bottom: 0.9rem;
+    }
+    .vg-feature-card {
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(0,194,224,0.18);
+        border-radius: 20px;
+        padding: 1.1rem 1.3rem;
+        backdrop-filter: blur(8px);
+        display: flex; align-items: center; gap: 14px;
+        transition: transform 0.3s;
+    }
+    .vg-feature-card:hover { transform: translateX(6px); }
+    .vg-feature-card + .vg-feature-card { margin-top: 0.75rem; }
+    .vg-feature-icon {
+        width: 44px; height: 44px; border-radius: 14px;
+        background: rgba(0,194,224,0.15);
+        border: 1px solid rgba(0,194,224,0.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; color: var(--cyan); flex-shrink: 0;
+    }
+    .vg-feature-text h4 {
+        font-family: var(--font-head); font-size: 0.85rem; font-weight: 700;
+        color: #fff; margin-bottom: 2px;
+    }
+    .vg-feature-text p {
+        font-size: 0.74rem; color: rgba(255,255,255,0.52); line-height: 1.45;
+    }
+    .vg-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--cyan); color: var(--navy);
+        font-family: var(--font-head); font-size: 0.68rem; font-weight: 800;
+        padding: 5px 14px; border-radius: 50px;
+        box-shadow: 0 4px 16px rgba(0,194,224,0.45);
+        letter-spacing: 0.04em; text-transform: uppercase;
+        white-space: nowrap;
+    }
+    @media (max-width: 860px) {
+        .vigilando-section { grid-template-columns: 1fr; }
+        .vigilando-visual { display: none; }
+        .vigilando-text { padding: 2.5rem 2rem; }
+    }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    .toast {
+        position: fixed; bottom: 28px; left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: var(--navy-light); color: #fff;
+        padding: 12px 24px; border-radius: 50px;
+        font-size: 0.82rem; font-weight: 600;
+        box-shadow: var(--shadow-lg);
+        z-index: 999;
+        pointer-events: none;
+        opacity: 0;
+        animation: toastIn 2.2s forwards;
+    }
+    @keyframes toastIn {
+        0%  { opacity:0; transform: translateX(-50%) translateY(12px); }
+        15% { opacity:1; transform: translateX(-50%) translateY(0); }
+        80% { opacity:1; }
+        100%{ opacity:0; transform: translateX(-50%) translateY(-8px); }
+    }
+
+    /* ============================================================
+       THEME — DARK DIRECTORY
+    ============================================================ */
+    #directorio.theme-dark .flip-front,
+    #directorio.theme-dark .flip-back { background: #0F1E2E; border-color: rgba(0,194,224,0.15); }
+    #directorio.theme-dark .card-body,
+    #directorio.theme-dark .back-body { background: #0F1E2E; }
+    #directorio.theme-dark .card-name { color: #fff; }
+    #directorio.theme-dark .channel-row-left { color: rgba(255,255,255,0.55); }
+    #directorio.theme-dark .detail-val { color: rgba(255,255,255,0.8); }
+    #directorio.theme-dark .counter-badge { background: var(--navy-mid); border-color: rgba(0,194,224,0.15); }
+    #directorio.theme-dark .counter-val { color: #fff; }
+    #directorio.theme-dark .filter-bar { background: var(--navy-mid); border-color: rgba(0,194,224,0.12); }
+    #directorio.theme-dark .filter-label { color: var(--cyan); }
+    #directorio.theme-dark .filter-group select,
+    #directorio.theme-dark .filter-group input { background: var(--navy-light); color: #fff; border-color: rgba(0,194,224,0.2); }
+    #directorio.theme-dark .btn-export { color: var(--cyan); border-color: var(--cyan); }
+    #directorio.theme-dark .btn-export:hover { background: var(--cyan); color: var(--navy); }
+    #directorio.theme-dark .btn-export.excel { color: #4ADE80; border-color: #4ADE80; }
+    #directorio.theme-dark .btn-export.excel:hover { background: #4ADE80; color: var(--navy); }
+
+    /* Modal (sin cambios) */
+    .card-modal-overlay {
+        position: fixed; inset: 0; z-index: 1000;
+        background: rgba(5,17,31,0.75);
+        backdrop-filter: blur(12px) saturate(1.4);
+        display: flex; align-items: center; justify-content: center;
+        padding: 1.5rem;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .card-modal-overlay.active {
+        opacity: 1; pointer-events: all;
+    }
+
+    .card-modal {
+        background: var(--surface-card);
+        border-radius: var(--radius-2xl);
+        width: 100%; max-width: 860px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex; flex-direction: column;
+        box-shadow: 0 32px 80px rgba(5,17,31,0.45), 0 0 0 1px rgba(0,194,224,0.12);
+        transform: translateY(24px) scale(0.97);
+        transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        position: relative;
+    }
+    .card-modal-overlay.active .card-modal { transform: translateY(0) scale(1); }
+
+    .modal-header-strip {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 60%, #1a4a7a 100%);
+        padding: 2rem 2.5rem 1.6rem;
+        position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .modal-header-strip::before {
+        content: '';
+        position: absolute; top: -60px; right: -40px;
+        width: 220px; height: 220px; border-radius: 50%;
+        background: radial-gradient(rgba(0,194,224,0.18), transparent 70%);
+        pointer-events: none;
+    }
+    .modal-header-strip::after {
+        content: '';
+        position: absolute; bottom: -40px; left: 30%;
+        width: 140px; height: 140px; border-radius: 50%;
+        background: radial-gradient(rgba(43,130,201,0.12), transparent 70%);
+        pointer-events: none;
+    }
+    .modal-close-btn {
+        position: absolute; top: 1.2rem; right: 1.2rem;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.8); font-size: 0.9rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.2s; z-index: 5;
+    }
+    .modal-close-btn:hover { background: rgba(239,68,68,0.7); color: #fff; border-color: transparent; }
+
+    .modal-inst-name {
+        font-family: var(--font-head);
+        font-size: clamp(1.15rem, 3vw, 1.5rem);
+        font-weight: 800; color: #fff;
+        line-height: 1.25; position: relative; z-index: 1;
+        margin-bottom: 0.75rem;
+        padding-right: 2.5rem;
+    }
+    .modal-meta-row {
+        display: flex; align-items: center; gap: 0.75rem;
+        flex-wrap: wrap; position: relative; z-index: 1;
+    }
+    .modal-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(0,194,224,0.22); color: var(--cyan);
+        border: 1px solid rgba(0,194,224,0.35);
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+        padding: 4px 14px; border-radius: 50px;
+    }
+    .modal-tipo-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+        border: 1px solid rgba(255,255,255,0.15);
+        font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+        padding: 4px 14px; border-radius: 50px;
+    }
+    .modal-fav-btn {
+        margin-left: auto; background: none; border: none;
+        font-size: 1.3rem; color: rgba(255,255,255,0.35);
+        cursor: pointer; transition: color 0.2s; padding: 4px;
+    }
+    .modal-fav-btn .fa-star.active { color: var(--amber); }
+
+    .modal-tabs {
+        display: flex; gap: 0;
+        border-bottom: 1px solid var(--border);
+        background: #fff; flex-shrink: 0;
+    }
+    .modal-tab {
+        flex: 1; padding: 1rem 1.5rem;
+        background: none; border: none; border-bottom: 3px solid transparent;
+        font-family: var(--font-head); font-size: 0.82rem; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        color: var(--text-muted); cursor: pointer;
+        transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .modal-tab:hover { color: var(--blue-bright); background: rgba(43,130,201,0.04); }
+    .modal-tab.active { color: var(--blue-bright); border-bottom-color: var(--blue-bright); background: rgba(43,130,201,0.04); }
+
+    .modal-body { overflow-y: auto; flex: 1; }
+    .modal-panel { display: none; padding: 2rem 2.5rem; }
+    .modal-panel.active { display: block; }
+
+    .modal-channels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem; margin-bottom: 2rem;
+    }
+    .modal-channel-card {
+        border: 1.5px solid var(--border);
+        border-radius: 16px; padding: 1.2rem 1.4rem;
+        display: flex; align-items: center; gap: 1rem;
+        transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .modal-channel-card.has-channel {
+        border-color: rgba(43,130,201,0.25);
+        background: linear-gradient(135deg, #F0F7FF, #FAFCFF);
+    }
+    .modal-channel-card.has-channel:hover {
+        border-color: var(--blue-bright);
+        box-shadow: 0 4px 20px rgba(43,130,201,0.15);
+        transform: translateY(-2px);
+    }
+    .modal-channel-card.no-channel { background: #FAFAFA; opacity: 0.55; }
+    .modal-channel-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+    }
+    .modal-channel-card.has-channel .modal-channel-icon { background: linear-gradient(135deg, #EBF5FF, #D2EAFF); color: var(--blue-bright); }
+    .modal-channel-card.no-channel .modal-channel-icon { background: #F0F0F0; color: #CBD5E1; }
+    .modal-channel-info { flex: 1; min-width: 0; }
+    .modal-channel-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
+    .modal-channel-val { font-size: 0.85rem; font-weight: 500; color: var(--text-main); word-break: break-word; }
+    .modal-channel-val a { color: var(--blue-bright); text-decoration: underline; }
+    .modal-channel-val a:hover { color: var(--cyan-dim); }
+    .modal-channel-status {
+        position: absolute; top: 0.75rem; right: 0.75rem;
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 50px;
+    }
+    .status-active { background: #DCFCE7; color: #16A34A; }
+    .status-inactive { background: #F1F5F9; color: #94A3B8; }
+
+    .modal-detail-section { margin-bottom: 1.75rem; }
+    .modal-detail-section-title {
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em;
+        text-transform: uppercase; color: var(--blue-bright);
+        margin-bottom: 1rem;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .modal-detail-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    .modal-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .modal-detail-item {
+        background: var(--surface); border-radius: 12px;
+        padding: 1rem 1.2rem;
+        border: 1px solid var(--border);
+    }
+    .modal-detail-item .lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .modal-detail-item .val { font-size: 0.88rem; color: var(--text-main); font-weight: 500; line-height: 1.5; }
+    .modal-detail-item .val a { color: var(--blue-bright); text-decoration: underline; }
+    .modal-detail-item .val a:hover { color: var(--cyan-dim); }
+    .modal-detail-item.full { grid-column: 1 / -1; }
+
+    .modal-map-area { margin-top: 1.5rem; border-radius: 16px; overflow: hidden; height: 180px; border: 1px solid var(--border); }
+    .modal-map-area iframe { width: 100%; height: 100%; border: 0; }
+    .modal-actions-row {
+        display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;
+    }
+    .modal-action-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 0.75rem 1.5rem; border-radius: 50px;
+        font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
+        border: none; transition: all 0.2s; cursor: pointer;
+    }
+    .modal-action-btn.waze { background: #00D2FF; color: var(--navy); }
+    .modal-action-btn.waze:hover { background: #00b8dc; transform: translateY(-2px); }
+    .modal-action-btn.gmaps { background: var(--surface); color: var(--navy); border: 1.5px solid var(--border); }
+    .modal-action-btn.gmaps:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .modal-action-btn.whatsapp { background: #25D366; color: #fff; }
+    .modal-action-btn.whatsapp:hover { background: #1DBE5A; transform: translateY(-2px); }
+
+    #directorio.theme-dark .card-modal { background: #0F1E2E; }
+    #directorio.theme-dark .modal-tabs { background: #0F1E2E; border-color: rgba(0,194,224,0.12); }
+    #directorio.theme-dark .modal-tab { color: rgba(255,255,255,0.45); }
+    #directorio.theme-dark .modal-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); background: rgba(0,194,224,0.06); }
+    #directorio.theme-dark .modal-tab:hover { color: var(--cyan); background: rgba(0,194,224,0.06); }
+    #directorio.theme-dark .modal-channel-card.has-channel { background: rgba(43,130,201,0.08); border-color: rgba(43,130,201,0.2); }
+    #directorio.theme-dark .modal-channel-card.no-channel { background: rgba(255,255,255,0.03); }
+    #directorio.theme-dark .modal-channel-label { color: rgba(255,255,255,0.4); }
+    #directorio.theme-dark .modal-channel-val { color: rgba(255,255,255,0.85); }
+    #directorio.theme-dark .modal-detail-item { background: rgba(255,255,255,0.04); border-color: rgba(0,194,224,0.1); }
+    #directorio.theme-dark .modal-detail-item .lbl { color: rgba(255,255,255,0.4); }
+    #directorio.theme-dark .modal-detail-item .val { color: rgba(255,255,255,0.85); }
+    #directorio.theme-dark .modal-map-area { border-color: rgba(0,194,224,0.12); }
+    #directorio.theme-dark .modal-detail-section-title { color: var(--cyan); }
+    #directorio.theme-dark .modal-detail-section-title::after { background: rgba(0,194,224,0.15); }
+
+    @media (max-width: 900px) {
+        .info-band { grid-template-columns: 1fr; gap: 2rem; }
+        .info-band-img { order: -1; }
+        .info-band-img img { max-width: 400px; }
+        .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+        .menu-toggle { display: flex; }
+        .nav-menu {
+            display: none; position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: rgba(5,17,31,0.97);
+            flex-direction: column; padding: 1.5rem;
+            border-top: 1px solid rgba(0,194,224,0.1);
+            gap: 0.5rem;
+        }
+        .nav-menu.open { display: flex; }
+        .nav-menu a { border-radius: 12px; padding: 0.7rem 1.2rem; }
+        .hero { padding: 4rem 0 3rem; }
+        .info-band { padding: 1.5rem; }
+        .info-band-img img { max-width: 320px; }
+        .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+        .filter-grid { grid-template-columns: 1fr; }
+        .counter-row { flex-direction: column; align-items: center; }
+        .dir-swiper { padding: 1rem 0 3rem !important; }
+        .export-row { flex-direction: column; align-items: center; }
+        .card-modal { border-radius: var(--radius-xl); }
+        .modal-header-strip { padding: 1.5rem 1.4rem 1.2rem; }
+        .modal-panel { padding: 1.4rem; }
+        .modal-channels-grid { grid-template-columns: 1fr 1fr; }
+        .modal-detail-grid { grid-template-columns: 1fr; }
+        .modal-tab { font-size: 0.72rem; padding: 0.9rem 0.75rem; }
+               
+        
+        .logo-area a { display: flex; align-items: center; }
+        .gov-logo { 
+    height: 48px; 
+    width: auto; 
+    flex-shrink: 0; 
+    display: block; 
+}
+    }
+    @media (max-width: 400px) {
+        .modal-channels-grid { grid-template-columns: 1fr; }
+    }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER 
+============================================================ -->
+<header class="site-header" id="siteHeader">
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo-area">
+                <a href="../" title="Portal Principal">
+                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" class="gov-logo">
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="mobileMenu" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li class="menu-group">
+                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                        
+                    </ul>
+                </li>
+
+                <li class="menu-group">
+                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
+                        <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
+                        <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
+                        <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
+                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Placa Transparente</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-group">
+                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
+                    </ul>
+                </li>
+                <li class="menu-group">
+                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
+                        <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-inner">
+        <div class="hero-eyebrow"><span></span>Gobierno de Guatemala · Organismo Ejecutivo</div>
+        <h1>Canales por la<br><em>Integridad</em></h1>
+        <p class="hero-lema">Tu voz fortalece la integridad</p>
+        <p class="hero-sub">Directorio público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo. Encuentra fácilmente dónde y cómo reportar posibles irregularidades.</p>
+        <div class="hero-actions">
+            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-search"></i> Visitar directorio</a>
+            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> ¿Qué es Canales por la Integridad?</a>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     STATS RIBBON
+============================================================ -->
+<div class="stats-ribbon">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-phone-alt"></i></div><div class="stat-num" id="totalCanalesStats">0</div><div class="stat-lbl">Canales disponibles</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-building"></i></div><div class="stat-num" id="totalInstitucionesStats">0</div><div class="stat-lbl">Instituciones</div></div>
+                        <div class="stat-cell"><div class="stat-icon"><i class="fas fa-file-contract"></i></div><div class="stat-num" id="totalProtocolosStats">0</div><div class="stat-lbl">Instituciones con protocolo de actuación</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-num">24/7</div><div class="stat-lbl">Acceso continuo</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-shield-alt"></i></div><div class="stat-num">100%</div><div class="stat-lbl">Segura</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-sync-alt"></i></div><div class="stat-num">100%</div><div class="stat-lbl">Actualizada</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-user-secret"></i></div><div class="stat-num">Validada</div><div class="stat-lbl">Datos validados por CNC</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- SOBRE LA PLATAFORMA -->
+    <section class="section" id="sobre">
+        <div class="info-band">
+            <div class="info-band-text">
+                <div class="section-tag on-dark" style="color:var(--cyan);">Sobre la plataforma</div>
+                <p class="lead">En Guatemala, la integridad pública es un compromiso de <em>todos</em>. Por eso nace Canales por la Integridad.</p>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-q">¿Qué es Canales por la Integridad? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">Directorio interactivo que reúne los canales de denuncia administrativa del Organismo Ejecutivo.</div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-q">¿Por qué es importante? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">Fortalece la transparencia y la participación ciudadana en la rendición de cuentas pública.</div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-q">¿A quién está dirigida? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">A toda la población y actores interesados en denunciar irregularidades en el Organismo Ejecutivo.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-band-img">
+                <img src="https://i.postimg.cc/m2DYj91y/Canales-por-la-Integridad.png" alt="Canales por la Integridad">
+            </div>
+        </div>
+    </section>
+
+    <!-- DEFINICIONES (carrusel) -->
+    <section class="section">
+        <div class="section-header center">
+            <div class="section-tag" style="justify-content:center;">Glosario</div>
+            <h2 class="section-title">Definiciones clave</h2>
+            <p class="section-sub">Conoce los conceptos fundamentales de la denuncia administrativa y la integridad pública.</p>
+        </div>
+        <div class="swiper def-swiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-gavel"></i></div><h3>Denuncia administrativa</h3><p>Aviso formal sobre posibles irregularidades cometidas en instituciones del Estado, que activa los mecanismos internos de investigación.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-exclamation-triangle"></i></div><h3>Irregularidad</h3><p>Acto u omisión que se aparta de normas, procedimientos o principios establecidos en el ordenamiento jurídico.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-balance-scale"></i></div><h3>Falta ética</h3><p>Conducta contraria a los principios de integridad, honestidad y transparencia que rigen la función pública.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Acto de corrupción</h3><p>Uso indebido de cargos, recursos públicos o influencias para obtener beneficios personales o de terceros.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-comment-dots"></i></div><h3>Canal de denuncia</h3><p>Mecanismo oficial habilitado por las instituciones del Organismo Ejecutivo para recibir reportes sobre irregularidades administrativas, promoviendo la transparencia y la rendición de cuentas.</p></div></div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+
+    <!-- TIPOS DE CANALES (pills) -->
+    <section class="section" style="padding-top:0;">
+        <div class="section-header center">
+            <div class="section-tag" style="justify-content:center;">Modalidades</div>
+            <h2 class="section-title">Canales de denuncia disponibles</h2>
+            <p class="section-sub">Cada institución puede tener uno o más de los siguientes canales habilitados.</p>
+        </div>
+        <div class="channels-row">
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span>Teléfono</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span>Correo electrónico</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span>Formulario web</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span>Presencial</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-comment-dots"></i></div><span>Otro canal</span></div>
+        </div>
+    </section>
+
+    <!-- DIRECTORIO (datos cargados desde JSON) -->
+    <section class="section" id="directorio">
+        <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
+            <div>
+                <div class="section-tag">Directorio</div>
+                <h2 class="section-title">Directorio de Canales de denuncia del Organismo Ejecutivo</h2>
+            </div>
+            <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
+                <i class="fas fa-palette"></i> Cambiar tema
+            </button>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filter-bar">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-tag"></i> Tipo de entidad</span>
+                    <select id="tipoFilter">
+                        <option value="">Todos los tipos</option>
+                        <option value="Ministerios">Ministerios</option>
+                        <option value="Secretarías">Secretarías</option>
+                        <option value="Gobernaciones Departamentales">Gobernaciones</option>
+                        <option value="Otras dependencias">Otras dependencias</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-building"></i> Institución</span>
+                    <select id="institucionFilter"><option value="">Todas las instituciones</option></select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-search"></i> Búsqueda libre</span>
+                    <div class="voice-row">
+                        <input type="text" id="searchInput" placeholder="Nombre, correo, dirección…" style="flex:1;">
+                        <button id="voiceSearchBtn" class="voice-btn" title="Buscar por voz"><i class="fas fa-microphone"></i></button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-star"></i> Favoritos</span>
+                    <div class="fav-row">
+                        <span>Todos</span>
+                        <label class="toggle-sw">
+                            <input type="checkbox" id="favToggleSwitch">
+                            <span class="toggle-track"></span>
+                        </label>
+                        <span>Solo favoritos</span>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Limpiar filtros</button>
+            </div>
+        </div>
+
+        <!-- CONTADORES (con clase protocolo para estilo especial) -->
+        <div class="counter-row">
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-building"></i></div>
+                <div>
+                    <div class="counter-val" id="totalInstituciones">0</div>
+                    <div class="counter-lbl">Instituciones</div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-bullhorn"></i></div>
+                <div>
+                    <div class="counter-val" id="totalCanalesCount">0</div>
+                    <div class="counter-lbl">Canales habilitados</div>
+                </div>
+            </div>
+            <div class="counter-badge protocolo" id="protocoloCounterBadge">
+                <div class="counter-badge-icon"><i class="fas fa-file-contract"></i></div>
+                <div>
+                    <div class="counter-val" id="totalProtocolosCount">0</div>
+                    <div class="counter-lbl">Con Protocolo de Actuación</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SWIPER TARJETAS -->
+        <div style="position:relative; padding: 0 30px;">
+            <div class="swiper dir-swiper" id="dirSwiper">
+                <div class="swiper-wrapper" id="cardsContainer"></div>
+            </div>
+            <button class="swiper-nav-btn swiper-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="swiper-nav-btn swiper-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div class="export-row">
+            <button id="exportPdfBtn" class="btn-export"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+            <button id="exportXlsBtn" class="btn-export excel"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+        </div>
+    </section>
+
+    <!-- VIGILANDO LA INTEGRIDAD — banner section  -->
+    <section style="padding:0 0 1rem;">
+        <div class="vigilando-section">
+            <div class="vigilando-text">
+                <div class="vigilando-eyebrow"><i class="fas fa-circle" style="font-size:0.45rem;animation:blink 1.8s infinite;"></i> Plataforma oficial de denuncias</div>
+                <h2 class="vigilando-title">¿Identificaste una<br>irregularidad? <em>Denuncia<br>en línea</em></h2>
+                <p class="vigilando-desc"><strong style="color:rgba(255,255,255,0.85);">Vigilando la Integridad</strong> es el canal oficial del Gobierno de Guatemala para recibir y gestionar denuncias administrativas las 24 horas. Conoce qué puedes denunciar, cómo opera la plataforma y las herramientas a tu disposición.</p>
+                <div class="vigilando-actions">
+                    <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="vigilando-btn-primary"><i class="fas fa-flag-checkered"></i> Ir a denunciar</a>
+                    <a href="https://vigilando.pia.gob.gt/#/plataforma" target="_blank" rel="noopener noreferrer" class="vigilando-btn-secondary"><i class="fas fa-info-circle"></i> Conoce más</a>
+                </div>
+            </div>
+            <div class="vigilando-visual">
+                <div class="vigilando-cards-stack">
+                    <div class="vg-badge-wrap"><div class="vg-badge"><i class="fas fa-shield-alt"></i>100% Confidencial</div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-clock"></i></div><div class="vg-feature-text"><h4>Disponible 24/7</h4><p>Presenta tu denuncia en cualquier momento, desde cualquier dispositivo.</p></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-user-shield"></i></div><div class="vg-feature-text"><h4>Protección al denunciante</h4><p>Tu identidad y datos personales están protegidos conforme a la ley.</p></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-tasks"></i></div><div class="vg-feature-text"><h4>Seguimiento en línea</h4><p>Consulta el estado de tu denuncia directamente desde la plataforma.</p></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-gavel"></i></div><div class="vg-feature-text"><h4>Gestión institucional</h4><p>Cada denuncia es recibida por la Instancia de Probidad correspondiente.</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" style="padding-top:0;">
+        <div class="section-header center">
+            <div class="section-tag" style="justify-content:center;">FAQ</div>
+            <h2 class="section-title">Preguntas frecuentes</h2>
+            <p class="section-sub">Respuestas a las consultas más comunes sobre la plataforma.</p>
+        </div>
+        <div class="faq-wrap">
+            <div class="faq-item"><button class="faq-q">¿Puedo consultar los canales sin presentar una denuncia? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Sí. La plataforma permite explorar libremente todos los canales habilitados sin necesidad de ingresar datos personales.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Qué tipo de hechos puedo denunciar? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Actos que constituyan faltas éticas, corrupción, abuso de autoridad o irregularidades administrativas en el Organismo Ejecutivo.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Quién recibe la denuncia? <i class="fas fa-chevron-down"></i></button><div class="faq-a">La Instancia de Asuntos de Probidad de cada institución es la responsable de recibir y tramitar las denuncias administrativas.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Todas las instituciones tienen canales? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Aún no todas, pero la plataforma se actualiza constantemente conforme las instituciones habilitan sus mecanismos.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Qué hacer si mi institución no aparece? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Escríbenos a <a href="mailto:info@pia.gob.gt" style="color:var(--blue-bright);">info@pia.gob.gt</a> y gestionaremos la incorporación.</div></div>
+        </div>
+    </section>
+
+</div><!-- /container -->
+
+<!-- ============================================================
+     FOOTER UNIFICADO
+============================================================ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
+                <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
+                <p>Directorio público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo de Guatemala.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Reporta irregularidades</h4>
+                <ul class="footer-links">
+                    <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
+                    <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Explora datos</h4>
+                <ul class="footer-links">
+                    <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
+                    <li><a href="../riesgo/">Riesgo en la Mira</a></li>
+                    <li><a href="../vehiculos/">Placa Transparente</a></li>
+                    <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Accede a la información</h4>
+                <ul class="footer-links">
+                    <li><a href="directorio/">Directorio acceso al ejecutivo</a></li>
+                    <li><a href="gobierno_en_numeros/">Tu Gobierno en números</a></li>
+                </ul>
+                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <ul class="footer-links">
+                    <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <div class="footer-contact">
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                </div>
+                <div class="social-row">
+                    <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://x.com/GuatemalaGob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.youtube.com/@GobiernodelaRepublicadeGuatema" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <div class="footer-logos">
+                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
+                <img src="https://i.postimg.cc/m2DYj91y/Canales-por-la-Integridad.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- ============================================================
+     MODAL TARJETA AMPLIADA
+============================================================ -->
+<div id="cardModal" class="card-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalInstName">
+    <div class="card-modal" id="cardModalInner">
+        <div class="modal-header-strip" id="modalHeaderStrip">
+            <button class="modal-close-btn" id="modalCloseBtn" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+            <div class="modal-inst-name" id="modalInstName"></div>
+            <div class="modal-meta-row" id="modalMetaRow"></div>
+        </div>
+        <div class="modal-tabs">
+            <button class="modal-tab active" data-tab="canales" id="tabCanales"><i class="fas fa-broadcast-tower"></i> Canales</button>
+            <button class="modal-tab" data-tab="detalles" id="tabDetalles"><i class="fas fa-info-circle"></i> Información completa</button>
+            <button class="modal-tab" data-tab="ubicacion" id="tabUbicacion"><i class="fas fa-map-marker-alt"></i> Ubicación</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-panel active" id="panelCanales"><div class="modal-channels-grid" id="modalChannelsGrid"></div></div>
+            <div class="modal-panel" id="panelDetalles"><div id="modalDetallesContent"></div></div>
+            <div class="modal-panel" id="panelUbicacion"><div id="modalUbicacionContent"></div></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script>
+/* ============================================================
+   DATA CARGA DESDE JSON EXTERNO
+============================================================ */
+let instituciones = [];
+
+/* ============================================================
+   STATE GLOBAL
+============================================================ */
+let swiperDir = null;
+let swiperDef = null;
+let currentFilters = { tipo:'', institucion:'', search:'', favOnly:false };
+let favorites = new Set(JSON.parse(localStorage.getItem('fav_instituciones') || '[]'));
+let currentTheme = localStorage.getItem('dir_theme') || 'light';
+let recognition = null;
+
+/* ============================================================
+   ELEMENTOS DOM
+============================================================ */
+const $tipoFilter    = document.getElementById('tipoFilter');
+const $instFilter    = document.getElementById('institucionFilter');
+const $searchInput   = document.getElementById('searchInput');
+const $favSwitch     = document.getElementById('favToggleSwitch');
+const $cards         = document.getElementById('cardsContainer');
+const $totalInst     = document.getElementById('totalInstituciones');
+const $totalCan      = document.getElementById('totalCanalesCount');
+const $statsInst     = document.getElementById('totalInstitucionesStats');
+const $statsCan      = document.getElementById('totalCanalesStats');
+const $themeBtn      = document.getElementById('themeToggleBtn');
+const $dirSection    = document.getElementById('directorio');
+const $voiceBtn      = document.getElementById('voiceSearchBtn');
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2400);
+}
+
+function badge(v) {
+    return v && v.trim() ? '<span class="chip-active">Activo</span>' : '<span class="chip-inactive">—</span>';
+}
+
+function cleanPhone(p) { return p ? p.replace(/[^\d+]/g,'') : ''; }
+
+function fullVal(v) { return v && v.trim() ? v : 'No disponible'; }
+
+function shareCard(inst) {
+    const line = (emoji, label, val) => (val && val.trim()) ? `${emoji} *${label}:* ${val}\n` : '';
+    let text = `📢 *${inst.institucion}*\n`;
+    text += `━━━━━━━━━━━━━━━━━━\n`;
+    text += line('📞','Teléfono',            inst.telefono);
+    text += line('✉️','Correo electrónico',   inst.correo);
+    text += line('🌐','Formulario web',        inst.formulario);
+    text += line('🏢','Atención presencial',   inst.tipocom);
+    text += line('💬','Otro canal',            inst.otro);
+    text += line('🕐','Horario de atención',   inst.horario);
+    text += line('📍','Dirección',             inst.direccion);
+    text += line('📄','Protocolo actuación',   inst['Protocolo de actuación'] ? 'Sí' : 'No');
+    text += `━━━━━━━━━━━━━━━━━━\n`;
+    text += `🔗 Canales por la Integridad · pia.gob.gt`;
+    if (navigator.share) navigator.share({ title: `Canal de denuncia — ${inst.institucion}`, text });
+    else navigator.clipboard.writeText(text).then(() => showToast('Información copiada al portapapeles'));
+}
+
+function applyTheme() {
+    if (currentTheme === 'dark') $dirSection.classList.add('theme-dark');
+    else $dirSection.classList.remove('theme-dark');
+    localStorage.setItem('dir_theme', currentTheme);
+}
+
+/* ============================================================
+   INICIALIZAR SWIPER DE DEFINICIONES
+============================================================ */
+function initDefSwiper() {
+    if (swiperDef) swiperDef.destroy(true, true);
+    swiperDef = new Swiper('.def-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
+        autoplay: { delay: 5200, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+    });
+}
+
+/* ============================================================
+   POBLAR SELECT DE INSTITUCIONES
+============================================================ */
+function populateInstFilter() {
+    const unique = [...new Set(instituciones.map(i => i.institucion))].sort();
+    $instFilter.innerHTML = '<option value="">Todas las instituciones</option>';
+    unique.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        $instFilter.appendChild(o);
+    });
+}
+
+/* ============================================================
+   LÓGICA DE FILTRADO
+============================================================ */
+function filtrar() {
+    return instituciones.filter(i => {
+        if (currentFilters.tipo && i.tipo !== currentFilters.tipo) return false;
+        if (currentFilters.institucion && i.institucion !== currentFilters.institucion) return false;
+        if (currentFilters.favOnly && !favorites.has(i.institucion)) return false;
+        if (currentFilters.search) {
+            const q = currentFilters.search.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+            const hay = `${i.institucion} ${i.correo||''} ${i.direccion||''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+}
+
+function sumCanales(list) { return list.reduce((s,i) => s + (parseInt(i.canales)||0), 0); }
+function sumProtocolos(list) { return list.filter(i => i['Protocolo de actuación'] === true).length; }
+
+/* ============================================================
+   RENDER TARJETAS (flip cards)
+============================================================ */
+function renderCards(list) {
+    $cards.innerHTML = '';
+
+    if (!list.length) {
+        $cards.innerHTML = `<div class="swiper-slide"><div style="background:#fff;border-radius:var(--radius-xl);padding:3rem;text-align:center;color:var(--text-muted);width:100%;">No se encontraron instituciones.</div></div>`;
+    } else {
+        list.forEach(inst => {
+            const isFav = favorites.has(inst.institucion);
+            const phone = cleanPhone(inst.telefono);
+            const addr  = encodeURIComponent(inst.ubicacion || inst.direccion || '');
+            const safe  = inst.institucion.replace(/'/g,"\\'");
+            const tieneProtocolo = inst['Protocolo de actuación'] === true;
+            const protClass = tieneProtocolo ? '' : 'no';
+            const protIcon = tieneProtocolo ? 'fa-check-circle' : 'fa-times-circle';
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
+            slide.innerHTML = `
+            <div class="flip-card">
+              <div class="flip-inner">
+                <!-- FRONT -->
+                <div class="flip-front">
+                  <div class="card-strip">
+                    <div class="card-name">${inst.institucion}</div>
+                    <div class="card-meta">
+                      <span class="card-channels-badge">${inst.canales} canal(es)</span>
+                      <span class="protocolo-badge ${protClass}"><i class="fas ${protIcon}"></i> Protocolo de actuación</span>
+                      <button class="fav-btn" onclick="window._toggleFav('${safe}')">
+                        <i class="fas fa-star ${isFav?'active':''}"></i>
+                      </button>
+                    </div>
+                    <button class="btn-expand-card" onclick="window._openModal('${safe}')" title="Ampliar tarjeta">
+                      <i class="fas fa-expand-alt"></i>
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <div class="channel-row"><div class="channel-row-left"><i class="fas fa-phone-alt"></i> Teléfono</div>${badge(inst.telefono)}</div>
+                    <div class="channel-row"><div class="channel-row-left"><i class="fas fa-envelope"></i> Correo electrónico</div>${badge(inst.correo)}</div>
+                    <div class="channel-row"><div class="channel-row-left"><i class="fas fa-globe"></i> Formulario web</div>${badge(inst.formulario)}</div>
+                    <div class="channel-row"><div class="channel-row-left"><i class="fas fa-building"></i> Presencial</div>${badge(inst.tipocom)}</div>
+                    <div class="channel-row"><div class="channel-row-left"><i class="fas fa-comment"></i> Otro canal</div>${badge(inst.otro)}</div>
+                  </div>
+                  <div class="card-foot-row">
+                    <button class="btn-flip-card" style="flex:2;" onclick="this.closest('.flip-card').classList.add('flipped')">
+                      Ver detalles <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn-expand-card-foot" onclick="window._openModal('${safe}')">
+                      <i class="fas fa-expand-alt"></i> Ampliar
+                    </button>
+                  </div>
+                </div>
+                <!-- BACK (sin cambios funcionales) -->
+                <div class="flip-back">
+                  <div class="card-strip">
+                    <div class="card-name">${inst.institucion}</div>
+                    <div class="card-meta">
+                      <span class="card-channels-badge">${inst.canales} canal(es)</span>
+                      <button class="fav-btn" onclick="window._toggleFav('${safe}')">
+                        <i class="fas fa-star ${isFav?'active':''}"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="back-body">
+                    <div class="detail-row"><div class="detail-label">Teléfono</div><div class="detail-val">${inst.telefono?`<a href="tel:${phone}">${inst.telefono}</a>`:'No disponible'}</div></div>
+                    <div class="detail-row"><div class="detail-label">Correo electrónico</div><div class="detail-val">${inst.correo?`<a href="mailto:${inst.correo}">${inst.correo}</a>`:'No disponible'}</div></div>
+                    <div class="detail-row"><div class="detail-label">Formulario web</div><div class="detail-val">${inst.formulario?`<a href="${inst.formulario}" target="_blank" rel="noopener">Abrir formulario ↗</a>`:'No disponible'}</div></div>
+                    <div class="detail-row"><div class="detail-label">Atención presencial</div><div class="detail-val">${fullVal(inst.tipocom)}</div></div>
+                    <div class="detail-row"><div class="detail-label">Otro canal</div><div class="detail-val">${fullVal(inst.otro)}</div></div>
+                    <div class="detail-row"><div class="detail-label">Dirección</div><div class="detail-val">${fullVal(inst.direccion)}</div></div>
+                    <div class="detail-row"><div class="detail-label">Horario</div><div class="detail-val">${fullVal(inst.horario)}</div></div>
+                    <div class="map-links">
+                      <a href="https://waze.com/ul?q=${addr}&navigate=yes" target="_blank" class="map-link"><i class="fab fa-waze"></i> Waze</a>
+                      <a href="https://maps.google.com/maps?q=${addr}" target="_blank" class="map-link"><i class="fas fa-map-marked-alt"></i> Google Maps</a>
+                    </div>
+                    ${inst.ubicacion?`<div class="map-embed"><iframe src="https://maps.google.com/maps?q=${addr}&z=15&output=embed" allowfullscreen loading="lazy"></iframe></div>`:''}
+                  </div>
+                  <div class="back-foot">
+                    <button class="btn-share" onclick="window._shareCard('${safe}')"><i class="fab fa-whatsapp"></i> Compartir</button>
+                    <button class="btn-back-card" onclick="this.closest('.flip-card').classList.remove('flipped')"><i class="fas fa-arrow-left"></i> Regresar</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+            $cards.appendChild(slide);
+        });
+    }
+
+    // Inicializar Swiper del directorio
+    if (swiperDir) { swiperDir.destroy(true, true); swiperDir = null; }
+    const n = list.length;
+    const autoplay = n > 1 ? { delay:5000, disableOnInteraction:false, pauseOnMouseEnter:true } : false;
+    swiperDir = new Swiper('#dirSwiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: n > 2,
+        autoplay,
+        navigation: { nextEl: '.swiper-next', prevEl: '.swiper-prev' },
+        breakpoints: { 640: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1100: { slidesPerView: 3 } }
+    });
+    if (swiperDir && swiperDir.autoplay) {
+        $cards.addEventListener('click', (e) => {
+            const flipBtn  = e.target.closest('.btn-flip-card');
+            const backBtn  = e.target.closest('.btn-back-card');
+            if (!flipBtn && !backBtn) return;
+            setTimeout(() => {
+                const anyFlipped = !!$cards.querySelector('.flip-card.flipped');
+                if (anyFlipped) { if (swiperDir.autoplay.running) swiperDir.autoplay.stop(); }
+                else { if (!swiperDir.autoplay.running) swiperDir.autoplay.start(); }
+            }, 50);
+        });
+    }
+}
+
+/* ============================================================
+   GLOBAL CALLBACKS 
+============================================================ */
+window._toggleFav = function(nombre) {
+    if (favorites.has(nombre)) favorites.delete(nombre);
+    else favorites.add(nombre);
+    localStorage.setItem('fav_instituciones', JSON.stringify([...favorites]));
+    applyFilters();
+};
+
+window._shareCard = function(nombre) {
+    const inst = instituciones.find(i => i.institucion === nombre);
+    if (inst) shareCard(inst);
+};
+
+// Modal functions (sin cambios relevantes, pero se incluyen para completar)
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function buildChannelCard(icon, label, value, isLink, linkHref) {
+    const has = value && String(value).trim();
+    const displayVal = has ? (isLink ? `<a href="${linkHref}" target="_blank" rel="noopener">${value.length > 48 ? 'Abrir enlace ↗' : value}</a>` : value) : 'No disponible';
+    return `<div class="modal-channel-card ${has ? 'has-channel' : 'no-channel'}">
+        <span class="modal-channel-status ${has ? 'status-active' : 'status-inactive'}">${has ? 'Activo' : 'N/D'}</span>
+        <div class="modal-channel-icon"><i class="fas ${icon}"></i></div>
+        <div class="modal-channel-info">
+            <div class="modal-channel-label">${label}</div>
+            <div class="modal-channel-val">${displayVal}</div>
+        </div>
+    </div>`;
+}
+function buildDetailItem(label, value, full, isLink, href) {
+    const displayVal = value && String(value).trim() ? (isLink ? `<a href="${href}" target="_blank" rel="noopener">${value}</a>` : value) : 'No disponible';
+    return `<div class="modal-detail-item${full ? ' full' : ''}"><div class="lbl">${label}</div><div class="val">${displayVal}</div></div>`;
+}
+window._openModal = function(nombre) {
+    const inst = instituciones.find(i => i.institucion === nombre);
+    if (!inst) return;
+    const isFav = favorites.has(inst.institucion);
+    const phone = cleanPhone(inst.telefono);
+    const addr = encodeURIComponent(inst.ubicacion || inst.direccion || '');
+    const safe = inst.institucion.replace(/'/g,"\\'");
+    document.getElementById('modalInstName').textContent = inst.institucion;
+    document.getElementById('modalMetaRow').innerHTML = `
+        <span class="modal-badge"><i class="fas fa-broadcast-tower"></i> ${inst.canales} canal(es)</span>
+        ${inst.tipo ? `<span class="modal-tipo-badge">${inst.tipo}</span>` : ''}
+        <button class="modal-fav-btn" onclick="window._toggleFavModal('${safe}', this)" title="Marcar favorito">
+            <i class="fas fa-star ${isFav ? 'active' : ''}"></i>
+        </button>`;
+    document.getElementById('modalChannelsGrid').innerHTML =
+        buildChannelCard('fa-phone-alt', 'Teléfono', inst.telefono, !!inst.telefono, `tel:${phone}`) +
+        buildChannelCard('fa-envelope', 'Correo electrónico', inst.correo, !!inst.correo, `mailto:${inst.correo}`) +
+        buildChannelCard('fa-globe', 'Formulario web', inst.formulario ? 'Abrir formulario ↗' : '', !!inst.formulario, inst.formulario) +
+        buildChannelCard('fa-building', 'Atención presencial', inst.tipocom, false, '') +
+        buildChannelCard('fa-comment-dots', 'Otro canal', inst.otro, false, '');
+    document.getElementById('modalDetallesContent').innerHTML = `
+        <div class="modal-detail-section"><div class="modal-detail-section-title"><i class="fas fa-info-circle"></i> Datos generales</div>
+        <div class="modal-detail-grid">
+            ${buildDetailItem('Tipo de entidad', inst.tipo, false, false, '')}
+            ${buildDetailItem('Canales habilitados', inst.canales, false, false, '')}
+            ${buildDetailItem('Tipo de comunicación', inst.tipocom, false, false, '')}
+            ${buildDetailItem('Horario de atención', inst.horario, false, false, '')}
+            ${buildDetailItem('Protocolo de actuación', inst['Protocolo de actuación'] ? 'Sí' : 'No', false, false, '')}
+        </div></div>
+        <div class="modal-detail-section"><div class="modal-detail-section-title"><i class="fas fa-broadcast-tower"></i> Datos de contacto</div>
+        <div class="modal-detail-grid">
+            ${buildDetailItem('Teléfono', inst.telefono, false, !!inst.telefono, `tel:${phone}`)}
+            ${buildDetailItem('Correo electrónico', inst.correo, false, !!inst.correo, `mailto:${inst.correo}`)}
+            ${buildDetailItem('Formulario web', inst.formulario ? 'Abrir formulario ↗' : '', false, !!inst.formulario, inst.formulario)}
+            ${buildDetailItem('Otro canal', inst.otro, false, false, '')}
+            ${buildDetailItem('Dirección', inst.direccion, true, false, '')}
+        </div></div>
+        <div class="modal-actions-row"><button class="modal-action-btn whatsapp" onclick="window._shareCard('${safe}')"><i class="fab fa-whatsapp"></i> Compartir por WhatsApp</button></div>`;
+    document.getElementById('modalUbicacionContent').innerHTML = `
+        <div class="modal-detail-section"><div class="modal-detail-section-title"><i class="fas fa-map-marker-alt"></i> Dirección</div>
+        <div class="modal-detail-grid">
+            ${buildDetailItem('Dirección completa', inst.direccion, true, false, '')}
+            ${buildDetailItem('Horario', inst.horario, false, false, '')}
+        </div></div>
+        ${inst.ubicacion ? `<div class="modal-map-area"><iframe src="https://maps.google.com/maps?q=${addr}&z=15&output=embed" allowfullscreen loading="lazy"></iframe></div>` : '<p style="color:var(--text-muted); font-size:0.88rem; margin-top:1rem;">Mapa no disponible para esta institución.</p>'}
+        <div class="modal-actions-row" style="margin-top:1.25rem;">
+            <a href="https://waze.com/ul?q=${addr}&navigate=yes" target="_blank" class="modal-action-btn waze"><i class="fab fa-waze"></i> Abrir en Waze</a>
+            <a href="https://maps.google.com/maps?q=${addr}" target="_blank" class="modal-action-btn gmaps"><i class="fas fa-map-marked-alt"></i> Google Maps</a>
+        </div>`;
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.modal-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tabCanales').classList.add('active');
+    document.getElementById('panelCanales').classList.add('active');
+    if (swiperDir && swiperDir.autoplay && swiperDir.autoplay.running) swiperDir.autoplay.stop();
+    document.getElementById('cardModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+window._toggleFavModal = function(nombre, btn) {
+    if (favorites.has(nombre)) favorites.delete(nombre);
+    else favorites.add(nombre);
+    localStorage.setItem('fav_instituciones', JSON.stringify([...favorites]));
+    const icon = btn.querySelector('i');
+    icon.classList.toggle('active', favorites.has(nombre));
+    document.querySelectorAll('.fav-btn').forEach(b => {
+        if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(nombre.replace(/'/g,"\\'"))) {
+            b.querySelector('i').classList.toggle('active', favorites.has(nombre));
+        }
+    });
+    showToast(favorites.has(nombre) ? '⭐ Añadido a favoritos' : 'Quitado de favoritos');
+};
+function closeModal() {
+    document.getElementById('cardModal').classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        if (swiperDir && swiperDir.autoplay && !$cards.querySelector('.flip-card.flipped')) swiperDir.autoplay.start();
+    }, 350);
+}
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+document.getElementById('cardModal').addEventListener('click', e => { if (e.target === document.getElementById('cardModal')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('cardModal').classList.contains('active')) closeModal(); });
+document.querySelectorAll('.modal-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.modal-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel' + capitalize(tab.dataset.tab)).classList.add('active');
+    });
+});
+
+/* ============================================================
+   APLICAR FILTROS Y ACTUALIZAR UI
+============================================================ */
+function applyFilters() {
+    const filtered = filtrar();
+    const nInst = filtered.length;
+    const nCan  = sumCanales(filtered);
+    const nProt = sumProtocolos(filtered);
+    $totalInst.textContent  = nInst;
+    $totalCan.textContent   = nCan;
+    $statsInst.textContent  = nInst;
+    $statsCan.textContent   = nCan;
+    const $totalProt = document.getElementById('totalProtocolosCount');
+    const $statsProt = document.getElementById('totalProtocolosStats');
+    if ($totalProt) $totalProt.textContent = nProt;
+    if ($statsProt) $statsProt.textContent = nProt;
+    renderCards(filtered);
+}
+
+function readFilters() {
+    currentFilters.tipo       = $tipoFilter.value;
+    currentFilters.institucion = $instFilter.value;
+    currentFilters.search     = $searchInput.value;
+    currentFilters.favOnly    = $favSwitch.checked;
+    applyFilters();
+}
+
+/* ============================================================
+   SANITIZACIÓN DE TEXTO PARA PDF
+============================================================ */
+function sanitizePdf(text) {
+    if (text === null || text === undefined) return '';
+    return String(text)
+        .replace(/\u2011/g, '-').replace(/\u2012/g, '-').replace(/\u2013/g, '-').replace(/\u2014/g, '-').replace(/\u2015/g, '-')
+        .replace(/\u00A0/g, ' ').replace(/\u202F/g, ' ').replace(/\u2009/g, ' ')
+        .replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u00AB|\u00BB/g, '"')
+        .replace(/\u2026/g, '...').replace(/\u2022/g, '-').replace(/\u00B7/g, '.')
+        .replace(/\u00AA/g, 'a.').replace(/\u00BA/g, 'o.')
+        .replace(/[^\u0000-\u00FF]/g, '?')
+        .replace(/  +/g, ' ')
+        .trim();
+}
+
+/* ============================================================
+   EXPORTAR PDF
+============================================================ */
+async function exportToPdf() {
+    const { jsPDF } = window.jspdf;
+    if (!instituciones.length) { alert('No hay datos para exportar.'); return; }
+    const doc = new jsPDF({ orientation:'l', unit:'mm', format:'legal' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const logoUrl = 'https://i.postimg.cc/k54W9fFW/gobierno-de-guatemala-2025-logo-png-seeklogo-622007.png';
+    const loadImg = url => new Promise((res) => {
+        const img = new Image(); img.crossOrigin = 'Anonymous';
+        img.onload = () => res(img); img.onerror = () => res(null);
+        img.src = url;
+    });
+    const logoImg = await loadImg(logoUrl);
+    const addHeader = (d, pg, total) => {
+        if (logoImg) { const lw = 24, lh = (logoImg.height * lw) / logoImg.width; d.addImage(logoImg, 'PNG', margin, 5, lw, lh); }
+        d.setFontSize(13); d.setFont('helvetica','bold');
+        d.text('Canales por la Integridad - Gobierno de Guatemala', pageWidth/2, 12, { align:'center' });
+        const now = new Date();
+        d.setFontSize(8); d.setFont('helvetica','normal');
+        d.text(`Generado: ${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT',{hour:'2-digit',minute:'2-digit'})}`, pageWidth-margin, 8, { align:'right' });
+        d.setDrawColor(150); d.line(margin, 22, pageWidth-margin, 22);
+        d.setFontSize(8); d.text(`Pagina ${pg} de ${total}`, pageWidth-margin, 285, { align:'right' });
+    };
+    const cols = [
+        { header:'Institucion',       dataKey:'institucion', width:40 },
+        { header:'Tipo',              dataKey:'tipo',        width:16 },
+        { header:'Canales',           dataKey:'canales',     width:10 },
+        { header:'Protocolo',         dataKey:'protocolo',   width:10 },
+        { header:'Telefono',          dataKey:'telefono',    width:18 },
+        { header:'Correo',            dataKey:'correo',      width:38 },
+        { header:'Formulario Web',    dataKey:'formulario',  width:28 },
+        { header:'Otro Medio',        dataKey:'otro',        width:18 },
+        { header:'Tipo Comunicacion', dataKey:'tipocom',     width:22 },
+        { header:'Direccion',         dataKey:'direccion',   width:48 },
+        { header:'Horario',           dataKey:'horario',     width:24 }
+    ];
+    const rows = instituciones.map(inst => ({
+        institucion: sanitizePdf(inst.institucion),
+        tipo:        sanitizePdf(inst.tipo) || '',
+        canales:     sanitizePdf(inst.canales),
+        protocolo:   inst['Protocolo de actuación'] === true ? 'Sí' : 'No',
+        telefono:    sanitizePdf(inst.telefono) || '-',
+        correo:      sanitizePdf(inst.correo)   || '-',
+        formulario:  inst.formulario ? (() => { const s = sanitizePdf(inst.formulario); return s.length > 35 ? s.substring(0,32)+'...' : s; })() : '-',
+        otro:        sanitizePdf(inst.otro)     || '-',
+        tipocom:     sanitizePdf(inst.tipocom)  || '-',
+        direccion:   sanitizePdf(inst.direccion)|| '-',
+        horario:     sanitizePdf(inst.horario)  || '-'
+    }));
+    const finalDoc = new jsPDF({ orientation:'l', unit:'mm', format:'legal' });
+    let pageCount = 0;
+    finalDoc.autoTable({
+        startY: 26,
+        head: [cols.map(c => c.header)],
+        body: rows.map(r => cols.map(c => r[c.dataKey])),
+        theme: 'grid',
+        headStyles: { fillColor:[5,17,31], textColor:255, fontStyle:'bold', halign:'center' },
+        styles: { fontSize:7, cellPadding:1.5, valign:'middle', overflow:'linebreak', lineColor:[180,180,180] },
+        columnStyles: {
+            0:{ cellWidth:40 }, 1:{ cellWidth:16 }, 2:{ cellWidth:10, halign:'center' }, 3:{ cellWidth:10, halign:'center' },
+            4:{ cellWidth:18 }, 5:{ cellWidth:38 }, 6:{ cellWidth:28 }, 7:{ cellWidth:18 }, 8:{ cellWidth:22 }, 9:{ cellWidth:48 }, 10:{ cellWidth:24 }
+        },
+        margin: { top:26, bottom:20, left:margin, right:margin },
+        didDrawPage: () => { pageCount++; addHeader(finalDoc, pageCount, 0); }
+    });
+    const totalPgs = finalDoc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPgs; i++) { finalDoc.setPage(i); addHeader(finalDoc, i, totalPgs); }
+    finalDoc.save(`Directorio_Canales_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+/* ============================================================
+   EXPORTAR EXCEL
+============================================================ */
+function exportToExcel() {
+    if (!instituciones.length) { alert('No hay datos para exportar.'); return; }
+    const headers = ['Institución','Tipo','Canales','Protocolo de actuación','Teléfono','Correo','Formulario Web','Otro Medio','Tipo Comunicación','Dirección','Horario'];
+    const rows = instituciones.map(i => [
+        i.institucion,
+        i.tipo || '',
+        i.canales,
+        i['Protocolo de actuación'] === true ? 'Sí' : 'No',
+        i.telefono || '',
+        i.correo || '',
+        i.formulario || '',
+        i.otro || '',
+        i.tipocom || '',
+        i.direccion || '',
+        i.horario || ''
+    ]);
+    const wsData = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [
+        {wch:45},{wch:22},{wch:10},{wch:15},{wch:20},{wch:38},
+        {wch:40},{wch:20},{wch:22},{wch:45},{wch:25}
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Directorio');
+    XLSX.writeFile(wb, `Directorio_Canales_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showToast('Archivo Excel descargado');
+}
+
+/* ============================================================
+   BÚSQUEDA POR VOZ
+============================================================ */
+if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onstart = () => { $voiceBtn.classList.add('listening'); $voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>'; };
+    recognition.onend   = () => { $voiceBtn.classList.remove('listening'); $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; };
+    recognition.onresult = e => { $searchInput.value = e.results[0][0].transcript; $searchInput.dispatchEvent(new Event('input')); };
+    $voiceBtn.addEventListener('click', () => { try { recognition.start(); } catch(e) {} });
+} else {
+    $voiceBtn.style.display = 'none';
+}
+
+/* ============================================================
+   EVENTOS
+============================================================ */
+$tipoFilter.addEventListener('change', readFilters);
+$instFilter.addEventListener('change', readFilters);
+$searchInput.addEventListener('input', readFilters);
+$favSwitch.addEventListener('change', readFilters);
+document.getElementById('resetFilters').addEventListener('click', () => {
+    $tipoFilter.value = ''; $instFilter.value = '';
+    $searchInput.value = ''; $favSwitch.checked = false;
+    readFilters();
+});
+document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
+document.getElementById('exportXlsBtn').addEventListener('click', exportToExcel);
+$themeBtn.addEventListener('click', () => {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme();
+    showToast(`Tema cambiado a modo ${currentTheme === 'dark' ? 'oscuro' : 'claro'}`);
+});
+document.getElementById('mobileMenu').addEventListener('click', () => {
+    document.getElementById('navMenu').classList.toggle('open');
+});
+
+// Manejar dropdowns en móvil
+document.querySelectorAll('.menu-group > a').forEach(groupLink => {
+    groupLink.addEventListener('click', (e) => {
+        if (window.innerWidth <= 680) {
+            e.preventDefault();
+            const parentLi = groupLink.closest('.menu-group');
+            parentLi.classList.toggle('open');
+        }
+    });
+});
+
+// Cerrar menú al hacer clic en links internos
+document.querySelectorAll('.submenu a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 680) {
+            document.getElementById('navMenu').classList.remove('open');
+        }
+    });
+});
+
+window.addEventListener('scroll', () => {
+    document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);
+});
+document.getElementById('heroCTA').addEventListener('click', e => { e.preventDefault(); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
+document.querySelectorAll('.accordion-q').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.accordion-item').classList.toggle('open'));
+});
+document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.faq-item').classList.toggle('open'));
+});
+
+/* ============================================================
+   INICIALIZACIÓN PRINCIPAL (carga JSON)
+============================================================ */
+async function cargarDatosYIniciar() {
+    try {
+        const response = await fetch('data_directorio.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        instituciones = data;
+        populateInstFilter();
+        initDefSwiper();
+        applyTheme();
+        readFilters();
+    } catch (error) {
+        console.error('Error al cargar el archivo JSON:', error);
+        showToast('Error al cargar los datos del directorio. Verifique la conexión o recargue la página.');
+        $cards.innerHTML = `<div class="swiper-slide"><div style="background:#fff; border-radius:var(--radius-xl); padding:3rem; text-align:center;">No fue posible cargar el directorio. Intente más tarde.</div></div>`;
+    }
+}
+cargarDatosYIniciar();
+</script>
+</body>
+</html>

@@ -1,0 +1,2664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placa Transparente · Cumplimiento Vehicular</title>
+    <!-- Fuentes y estilos base -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Librerías para exportar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Tesseract.js para OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <style>
+        :root {
+            --navy:       #05111F;
+            --navy-mid:   #0C2033;
+            --navy-light: #163250;
+            --blue:       #1A5C8F;
+            --blue-bright:#2B82C9;
+            --cyan:       #00C2E0;
+            --cyan-dim:   #0093AA;
+            --amber:      #F5A623;
+            --green:      #22C55E;
+            --surface:    #F0F5FB;
+            --surface-card:#FFFFFF;
+            --text-main:  #0C1F30;
+            --text-muted: #5E7A8E;
+            --text-light: #A8BFCC;
+            --border:     rgba(26,92,143,0.14);
+            --radius-xl:  24px;
+            --radius-2xl: 32px;
+            --shadow-sm:  0 2px 8px rgba(5,17,31,0.06);
+            --shadow-md:  0 6px 24px rgba(5,17,31,0.10);
+            --shadow-lg:  0 16px 48px rgba(5,17,31,0.14);
+            --font-head:  'Sora', sans-serif;
+            --font-body:  'DM Sans', sans-serif;
+            --danger:     #EF4444;
+            --warning:    #F59E0B;
+            --success:    #22C55E;
+            --transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--surface);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+        button { font-family: var(--font-body); cursor: pointer; }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+
+        .site-header {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(5,17,31,0.92);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid rgba(0,194,224,0.10);
+            transition: box-shadow 0.3s;
+        }
+        .site-header.scrolled { box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
+
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 0;
+            gap: 1.5rem;
+        }
+
+        .logo-area a { display: flex; align-items: center; }
+        .gov-logo { height: 56px; width: auto; }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        .nav-menu > li { position: relative; }
+        .nav-menu a {
+            display: inline-block;
+            padding: 0.45rem 0.9rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-size: 0.77rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            transition: all 0.2s;
+        }
+        .nav-menu > li > a { cursor: default; }
+        .nav-menu > li > a .fa-chevron-down {
+            font-size: 0.6rem;
+            margin-left: 4px;
+            transition: transform 0.2s;
+        }
+        .nav-menu > li:hover > a .fa-chevron-down { transform: rotate(180deg); }
+        .nav-menu a:hover, .nav-menu a.active {
+            color: var(--cyan);
+            background: rgba(0,194,224,0.08);
+        }
+        .nav-menu a.nav-cta {
+            background: var(--cyan);
+            color: var(--navy);
+            font-weight: 700;
+        }
+        .nav-menu a.nav-cta:hover { background: #00ddf7; }
+
+        .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 220px;
+            background: var(--navy-mid);
+            border-radius: 16px;
+            padding: 0.5rem 0;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,194,224,0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+            list-style: none;
+            z-index: 300;
+        }
+        .nav-menu > li:hover .submenu,
+        .nav-menu > li.open .submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .submenu li a {
+            display: block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 0;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .submenu li a:hover {
+            background: rgba(0,194,224,0.08);
+            color: var(--cyan);
+            border-left-color: var(--cyan);
+        }
+        .submenu li a i { margin-right: 8px; width: 16px; text-align: center; }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .search-hero {
+            position: relative;
+            background: var(--navy);
+            overflow: hidden;
+            padding: 4.5rem 0 4rem;
+            text-align: center;
+        }
+        .search-hero-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('https://i.postimg.cc/HnJRMrDG/vehiculos-Oficiales.png');
+            background-size: cover; background-position: center;
+            filter: grayscale(30%) brightness(0.30) saturate(0.5);
+        }
+        .search-hero::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.40), transparent),
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.15), transparent),
+                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.85) 100%);
+        }
+        .search-hero::after {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background-image:
+                linear-gradient(rgba(0,194,224,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,194,224,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+        .search-hero-inner {
+            position: relative; z-index: 2;
+            max-width: 820px; margin: 0 auto;
+        }
+
+        .search-hero .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 50px;
+            border: 1px solid rgba(0,194,224,0.35);
+            background: rgba(0,194,224,0.08);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 1.6rem;
+        }
+        .search-hero .badge span {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--cyan);
+            animation: blink 1.8s infinite;
+        }
+        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+
+        .search-hero h1 {
+            font-family: var(--font-head);
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.1;
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+        .search-hero h1 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .search-hero .sub {
+            max-width: 560px; margin: 0 auto 2rem;
+            font-size: 1.05rem; color: rgba(255,255,255,0.65);
+            line-height: 1.7;
+        }
+
+        .search-box-main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 60px;
+            padding: 6px;
+            border: 1px solid rgba(255,255,255,0.10);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .search-box-main input {
+            flex: 1;
+            min-width: 180px;
+            background: transparent;
+            border: none;
+            padding: 0.9rem 1.6rem;
+            color: #fff;
+            font-size: 1.05rem;
+            font-family: var(--font-body);
+            outline: none;
+        }
+        .search-box-main input::placeholder {
+            color: rgba(255,255,255,0.35);
+        }
+        .search-box-main .btn-primary {
+            padding: 0.85rem 2.2rem;
+            border-radius: 60px;
+            flex-shrink: 0;
+            font-size: 1rem;
+            background: var(--cyan);
+            color: var(--navy);
+            font-family: var(--font-head);
+            font-weight: 700;
+            border: none;
+            transition: all 0.25s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-box-main .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(0,194,224,0.4);
+            background: #00ddf7;
+        }
+        .search-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-right: 4px;
+        }
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .btn-icon:hover {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+            transform: scale(1.05);
+        }
+
+        .sample-plates-wrapper {
+            margin-top: 1.2rem;
+        }
+        .sample-plates-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+        .sample-plates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .sample-plate {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.6);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            font-family: var(--font-body);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .sample-plate:hover {
+            background: rgba(0,194,224,0.12);
+            border-color: var(--cyan);
+            color: #fff;
+        }
+
+        .result-card-modern {
+            display: none;
+            background: var(--surface-card);
+            border-radius: var(--radius-2xl);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin: 2rem auto 0;
+            max-width: 820px;
+            animation: fadeSlideUp 0.5s ease;
+            transition: all 0.3s;
+        }
+        .result-card-modern.visible { display: block; }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card-header {
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .result-card-header .plate {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.04em;
+        }
+        .result-card-header .plate small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0;
+        }
+        .result-card-header .status-badge {
+            padding: 0.35rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .status-badge.cumple {
+            background: rgba(34,197,94,0.2);
+            color: #4ADE80;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+        .status-badge.parcial {
+            background: rgba(245,166,35,0.2);
+            color: #FBBF24;
+            border: 1px solid rgba(245,166,35,0.3);
+        }
+        .status-badge.proceso {
+            background: rgba(43,130,201,0.2);
+            color: #60A5FA;
+            border: 1px solid rgba(43,130,201,0.3);
+        }
+        .status-badge.nocumple {
+            background: rgba(239,68,68,0.2);
+            color: #F87171;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+
+        .result-card-body {
+            padding: 1.8rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem 1.8rem;
+        }
+        .result-card-body .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+        .result-card-body .field .label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .result-card-body .field .value {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+        .result-card-body .field .value i {
+            margin-right: 6px;
+            color: var(--cyan);
+            width: 18px;
+        }
+        .result-card-body .field-full {
+            grid-column: 1 / -1;
+        }
+
+        .result-card-footer {
+            padding: 0.8rem 2rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .result-card-footer .badge-iscv {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 12px; border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge-iscv.moroso { background: #fee2e2; color: #991b1b; }
+        .badge-iscv.al-dia { background: #d1fae5; color: #065f46; }
+        .badge-multas {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 12px; border-radius: 20px;
+            font-weight: 600;
+            background: #fef3c7; color: #92400e;
+        }
+        .badge-multas.sin-multas { background: #d1fae5; color: #065f46; }
+
+        .result-card-actions {
+            padding: 0 2rem 1.5rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .btn-report {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0.5rem 1.4rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            transition: 0.25s;
+            text-decoration: none;
+        }
+        .btn-report:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(239,68,68,0.4); }
+        .btn-close-result {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0.5rem 1.4rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1.5px solid var(--border);
+            transition: 0.25s;
+        }
+        .btn-close-result:hover { border-color: var(--text-muted); color: var(--text-main); }
+
+        .compliance-section {
+            padding: 4rem 0;
+            background: var(--surface);
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .section-header .tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 0.5rem;
+        }
+        .section-header .tag::before {
+            content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px;
+        }
+        .section-header h2 {
+            font-family: var(--font-head);
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+        }
+        .section-header h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-header p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .semaphore-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .semaphore-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        .semaphore-kpi {
+            background: var(--surface-card);
+            border-radius: var(--radius-xl);
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: 0.3s;
+        }
+        .semaphore-kpi:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .semaphore-kpi .num {
+            font-family: var(--font-head);
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .semaphore-kpi .num.green { color: var(--green); }
+        .semaphore-kpi .num.blue { color: var(--blue-bright); }
+        .semaphore-kpi .num.amber { color: var(--amber); }
+        .semaphore-kpi .num.red { color: var(--danger); }
+        .semaphore-kpi .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        .semaphore-bar {
+            background: var(--surface-card);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .semaphore-bar .bar-track {
+            height: 20px;
+            border-radius: 50px;
+            background: var(--border);
+            overflow: hidden;
+            display: flex;
+            margin: 0.5rem 0;
+        }
+        .semaphore-bar .bar-track .segment {
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+        .semaphore-bar .bar-track .segment.green { background: var(--green); }
+        .semaphore-bar .bar-track .segment.blue { background: var(--blue-bright); }
+        .semaphore-bar .bar-track .segment.amber { background: var(--amber); }
+        .semaphore-bar .bar-track .segment.red { background: var(--danger); }
+        .semaphore-bar .global-pct {
+            font-family: var(--font-head);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--navy);
+        }
+        .semaphore-legend {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        .semaphore-legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .semaphore-legend .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.green { background: var(--green); }
+        .dot.blue { background: var(--blue-bright); }
+        .dot.amber { background: var(--amber); }
+        .dot.red { background: var(--danger); }
+
+        .repo-instituciones {
+            margin-top: 2rem;
+        }
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .repo-header .tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 0.25rem;
+        }
+        .repo-header .tag::before {
+            content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px;
+        }
+        .repo-header h3 {
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+        .repo-header h3 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .repo-search-box {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.2rem 0.2rem 0.2rem 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .repo-search-box input {
+            border: none;
+            background: transparent;
+            padding: 0.4rem 0;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            outline: none;
+            min-width: 160px;
+            color: var(--text-main);
+        }
+        .repo-search-box input::placeholder { color: var(--text-light); }
+        .repo-search-box .btn-sm {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.8rem;
+            border-radius: 50px;
+        }
+
+        .repo-two-col {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        .repo-list-wrap {
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            border-right: 1px solid var(--border);
+        }
+        .repo-list-wrap::-webkit-scrollbar { width: 6px; }
+        .repo-list-wrap::-webkit-scrollbar-track { background: var(--surface); border-radius: 10px; }
+        .repo-list-wrap::-webkit-scrollbar-thumb { background: var(--blue-bright); border-radius: 10px; }
+
+        .repo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .repo-item {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 0.6rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .repo-item:hover {
+            border-color: var(--cyan);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+        .repo-item.active {
+            border-color: var(--cyan);
+            background: rgba(0,194,224,0.08);
+            box-shadow: 0 0 0 2px rgba(0,194,224,0.15);
+        }
+        .repo-item .name {
+            font-weight: 500;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .repo-item .count {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--cyan);
+            background: rgba(0,194,224,0.1);
+            padding: 0.05rem 0.6rem;
+            border-radius: 50px;
+            flex-shrink: 0;
+        }
+
+        .repo-detail {
+            background: var(--surface-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .repo-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+        .repo-detail-header h4 {
+            font-family: var(--font-head);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .repo-detail-header .pct {
+            font-family: var(--font-head);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+        .repo-detail-header .pct small {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .repo-detail-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1.8rem;
+        }
+        .repo-detail-stat {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 0.6rem 0.4rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .repo-detail-stat .num {
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .repo-detail-stat .num.green { color: var(--green); }
+        .repo-detail-stat .num.blue { color: var(--blue-bright); }
+        .repo-detail-stat .num.amber { color: var(--amber); }
+        .repo-detail-stat .num.red { color: var(--danger); }
+        .repo-detail-stat .lbl {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .distro-section-detail {
+            margin: 1.2rem 0 1.5rem;
+        }
+        .distro-section-detail h5 {
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-main);
+        }
+        .distro-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+        .distro-row .distro-label {
+            width: 90px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .distro-row .distro-label .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .distro-row .distro-bar-track {
+            flex: 1;
+            height: 8px;
+            border-radius: 20px;
+            background: var(--border);
+            overflow: hidden;
+        }
+        .distro-row .distro-bar-track .distro-fill {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.6s ease;
+        }
+        .distro-row .distro-bar-track .distro-fill.green { background: var(--green); }
+        .distro-row .distro-bar-track .distro-fill.blue { background: var(--blue-bright); }
+        .distro-row .distro-bar-track .distro-fill.amber { background: var(--amber); }
+        .distro-row .distro-bar-track .distro-fill.red { background: var(--danger); }
+        .distro-row .distro-value {
+            width: 36px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+
+        .composition-bar {
+            margin-top: 0.5rem;
+        }
+        .composition-bar h5 {
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+        }
+        .composition-bar .comp-track {
+            height: 14px;
+            border-radius: 20px;
+            background: var(--border);
+            overflow: hidden;
+            display: flex;
+        }
+        .composition-bar .comp-track .comp-segment {
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+        .composition-bar .comp-track .comp-segment.green { background: var(--green); }
+        .composition-bar .comp-track .comp-segment.blue { background: var(--blue-bright); }
+        .composition-bar .comp-track .comp-segment.amber { background: var(--amber); }
+        .composition-bar .comp-track .comp-segment.red { background: var(--danger); }
+        .composition-bar .comp-legend {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .composition-bar .comp-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .composition-bar .comp-legend .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .catalog-section {
+            padding: 3rem 0 4rem;
+            background: var(--surface-card);
+            border-top: 1px solid var(--border);
+        }
+        .catalog-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .catalog-controls .left {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+        }
+        .catalog-controls .right {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
+        }
+        .catalog-controls input {
+            padding: 0.5rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            background: var(--surface);
+            color: var(--text-main);
+            min-width: 180px;
+            transition: 0.2s;
+        }
+        .catalog-controls input:focus {
+            outline: none;
+            border-color: var(--blue-bright);
+            box-shadow: 0 0 0 3px rgba(43,130,201,0.12);
+        }
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-sm.primary {
+            background: var(--cyan);
+            color: var(--navy);
+        }
+        .btn-sm.primary:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,194,224,0.3); }
+        .btn-sm.secondary {
+            background: var(--navy);
+            color: #fff;
+        }
+        .btn-sm.secondary:hover { background: var(--navy-light); transform: translateY(-2px); }
+        .btn-sm.outline {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1.5px solid var(--border);
+        }
+        .btn-sm.outline:hover { border-color: var(--blue-bright); color: var(--blue-bright); }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            background: var(--surface-card);
+            box-shadow: var(--shadow-sm);
+        }
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .table-wrap thead {
+            background: var(--navy);
+            color: #fff;
+        }
+        .table-wrap thead th {
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+        .table-wrap thead th i {
+            margin-left: 4px;
+            opacity: 0.5;
+            font-size: 0.6rem;
+        }
+        .table-wrap tbody td {
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-wrap tbody tr:hover {
+            background: rgba(0,194,224,0.04);
+        }
+        .table-wrap tbody tr:last-child td { border-bottom: none; }
+
+        .pagination-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .pagination-wrap button {
+            padding: 0.4rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .pagination-wrap button.active {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+        .pagination-wrap button:hover:not(.active) {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+        }
+
+        .audit-section {
+            padding: 4rem 0;
+            background: var(--surface-card);
+            border-top: 1px solid var(--border);
+        }
+        .audit-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .audit-step {
+            text-align: center;
+            padding: 1.5rem 1.2rem;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            transition: 0.3s;
+        }
+        .audit-step:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .audit-step .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--cyan);
+            color: var(--navy);
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .audit-step h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+        .audit-step p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .audit-cta {
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+
+        .legal-section {
+            padding: 4rem 0;
+            background: var(--navy-light);
+            color: #fff;
+        }
+        .legal-section .section-header h2 { color: #fff; }
+        .legal-section .section-header p { color: rgba(255,255,255,0.6); }
+        .legal-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .legal-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 1.2rem;
+            transition: 0.3s;
+        }
+        .legal-card:hover {
+            background: rgba(255,255,255,0.14);
+            transform: translateY(-4px);
+        }
+        .legal-card .icon {
+            font-size: 1.8rem;
+            color: var(--cyan);
+            margin-bottom: 0.75rem;
+        }
+        .legal-card h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+        .legal-card p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .legal-cta {
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+        .btn-legal {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 0.9rem 2.2rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            transition: 0.25s;
+            cursor: pointer;
+            background: var(--cyan);
+            color: var(--navy);
+            box-shadow: 0 0 32px rgba(0,194,224,0.3);
+            text-decoration: none;
+        }
+        .btn-legal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(0,194,224,0.5);
+            background: #00ddf7;
+        }
+
+        .denuncia-section {
+            padding: 4rem 0;
+            background: var(--navy);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .denuncia-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0,194,224,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(43,130,201,0.06) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .denuncia-inner {
+            position: relative;
+            z-index: 2;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .denuncia-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .denuncia-header .tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 0.75rem;
+        }
+        .denuncia-header .tag::before {
+            content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px;
+        }
+        .denuncia-header h2 {
+            font-family: var(--font-head);
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+        .denuncia-header h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .denuncia-header p {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        .denuncia-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .denuncia-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-xl);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        .denuncia-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+            border-color: rgba(0,194,224,0.3);
+        }
+        .denuncia-card .icon {
+            font-size: 2.5rem;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+        }
+        .denuncia-card h4 {
+            font-family: var(--font-head);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .denuncia-card p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+        }
+        .denuncia-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-denuncia {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 0.9rem 2.2rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            transition: 0.25s;
+            cursor: pointer;
+        }
+        .btn-denuncia.primary {
+            background: var(--cyan);
+            color: var(--navy);
+            box-shadow: 0 0 32px rgba(0,194,224,0.3);
+        }
+        .btn-denuncia.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(0,194,224,0.5);
+            background: #00ddf7;
+        }
+        .btn-denuncia.secondary {
+            background: transparent;
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.3);
+        }
+        .btn-denuncia.secondary:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-3px);
+        }
+
+        .faq-section {
+            padding: 4rem 0;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+        }
+        .faq-section .faq-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .faq-section .faq-header .tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 0.75rem;
+        }
+        .faq-section .faq-header .tag::before {
+            content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px;
+        }
+        .faq-section .faq-header h2 {
+            font-family: var(--font-head);
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+        .faq-section .faq-header h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .faq-section .faq-header p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .faq-wrap {
+            max-width: 740px;
+            margin: 0 auto;
+        }
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 1.2rem 0;
+        }
+        .faq-q {
+            width: 100%; background: none; border: none;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.5rem 0; text-align: left;
+            font-family: var(--font-head); font-weight: 600; font-size: 0.95rem;
+            color: var(--text-main); cursor: pointer; transition: color 0.2s;
+        }
+        .faq-q:hover { color: var(--blue-bright); }
+        .faq-q i { font-size: 0.75rem; color: var(--blue-bright); transition: transform 0.3s; flex-shrink:0; }
+        .faq-item.open .faq-q i { transform: rotate(180deg); }
+        .faq-a {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s;
+            font-size: 0.88rem; color: var(--text-muted); line-height: 1.7;
+            padding: 0 1rem;
+        }
+        .faq-item.open .faq-a { max-height: 300px; padding-bottom: 1.1rem; }
+
+        .footer {
+            background: var(--navy);
+            color: rgba(255,255,255,0.6);
+            padding: 3.5rem 0 1.5rem;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.2fr 1fr;
+            gap: 2rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .footer-brand .logos-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .footer-brand img { height: 52px; width: auto; }
+        .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
+        .footer-col h4 {
+            font-family: var(--font-head);
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; color: rgba(255,255,255,0.9);
+            margin-bottom: 1rem;
+        }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+        .footer-links a { font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--cyan); }
+
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .footer-contact span {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .footer-contact a { color: var(--cyan); }
+        .footer-contact a:hover { text-decoration: underline; }
+
+        .social-row {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.7);
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .social-btn:hover {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+        }
+        .footer-logos {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .footer-logos img {
+            height: 3cm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        @media (max-width: 1100px) {
+            .footer-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .semaphore-grid { grid-template-columns: 1fr; }
+            .semaphore-kpis { grid-template-columns: repeat(2,1fr); }
+            .audit-grid { grid-template-columns: 1fr 1fr; }
+            .legal-grid { grid-template-columns: 1fr 1fr; }
+            .repo-two-col { grid-template-columns: 1fr; }
+            .repo-list-wrap {
+                max-height: 220px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            .repo-list { flex-direction: row; flex-wrap: wrap; gap: 0.4rem; }
+            .repo-item { flex: 0 0 auto; }
+        }
+        @media (max-width: 900px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .denuncia-grid { grid-template-columns: 1fr 1fr; }
+            .result-card-body { grid-template-columns: 1fr; }
+            .repo-detail-stats { grid-template-columns: 1fr 1fr; }
+            .catalog-controls { flex-direction: column; align-items: stretch; }
+            .catalog-controls .left, .catalog-controls .right { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 680px) {
+            .menu-toggle { display: flex; }
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0; right: 0;
+                background: rgba(5,17,31,0.97);
+                flex-direction: column;
+                padding: 1rem 1.5rem;
+                border-top: 1px solid rgba(0,194,224,0.1);
+                gap: 0.25rem;
+            }
+            .nav-menu.open { display: flex; }
+            .nav-menu > li { width: 100%; }
+            .nav-menu > li > a {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.7rem 1.2rem;
+                border-radius: 12px;
+                width: 100%;
+                font-size: 0.85rem;
+            }
+            .submenu {
+                position: static;
+                background: rgba(255,255,255,0.04);
+                border-radius: 12px;
+                padding: 0;
+                margin: 0 0 0.5rem 0;
+                box-shadow: none;
+                border: none;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease;
+                padding: 0 0 0 0.5rem;
+            }
+            .nav-menu > li.open .submenu {
+                max-height: 300px;
+                padding: 0.5rem 0 0.5rem 0.5rem;
+            }
+            .submenu li a {
+                padding: 0.5rem 1rem;
+                border-left: none;
+                font-size: 0.8rem;
+            }
+            .submenu li a:hover { border-left: none; }
+
+            .search-hero { padding: 3rem 0 2.5rem; }
+            .search-box-main {
+                flex-direction: column;
+                background: transparent;
+                border: none;
+                padding: 0;
+                gap: 10px;
+            }
+            .search-box-main input {
+                background: rgba(255,255,255,0.06);
+                border-radius: 60px;
+                padding: 0.8rem 1.4rem;
+                border: 1px solid rgba(255,255,255,0.08);
+                width: 100%;
+                color: #fff;
+            }
+            .search-box-main .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+            .search-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .sample-plates { justify-content: center; }
+            .result-card-header { flex-direction: column; align-items: stretch; text-align: center; }
+            .result-card-body { padding: 1.2rem; }
+            .result-card-footer { flex-direction: column; align-items: center; text-align: center; }
+            .result-card-actions { justify-content: center; }
+
+            .semaphore-kpis { grid-template-columns: 1fr 1fr; }
+            .semaphore-bar .global-pct { font-size: 1.6rem; }
+            .repo-list { flex-direction: column; flex-wrap: nowrap; }
+            .repo-item { flex: unset; }
+            .repo-detail-stats { grid-template-columns: 1fr 1fr; }
+            .audit-grid { grid-template-columns: 1fr; }
+            .legal-grid { grid-template-columns: 1fr; }
+
+            .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; align-items: center; text-align: center; }
+            .footer-logos { justify-content: center; }
+            .footer-logos img { height: 2.5cm; }
+            .denuncia-grid { grid-template-columns: 1fr; }
+            .denuncia-actions { flex-direction: column; align-items: center; }
+            .btn-denuncia { width: 100%; justify-content: center; }
+            .table-wrap { font-size: 0.7rem; }
+            .table-wrap thead th, .table-wrap tbody td { padding: 0.4rem 0.5rem; }
+        }
+        @media (max-width: 400px) {
+            .semaphore-kpis { grid-template-columns: 1fr 1fr; }
+            .repo-detail-stats { grid-template-columns: 1fr 1fr; }
+            .result-card-body .field .value { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo-area">
+                <a href="../" title="Portal Principal">
+                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" class="gov-logo">
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="mobileMenu" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li class="menu-group">
+                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                    </ul>
+                </li>
+                <li class="menu-group">
+                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
+                        <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
+                        <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
+                        <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
+                        <li><a href="../vehiculos/" class="active"><i class="fas fa-car-side"></i> Placa Transparente</a></li>
+                    </ul>
+                </li>
+                <li class="menu-group">
+                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
+                    </ul>
+                </li>
+                <li class="menu-group">
+                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
+                        <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section class="search-hero">
+    <div class="search-hero-bg"></div>
+    <div class="container search-hero-inner">
+        <div class="badge"><span></span> Consulta de Vehículo Oficial</div>
+        <h1>Placa <em>Transparente</em></h1>
+        <p class="sub">Consulte la información pública de un vehículo oficial ingresando su número de placa. Verifique su cumplimiento con la normativa 2024.</p>
+
+        <div class="search-box-main">
+            <input type="text" id="plateInput" placeholder="Ingrese el número de placa, ej. O-123ABC" />
+            <button class="btn-primary" id="searchBtn"><i class="fas fa-search"></i> Consultar</button>
+            <div class="search-actions">
+                <button class="btn-icon" id="cameraBtn" title="Tomar foto (OCR)"><i class="fas fa-camera"></i></button>
+                <button class="btn-icon" id="voiceBtn" title="Buscar por voz"><i class="fas fa-microphone"></i></button>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;">
+            </div>
+        </div>
+
+        <div class="sample-plates-wrapper">
+            <span class="sample-plates-label"><i class="fas fa-lightbulb"></i> Ejemplos de búsqueda:</span>
+            <div class="sample-plates">
+                <span class="sample-plate" data-plate="O-123ABC">O-123ABC</span>
+                <span class="sample-plate" data-plate="P-456DEF">P-456DEF</span>
+                <span class="sample-plate" data-plate="TC-901STU">TC-901STU</span>
+                <span class="sample-plate" data-plate="A-246VWX">A-246VWX</span>
+                <span class="sample-plate" data-plate="M-789GHI">M-789GHI</span>
+            </div>
+        </div>
+
+        <div class="result-card-modern" id="resultCard">
+            <div class="result-card-header">
+                <span class="plate" id="resultPlate">O-123ABC <small>· Placa oficial</small></span>
+                <span class="status-badge cumple" id="resultStatus"><i class="fas fa-check-circle"></i> Cumple</span>
+            </div>
+            <div class="result-card-body" id="resultBody"></div>
+            <div class="result-card-footer" id="resultFooter"></div>
+            <div class="result-card-actions">
+                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener" class="btn-report"><i class="fas fa-flag"></i> Reportar irregularidad</a>
+                <button class="btn-close-result" id="closeResult"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="compliance-section" id="complianceSection">
+    <div class="container">
+        <div class="section-header">
+            <div class="tag"><span></span> Cumplimiento institucional</div>
+            <h2>Semáforo del <em>parque vehicular</em> del Estado</h2>
+            <p>Cada institución es evaluada según la Normativa 2024 para el uso adecuado de vehículos oficiales. Este semáforo refleja el porcentaje de placas que cumplen íntegramente con la normativa.</p>
+        </div>
+
+        <div class="semaphore-grid">
+            <div>
+                <div class="semaphore-kpis" id="semaphoreKPIs">
+                    <div class="semaphore-kpi"><div class="num green" id="kpiCumple">0</div><div class="label">Cumple</div></div>
+                    <div class="semaphore-kpi"><div class="num blue" id="kpiParcial">0</div><div class="label">Parcial</div></div>
+                    <div class="semaphore-kpi"><div class="num amber" id="kpiProceso">0</div><div class="label">En proceso</div></div>
+                    <div class="semaphore-kpi"><div class="num red" id="kpiNoCumple">0</div><div class="label">No cumple</div></div>
+                </div>
+                <div style="margin-top:0.5rem; font-size:0.9rem; color:var(--text-muted);">
+                    <i class="fas fa-info-circle"></i> Basado en el estado del vehículo, multas e ISCV.
+                </div>
+            </div>
+            <div class="semaphore-bar">
+                <div class="bar-track" id="semaphoreBar">
+                    <div class="segment green" style="width:0%;"></div>
+                    <div class="segment blue" style="width:0%;"></div>
+                    <div class="segment amber" style="width:0%;"></div>
+                    <div class="segment red" style="width:0%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                    <span class="global-pct" id="globalPct">0%</span>
+                    <span style="font-weight:600; color:var(--text-muted);">del parque cumple normativa 2024</span>
+                </div>
+                <div class="semaphore-legend">
+                    <span><span class="dot green"></span> Cumple</span>
+                    <span><span class="dot blue"></span> Parcial</span>
+                    <span><span class="dot amber"></span> En proceso</span>
+                    <span><span class="dot red"></span> No cumple</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="repo-instituciones">
+            <div class="repo-header">
+                <div>
+                    <div class="tag"><span></span> Repositorio institucional</div>
+                    <h3><em>Repositorio</em> por institución</h3>
+                </div>
+                <div class="repo-search-box">
+                    <input type="text" id="repoSearch" placeholder="Buscar institución..." />
+                    <button class="btn-sm primary" id="repoSearchBtn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+
+            <div class="repo-two-col">
+                <div class="repo-list-wrap">
+                    <div class="repo-list" id="repoList"></div>
+                </div>
+
+                <div class="repo-detail" id="repoDetail">
+                    <div class="repo-detail-header">
+                        <h4 id="detailName">Ministerio de Gobernación</h4>
+                        <span class="pct" id="detailPct">100% <small>cumplimiento</small></span>
+                    </div>
+
+                    <div class="repo-detail-stats" id="detailStats">
+                        <div class="repo-detail-stat"><div class="num" id="detailTotal">0</div><div class="lbl">Placas</div></div>
+                        <div class="repo-detail-stat"><div class="num green" id="detailCumple">0</div><div class="lbl">Cumple</div></div>
+                        <div class="repo-detail-stat"><div class="num amber" id="detailAlertas">0</div><div class="lbl">Con alertas</div></div>
+                        <div class="repo-detail-stat"><div class="num blue" id="detailExcepcional">0</div><div class="lbl">Uso excepcional</div></div>
+                    </div>
+
+                    <div class="distro-section-detail" id="distroSection">
+                        <h5>Distribución por estado</h5>
+                        <div id="distroRows">
+                            <div class="distro-row">
+                                <span class="distro-label"><span class="dot green"></span> Cumple</span>
+                                <div class="distro-bar-track"><div class="distro-fill green" id="distroCumple" style="width:0%;"></div></div>
+                                <span class="distro-value" id="distroCumpleVal">0</span>
+                            </div>
+                            <div class="distro-row">
+                                <span class="distro-label"><span class="dot blue"></span> Parcial</span>
+                                <div class="distro-bar-track"><div class="distro-fill blue" id="distroParcial" style="width:0%;"></div></div>
+                                <span class="distro-value" id="distroParcialVal">0</span>
+                            </div>
+                            <div class="distro-row">
+                                <span class="distro-label"><span class="dot amber"></span> En proceso</span>
+                                <div class="distro-bar-track"><div class="distro-fill amber" id="distroProceso" style="width:0%;"></div></div>
+                                <span class="distro-value" id="distroProcesoVal">0</span>
+                            </div>
+                            <div class="distro-row">
+                                <span class="distro-label"><span class="dot red"></span> No cumple</span>
+                                <div class="distro-bar-track"><div class="distro-fill red" id="distroNoCumple" style="width:0%;"></div></div>
+                                <span class="distro-value" id="distroNoCumpleVal">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="composition-bar">
+                        <h5>Composición</h5>
+                        <div class="comp-track" id="compTrack">
+                            <div class="comp-segment green" id="compCumple" style="width:0%;"></div>
+                            <div class="comp-segment blue" id="compParcial" style="width:0%;"></div>
+                            <div class="comp-segment amber" id="compProceso" style="width:0%;"></div>
+                            <div class="comp-segment red" id="compNoCumple" style="width:0%;"></div>
+                        </div>
+                        <div class="comp-legend">
+                            <span><span class="dot green"></span> Cumple</span>
+                            <span><span class="dot blue"></span> Parcial</span>
+                            <span><span class="dot amber"></span> En proceso</span>
+                            <span><span class="dot red"></span> No cumple</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="legal-section" id="legalSection">
+    <div class="container">
+        <div class="section-header">
+            <div class="tag" style="color:var(--cyan);"><span></span> Marco legal</div>
+            <h2>Normativa 2024 para el uso adecuado de <em>vehículos oficiales</em></h2>
+            <p>En 2024 el Presidente de la República emitió disposiciones específicas cuya observancia es objeto de auditoría social y verificación por la Contraloría General de Cuentas.</p>
+        </div>
+        <div class="legal-grid">
+            <div class="legal-card">
+                <div class="icon"><i class="fas fa-gavel"></i></div>
+                <h4>Uso institucional exclusivo</h4>
+                <p>Los vehículos del Estado deben utilizarse únicamente para las funciones asignadas a cada dependencia, en horarios y rutas justificadas.</p>
+            </div>
+            <div class="legal-card">
+                <div class="icon"><i class="fas fa-id-card"></i></div>
+                <h4>Identificación visible</h4>
+                <p>Toda unidad debe portar logotipo institucional, placa oficial y estar registrada en el inventario público de la entidad.</p>
+            </div>
+            <div class="legal-card">
+                <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+                <h4>Bitácora y monitoreo</h4>
+                <p>Cada vehículo mantiene bitácora de recorridos actualizada y, cuando aplique, sistema de monitoreo GPS activo.</p>
+            </div>
+            <div class="legal-card">
+                <div class="icon"><i class="fas fa-check-double"></i></div>
+                <h4>Verificación de la CGC</h4>
+                <p>La Contraloría General de Cuentas realiza auditorías periódicas sobre el cumplimiento de estas disposiciones y publica sus hallazgos.</p>
+            </div>
+        </div>
+        <div class="legal-cta">
+            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener" class="btn-legal"><i class="fas fa-pen-to-square"></i> Presentar denuncia</a>
+        </div>
+    </div>
+</section>
+
+<section class="catalog-section" id="catalogSection">
+    <div class="container">
+        <div class="section-header" style="text-align:left; margin-bottom:1.5rem;">
+            <div class="tag"><span></span> Inventario institucional</div>
+            <h2>Catálogo de <em>Instituciones</em></h2>
+            <p>Listado completo de todas las instituciones del Estado con sus indicadores de cumplimiento según la normativa 2024.</p>
+        </div>
+
+        <div class="catalog-controls">
+            <div class="left">
+                <input type="text" id="catalogSearch" placeholder="Buscar institución..." />
+                <select id="catalogFilterSector" style="padding:0.5rem 1rem;border:1.5px solid var(--border);border-radius:50px;font-family:var(--font-body);font-size:0.85rem;background:var(--surface);color:var(--text-main);">
+                    <option value="">Todos los tipos</option>
+                    <option value="Ministerios">Ministerios</option>
+                    <option value="Secretarías">Secretarías</option>
+                    <option value="Otras Dependencias">Otras Dependencias</option>
+                    <option value="Gobernaciones">Gobernaciones</option>
+                </select>
+            </div>
+            <div class="right">
+                <button class="btn-sm outline" onclick="exportCatalogPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button class="btn-sm outline" onclick="exportCatalogExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn-sm outline" onclick="exportCatalogCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead id="catalogThead">
+                    <tr>
+                        <th data-sort="nombre">Institución <i class="fas fa-sort"></i></th>
+                        <th data-sort="siglas">Siglas <i class="fas fa-sort"></i></th>
+                        <th data-sort="sector">Tipo <i class="fas fa-sort"></i></th>
+                        <th data-sort="total" style="text-align:center;">Total <i class="fas fa-sort"></i></th>
+                        <th data-sort="cumple" style="text-align:center;">Cumple <i class="fas fa-sort"></i></th>
+                        <th data-sort="parcial" style="text-align:center;">Parcial <i class="fas fa-sort"></i></th>
+                        <th data-sort="proceso" style="text-align:center;">En proceso <i class="fas fa-sort"></i></th>
+                        <th data-sort="nocumple" style="text-align:center;">No cumple <i class="fas fa-sort"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="catalogBody"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination-wrap" id="catalogPagination"></div>
+    </div>
+</section>
+
+<section class="audit-section" id="auditSection">
+    <div class="container">
+        <div class="section-header">
+            <div class="tag"><span></span> Auditoría Social</div>
+            <h2>Del hallazgo a la denuncia, <em>en cuatro pasos</em></h2>
+            <p>Placa Transparente articula la observación ciudadana con la denuncia formal ante los Canales por la Integridad de la Presidencia de la República.</p>
+        </div>
+        <div class="audit-grid">
+            <div class="audit-step">
+                <div class="step-num">01</div>
+                <h4>Observa y documenta</h4>
+                <p>Registra la placa del vehículo, fecha, hora y ubicación. Si es posible, toma una fotografía visible de la placa como evidencia del uso irregular.</p>
+            </div>
+            <div class="audit-step">
+                <div class="step-num">02</div>
+                <h4>Consulta en Placa Transparente</h4>
+                <p>Ingresa la placa en el buscador. Verifica a qué institución pertenece, quién la tiene asignada y cuál es su uso autorizado según la normativa vigente.</p>
+            </div>
+            <div class="audit-step">
+                <div class="step-num">03</div>
+                <h4>Contrasta con la normativa 2024</h4>
+                <p>Confirma si el uso observado se encuentra fuera de las funciones institucionales, del horario asignado o del propósito declarado del vehículo.</p>
+            </div>
+            <div class="audit-step">
+                <div class="step-num">04</div>
+                <h4>Denuncia en Canales por la Integridad</h4>
+                <p>Presenta tu reporte con la evidencia recabada en la plataforma oficial de la Presidencia. Tu denuncia se canaliza a la autoridad administrativa competente.</p>
+            </div>
+        </div>
+        <div class="audit-cta">
+            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener" class="btn-legal"><i class="fas fa-shield"></i> Ir a Canales por la Integridad</a>
+        </div>
+    </div>
+</section>
+
+<section class="denuncia-section">
+    <div class="container denuncia-inner">
+        <div class="denuncia-header">
+            <div class="tag"><span></span> Plataforma Oficial de Denuncias</div>
+            <h2>¿Identificaste una irregularidad? <br><em>Denuncia en línea</em></h2>
+            <p><strong>Vigilando la Integridad</strong> es el canal oficial del Gobierno de Guatemala para recibir y gestionar denuncias administrativas las 24 horas. Conoce qué puedes denunciar, cómo opera la plataforma y las herramientas a tu disposición.</p>
+        </div>
+
+        <div class="denuncia-grid">
+            <div class="denuncia-card">
+                <div class="icon"><i class="fas fa-clock"></i></div>
+                <h4>Disponible 24/7</h4>
+                <p>Presenta tu denuncia en cualquier momento, desde cualquier dispositivo.</p>
+            </div>
+            <div class="denuncia-card">
+                <div class="icon"><i class="fas fa-user-secret"></i></div>
+                <h4>Protección al denunciante</h4>
+                <p>Tu identidad y datos personales están protegidos conforme a la ley.</p>
+            </div>
+            <div class="denuncia-card">
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+                <h4>Seguimiento en línea</h4>
+                <p>Consulta el estado de tu denuncia directamente desde la plataforma.</p>
+            </div>
+            <div class="denuncia-card">
+                <div class="icon"><i class="fas fa-building"></i></div>
+                <h4>Gestión institucional</h4>
+                <p>Cada denuncia es recibida por la Instancia de Probidad correspondiente.</p>
+            </div>
+        </div>
+
+        <div class="denuncia-actions">
+            <a href="../canales-por-la-integridad/" class="btn-denuncia primary"><i class="fas fa-flag"></i> Ir a denunciar</a>
+            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener" class="btn-denuncia secondary"><i class="fas fa-info-circle"></i> Conoce más</a>
+        </div>
+    </div>
+</section>
+
+<section class="faq-section">
+    <div class="container">
+        <div class="faq-header">
+            <div class="tag"><span></span> Preguntas Frecuentes</div>
+            <h2><em>Resolvemos</em> tus dudas</h2>
+            <p>Respuestas a las consultas más comunes sobre el portal Placa Transparente y el proceso de denuncia.</p>
+        </div>
+        <div class="faq-wrap">
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    <span>¿Qué información puedo consultar sobre un vehículo oficial?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-a">
+                    Puedes consultar la placa, tipo de placa, dependencia asignada, uso autorizado, marca, modelo, color, año, estado (activo, mantenimiento, inactivo), y además información sobre el pago del ISCV y multas de tránsito registradas.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    <span>¿Cómo sé si un vehículo está al día con el ISCV?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-a">
+                    En la tarjeta de cada vehículo encontrarás una etiqueta que indica si está "Moroso" o "Al día" con el Instituto de Seguridad Social del Conductor y Vehículo (ISCV). Esta información se actualiza periódicamente.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    <span>¿Puedo reportar un vehículo que vea en mal estado o con uso indebido?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-a">
+                    Sí, al final de la sección de denuncia encontrarás dos opciones: "Ir a denunciar" que te lleva a los Canales por la Integridad, y "Conoce más" que te dirige a Vigilando PIA, donde puedes presentar tu denuncia de manera segura y confidencial.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    <span>¿Los datos de multas de tránsito son actualizados en tiempo real?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-a">
+                    La información de multas se actualiza con la misma periodicidad que el resto de los datos vehiculares. Te recomendamos consultar fuentes oficiales para información en tiempo real sobre el estado de multas.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    <span>¿Qué significa el estado "Mantenimiento" en un vehículo?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-a">
+                    El estado "Mantenimiento" indica que el vehículo se encuentra en proceso de revisión, reparación o servicio técnico, y no está disponible para uso operativo en ese momento.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logos-row">
+                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
+                    <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" style="height:52px; width:auto; object-fit:contain; opacity:0.9;">
+                    <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Placa Transparente" style="height:48px; width:auto; object-fit:contain;">
+                </div>
+                <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Reporta irregularidades</h4>
+                <ul class="footer-links">
+                    <li><a href="../canales-por-la-integridad/">Canales por la Integridad</a></li>
+                    <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Explora datos</h4>
+                <ul class="footer-links">
+                    <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
+                    <li><a href="../riesgo/">Riesgo en la Mira</a></li>
+                    <li><a href="../vehiculos/">Placa Transparente</a></li>
+                    <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Accede a la información</h4>
+                <ul class="footer-links">
+                    <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
+                    <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
+                </ul>
+                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <ul class="footer-links">
+                    <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <div class="footer-contact">
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                </div>
+                <div class="social-row">
+                    <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://x.com/GuatemalaGob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.youtube.com/@GobiernodelaRepublicadeGuatema" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <div class="footer-logos">
+                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Logo gobierno" style="height:36px; width:auto; opacity:0.6;">
+                <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Placa Transparente" style="height:36px; width:auto; opacity:0.6;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    let catalogInstituciones = [];
+    let vehicles = [];
+    let vehicleToInstitution = [];
+    let catalogData = [];
+    let catalogPage = 1;
+    let catalogPageSize = 10;
+    let catalogSort = { key: 'nombre', dir: 'asc' };
+    let detailChartInstance = null;
+
+    async function loadData() {
+        try {
+            const response = await fetch('vehiculos.json');
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el archivo vehiculos.json');
+            }
+            const data = await response.json();
+            catalogInstituciones = data.catalogInstituciones || [];
+            vehicles = data.vehicles || [];
+            
+            initializeApp();
+        } catch (error) {
+            console.error('Error al cargar los datos:', error);
+        }
+    }
+
+    function initializeApp() {
+        vehicleToInstitution = vehicles.map(v => {
+            const instName = getInstitutionForVehicle(v.department);
+            let found = catalogInstituciones.find(i => i.nombre === instName);
+            if (!found) {
+                catalogInstituciones.push({ nombre: instName, siglas: instName.substring(0,4).toUpperCase(), sector: "Otras Dependencias" });
+                found = catalogInstituciones.find(i => i.nombre === instName);
+            }
+            return { ...v, instName: found.nombre, sector: found.sector };
+        });
+
+        catalogData = buildCatalogData();
+
+        updateSemaphore();
+        renderRepoList();
+        populateCatalogFilters();
+        renderCatalog();
+
+        setupSearchEvents();
+        setupVoiceAndCamera();
+        setupMobileMenu();
+
+        const initialPlate = document.getElementById('plateInput').value.trim();
+        if (initialPlate) performSearch(initialPlate);
+    }
+
+    function getInstitutionForVehicle(department) {
+        if (!department) return "Otras Dependencias";
+        for (let inst of catalogInstituciones) {
+            if (inst.nombre === department) return inst.nombre;
+            if (department.includes(inst.nombre) || inst.nombre.includes(department)) {
+                if (inst.nombre.split(' ').length > 1 && department.split(' ').length > 1) {
+                    const palabrasInst = inst.nombre.split(' ');
+                    const palabrasDept = department.split(' ');
+                    const coincidencias = palabrasInst.filter(p => palabrasDept.includes(p));
+                    if (coincidencias.length >= 2) return inst.nombre;
+                }
+                return inst.nombre;
+            }
+        }
+        return department;
+    }
+
+    function getCompliance(vehicle) {
+        if (vehicle.status === 'Activo' && (vehicle.multas || 0) === 0 && !vehicle.iscvMoroso) return 'cumple';
+        if (vehicle.status === 'Activo' && ((vehicle.multas || 0) > 0 || vehicle.iscvMoroso)) return 'parcial';
+        if (vehicle.status === 'Mantenimiento') return 'proceso';
+        if (vehicle.status === 'Inactivo') return 'nocumple';
+        return 'proceso';
+    }
+
+    function getInstitutionCompliance(instName) {
+        const instVehicles = vehicleToInstitution.filter(v => v.instName === instName);
+        const stats = { cumple: 0, parcial: 0, proceso: 0, nocumple: 0, total: instVehicles.length };
+        instVehicles.forEach(v => {
+            const c = getCompliance(v);
+            stats[c] = (stats[c] || 0) + 1;
+        });
+        stats.cumplePct = stats.total > 0 ? Math.round((stats.cumple / stats.total) * 100) : 0;
+        return stats;
+    }
+
+    function normalizePlate(plate) {
+        return (plate || '').toUpperCase().replace(/\s/g, '').replace(/-/g, '');
+    }
+
+    function findVehicle(plate) {
+        const norm = normalizePlate(plate);
+        return vehicles.find(v => normalizePlate(v.plate) === norm);
+    }
+
+    function renderResult(vehicle) {
+        if (!vehicle) { 
+            document.getElementById('resultCard').classList.remove('visible'); 
+            return; 
+        }
+        const comp = getCompliance(vehicle);
+        const statusMap = {
+            cumple: { class: 'cumple', icon: 'fa-check-circle', label: 'Cumple' },
+            parcial: { class: 'parcial', icon: 'fa-exclamation-triangle', label: 'Parcial' },
+            proceso: { class: 'proceso', icon: 'fa-clock', label: 'En proceso' },
+            nocumple: { class: 'nocumple', icon: 'fa-times-circle', label: 'No cumple' }
+        };
+        const st = statusMap[comp] || statusMap['proceso'];
+
+        document.getElementById('resultPlate').innerHTML = `${vehicle.plate} <small>· Placa oficial</small>`;
+        const statusEl = document.getElementById('resultStatus');
+        statusEl.className = `status-badge ${st.class}`;
+        statusEl.innerHTML = `<i class="fas ${st.icon}"></i> ${st.label}`;
+
+        document.getElementById('resultBody').innerHTML = `
+            <div class="field"><span class="label"><i class="fas fa-university"></i> Institución</span><span class="value">${vehicle.department || '—'}</span></div>
+            <div class="field"><span class="label"><i class="fas fa-tag"></i> Tipo de institución</span><span class="value">${vehicle.tipoInst || '—'}</span></div>
+            <div class="field"><span class="label"><i class="fas fa-tasks"></i> Uso autorizado</span><span class="value">${vehicle.authorizedUse || '—'}</span></div>
+            <div class="field"><span class="label"><i class="fas fa-car"></i> Marca / Modelo</span><span class="value">${vehicle.brand || ''} ${vehicle.model || ''}</span></div>
+            <div class="field"><span class="label"><i class="fas fa-palette"></i> Color / Año</span><span class="value">${vehicle.color || ''} · ${vehicle.year || ''}</span></div>
+            <div class="field"><span class="label"><i class="fas fa-flag"></i> Tipo de placa</span><span class="value">${vehicle.plateType || '—'}</span></div>
+            <div class="field"><span class="label"><i class="fas fa-clock"></i> Última actualización</span><span class="value">${vehicle.lastUpdate ? new Date(vehicle.lastUpdate).toLocaleDateString('es-GT', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'}</span></div>
+            ${vehicle.inactiveReason ? `<div class="field field-full"><span class="label"><i class="fas fa-info-circle" style="color:var(--danger);"></i> Observaciones</span><span class="value" style="color:var(--danger);">${vehicle.inactiveReason}</span></div>` : ''}
+        `;
+
+        const iscvText = vehicle.iscvMoroso ? 'Moroso' : 'Al día';
+        const iscvClase = vehicle.iscvMoroso ? 'moroso' : 'al-dia';
+        const multasVal = vehicle.multas || 0;
+        const multasText = multasVal > 0 ? `${multasVal} multa${multasVal > 1 ? 's' : ''}` : 'Sin multas';
+        const multasClase = multasVal > 0 ? '' : 'sin-multas';
+
+        document.getElementById('resultFooter').innerHTML = `
+            <span class="badge-iscv ${iscvClase}"><i class="fas fa-${vehicle.iscvMoroso ? 'exclamation-triangle' : 'check-circle'}"></i> ISCV: ${iscvText}</span>
+            <span class="badge-multas ${multasClase}"><i class="fas fa-${multasVal > 0 ? 'exclamation-circle' : 'check-circle'}"></i> Multas: ${multasText}</span>
+            <span><i class="fas fa-calendar-alt"></i> Actualizado: ${vehicle.lastUpdate ? new Date(vehicle.lastUpdate).toLocaleDateString('es-GT') : '—'}</span>
+            <span style="font-weight:600; color:var(--cyan);"><i class="fas fa-${st.icon}"></i> Cumplimiento: ${st.label}</span>
+        `;
+
+        document.getElementById('resultCard').classList.add('visible');
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function performSearch(plate) {
+        if (!plate || !plate.trim()) { 
+            document.getElementById('resultCard').classList.remove('visible'); 
+            return; 
+        }
+        const v = findVehicle(plate);
+        if (v) renderResult(v);
+        else {
+            document.getElementById('resultPlate').innerHTML = `${plate.toUpperCase()} <small>· No encontrado</small>`;
+            const statusEl = document.getElementById('resultStatus');
+            statusEl.className = 'status-badge nocumple';
+            statusEl.innerHTML = '<i class="fas fa-question-circle"></i> No registrado';
+            document.getElementById('resultBody').innerHTML = `
+                <div class="field field-full" style="text-align:center;padding:1.5rem 0;">
+                    <i class="fas fa-search" style="font-size:2.5rem;color:var(--text-light);margin-bottom:0.5rem;display:block;"></i>
+                    <p style="color:var(--text-muted);">No se encontró un vehículo con la placa <strong>${plate.toUpperCase()}</strong>.</p>
+                    <p style="color:var(--text-light);font-size:0.85rem;">Verifique el formato o intente con otra placa.</p>
+                </div>
+            `;
+            document.getElementById('resultFooter').innerHTML = '';
+            document.getElementById('resultCard').classList.add('visible');
+            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function setupSearchEvents() {
+        document.getElementById('searchBtn').addEventListener('click', () => performSearch(document.getElementById('plateInput').value));
+        document.getElementById('plateInput').addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') { 
+                e.preventDefault();
+                performSearch(document.getElementById('plateInput').value); 
+            } 
+        });
+        document.getElementById('closeResult').addEventListener('click', () => document.getElementById('resultCard').classList.remove('visible'));
+
+        document.querySelectorAll('.sample-plate').forEach(el => {
+            el.addEventListener('click', () => { 
+                document.getElementById('plateInput').value = el.dataset.plate;
+                performSearch(el.dataset.plate); 
+            });
+        });
+    }
+
+    function setupVoiceAndCamera() {
+        const voiceBtn = document.getElementById('voiceBtn');
+        let recognition = null;
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SR();
+            recognition.lang = 'es-ES';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            voiceBtn.addEventListener('click', () => {
+                if (recognition) {
+                    recognition.start();
+                    voiceBtn.style.color = 'var(--cyan)';
+                    voiceBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+                    setTimeout(() => { voiceBtn.style.color = '';
+                        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; }, 5000);
+                } else { alert('Tu navegador no soporta reconocimiento de voz.'); }
+            });
+            recognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript.trim();
+                document.getElementById('plateInput').value = transcript;
+                performSearch(transcript);
+                voiceBtn.style.color = '';
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+            recognition.onerror = () => {
+                voiceBtn.style.color = '';
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+        } else {
+            voiceBtn.addEventListener('click', () => alert('Tu navegador no soporta reconocimiento de voz.'));
+        }
+
+        const cameraBtn = document.getElementById('cameraBtn');
+        const fileInput = document.getElementById('fileInput');
+        cameraBtn.addEventListener('click', () => {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                const video = document.createElement('video');
+                video.style.display = 'none';
+                document.body.appendChild(video);
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(stream => {
+                        video.srcObject = stream;
+                        video.play();
+                        setTimeout(() => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = video.videoWidth || 640;
+                            canvas.height = video.videoHeight || 480;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            stream.getTracks().forEach(t => t.stop());
+                            video.remove();
+                            recognizePlate(canvas.toDataURL('image/png'));
+                        }, 500);
+                    })
+                    .catch(() => { fileInput.click(); });
+            } else { fileInput.click(); }
+        });
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => recognizePlate(ev.target.result);
+                reader.readAsDataURL(file);
+            }
+            fileInput.value = '';
+        });
+
+        function recognizePlate(imageDataUrl) {
+            cameraBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+            cameraBtn.style.color = 'var(--cyan)';
+            if (window.Tesseract) {
+                Tesseract.recognize(imageDataUrl, 'eng', { logger: () => {} })
+                    .then(({ data: { text } }) => {
+                        cameraBtn.innerHTML = '<i class="fas fa-camera"></i>';
+                        cameraBtn.style.color = '';
+                        const lines = text.split('\n');
+                        let plate = '';
+                        for (let line of lines) {
+                            const clean = line.replace(/[^A-Z0-9\-]/g, '').toUpperCase();
+                            const match = clean.match(/[A-Z0-9\-]{6,10}/);
+                            if (match) { plate = match[0]; break; }
+                        }
+                        if (plate) { document.getElementById('plateInput').value = plate; performSearch(plate); } 
+                        else { alert('No se pudo reconocer la placa. Intenta con otra foto.'); }
+                    })
+                    .catch(() => {
+                        cameraBtn.innerHTML = '<i class="fas fa-camera"></i>';
+                        cameraBtn.style.color = '';
+                    });
+            }
+        }
+    }
+
+    function computeComplianceStats() {
+        const stats = { cumple: 0, parcial: 0, proceso: 0, nocumple: 0 };
+        vehicles.forEach(v => {
+            const c = getCompliance(v);
+            stats[c] = (stats[c] || 0) + 1;
+        });
+        return stats;
+    }
+
+    function updateSemaphore() {
+        const stats = computeComplianceStats();
+        const total = vehicles.length;
+        document.getElementById('kpiCumple').textContent = stats.cumple || 0;
+        document.getElementById('kpiParcial').textContent = stats.parcial || 0;
+        document.getElementById('kpiProceso').textContent = stats.proceso || 0;
+        document.getElementById('kpiNoCumple').textContent = stats.nocumple || 0;
+
+        const pct = total > 0 ? Math.round((stats.cumple / total) * 100) : 0;
+        document.getElementById('globalPct').textContent = pct + '%';
+
+        const bar = document.getElementById('semaphoreBar');
+        bar.innerHTML = `
+            <div class="segment green" style="width:${total > 0 ? (stats.cumple/total)*100 : 0}%;"></div>
+            <div class="segment blue" style="width:${total > 0 ? (stats.parcial/total)*100 : 0}%;"></div>
+            <div class="segment amber" style="width:${total > 0 ? (stats.proceso/total)*100 : 0}%;"></div>
+            <div class="segment red" style="width:${total > 0 ? (stats.nocumple/total)*100 : 0}%;"></div>
+        `;
+    }
+
+    function renderRepoList(filter = '') {
+        const list = document.getElementById('repoList');
+        const filtered = catalogInstituciones.filter(inst =>
+            inst.nombre.toLowerCase().includes(filter.toLowerCase()) ||
+            (inst.siglas && inst.siglas.toLowerCase().includes(filter.toLowerCase()))
+        );
+        const order = { 'Ministerios': 0, 'Secretarías': 1, 'Otras Dependencias': 2, 'Gobernaciones': 3 };
+        filtered.sort((a, b) => (order[a.sector] || 99) - (order[b.sector] || 99) || a.nombre.localeCompare(b.nombre));
+
+        list.innerHTML = filtered.map(inst => {
+            const stats = getInstitutionCompliance(inst.nombre);
+            const isActive = inst.nombre === (document.getElementById('detailName').textContent || '');
+            return `<div class="repo-item ${isActive ? 'active' : ''}" data-inst="${inst.nombre}" onclick="selectInstitution('${inst.nombre}')">
+                <span class="name">${inst.nombre}</span>
+                <span class="count">${stats.total}</span>
+            </div>`;
+        }).join('');
+        if (filtered.length > 0 && !document.querySelector('.repo-item.active')) {
+            selectInstitution(filtered[0].nombre);
+        }
+    }
+
+    window.selectInstitution = function(instName) {
+        const stats = getInstitutionCompliance(instName);
+        const total = stats.total;
+        const inst = catalogInstituciones.find(i => i.nombre === instName);
+
+        document.getElementById('detailName').textContent = inst ? inst.nombre : instName;
+        document.getElementById('detailPct').innerHTML = `${stats.cumplePct}% <small>cumplimiento</small>`;
+
+        document.getElementById('detailTotal').textContent = total;
+        document.getElementById('detailCumple').textContent = stats.cumple || 0;
+        document.getElementById('detailAlertas').textContent = (stats.parcial || 0) + (stats.nocumple || 0);
+        document.getElementById('detailExcepcional').textContent = stats.proceso || 0;
+
+        const maxVal = total || 1;
+        const pcts = {
+            cumple: (stats.cumple / maxVal) * 100,
+            parcial: (stats.parcial / maxVal) * 100,
+            proceso: (stats.proceso / maxVal) * 100,
+            nocumple: (stats.nocumple / maxVal) * 100
+        };
+        document.getElementById('distroCumple').style.width = pcts.cumple + '%';
+        document.getElementById('distroCumpleVal').textContent = stats.cumple || 0;
+        document.getElementById('distroParcial').style.width = pcts.parcial + '%';
+        document.getElementById('distroParcialVal').textContent = stats.parcial || 0;
+        document.getElementById('distroProceso').style.width = pcts.proceso + '%';
+        document.getElementById('distroProcesoVal').textContent = stats.proceso || 0;
+        document.getElementById('distroNoCumple').style.width = pcts.nocumple + '%';
+        document.getElementById('distroNoCumpleVal').textContent = stats.nocumple || 0;
+
+        document.getElementById('compCumple').style.width = pcts.cumple + '%';
+        document.getElementById('compParcial').style.width = pcts.parcial + '%';
+        document.getElementById('compProceso').style.width = pcts.proceso + '%';
+        document.getElementById('compNoCumple').style.width = pcts.nocumple + '%';
+
+        document.querySelectorAll('.repo-item').forEach(el => el.classList.remove('active'));
+        const activeItem = document.querySelector(`.repo-item[data-inst="${instName}"]`);
+        if (activeItem) activeItem.classList.add('active');
+    };
+
+    document.getElementById('repoSearch').addEventListener('input', (e) => renderRepoList(e.target.value));
+    document.getElementById('repoSearchBtn').addEventListener('click', () => renderRepoList(document.getElementById('repoSearch').value));
+
+    function buildCatalogData() {
+        return catalogInstituciones.map(inst => {
+            const stats = getInstitutionCompliance(inst.nombre);
+            return {
+                nombre: inst.nombre,
+                siglas: inst.siglas || '—',
+                sector: inst.sector,
+                total: stats.total,
+                cumple: stats.cumple || 0,
+                parcial: stats.parcial || 0,
+                proceso: stats.proceso || 0,
+                nocumple: stats.nocumple || 0
+            };
+        });
+    }
+
+    function renderCatalog() {
+        const search = document.getElementById('catalogSearch').value.toLowerCase().trim();
+        const sectorFilter = document.getElementById('catalogFilterSector').value;
+
+        let data = catalogData.filter(item => {
+            const matchNombre = item.nombre.toLowerCase().includes(search);
+            const matchSector = sectorFilter === '' || item.sector === sectorFilter;
+            return matchNombre && matchSector;
+        });
+
+        const key = catalogSort.key;
+        const dir = catalogSort.dir === 'asc' ? 1 : -1;
+        data.sort((a, b) => {
+            const va = a[key] || '';
+            const vb = b[key] || '';
+            if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+            return va.toString().localeCompare(vb.toString()) * dir;
+        });
+
+        const totalPages = Math.ceil(data.length / catalogPageSize);
+        if (catalogPage > totalPages) catalogPage = Math.max(1, totalPages);
+        const start = (catalogPage - 1) * catalogPageSize;
+        const pageData = data.slice(start, start + catalogPageSize);
+
+        const tbody = document.getElementById('catalogBody');
+        if (pageData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No se encontraron instituciones.</td></tr>`;
+        } else {
+            tbody.innerHTML = pageData.map(item => `
+                <tr>
+                    <td><strong>${item.nombre}</strong></td>
+                    <td>${item.siglas}</td>
+                    <td>${item.sector}</td>
+                    <td style="text-align:center;font-weight:700;">${item.total}</td>
+                    <td style="text-align:center;color:var(--green);font-weight:600;">${item.cumple}</td>
+                    <td style="text-align:center;color:var(--blue-bright);">${item.parcial}</td>
+                    <td style="text-align:center;color:var(--amber);">${item.proceso}</td>
+                    <td style="text-align:center;color:var(--danger);">${item.nocumple}</td>
+                </tr>
+            `).join('');
+        }
+
+        const pag = document.getElementById('catalogPagination');
+        pag.innerHTML = '';
+        if (totalPages > 1) {
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                if (i === catalogPage) btn.classList.add('active');
+                btn.addEventListener('click', () => { catalogPage = i; renderCatalog(); });
+                pag.appendChild(btn);
+            }
+        }
+    }
+
+    function populateCatalogFilters() {
+        const sel = document.getElementById('catalogFilterSector');
+        const sectores = [...new Set(catalogInstituciones.map(i => i.sector))].sort();
+        sel.innerHTML = '<option value="">Todos los tipos</option>';
+        sectores.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => { catalogPage = 1; renderCatalog(); });
+        document.getElementById('catalogSearch').addEventListener('input', () => { catalogPage = 1; renderCatalog(); });
+    }
+
+    document.getElementById('catalogThead').addEventListener('click', (e) => {
+        const th = e.target.closest('th');
+        if (!th || !th.dataset.sort) return;
+        const key = th.dataset.sort;
+        if (catalogSort.key === key) catalogSort.dir = catalogSort.dir === 'asc' ? 'desc' : 'asc';
+        else { catalogSort.key = key; catalogSort.dir = 'asc'; }
+        catalogPage = 1;
+        renderCatalog();
+    });
+
+    function getCatalogExportData() {
+        const search = document.getElementById('catalogSearch').value.toLowerCase().trim();
+        const sectorFilter = document.getElementById('catalogFilterSector').value;
+        let data = catalogData.filter(item => {
+            const matchNombre = item.nombre.toLowerCase().includes(search);
+            const matchSector = sectorFilter === '' || item.sector === sectorFilter;
+            return matchNombre && matchSector;
+        });
+        data.sort((a, b) => b.total - a.total);
+        return data.map(item => ({
+            'Institución': item.nombre,
+            'Siglas': item.siglas,
+            'Tipo': item.sector,
+            'Total': item.total,
+            'Cumple': item.cumple,
+            'Parcial': item.parcial,
+            'En proceso': item.proceso,
+            'No cumple': item.nocumple
+        }));
+    }
+
+    window.exportCatalogPDF = function() {
+        const data = getCatalogExportData();
+        if (!data.length) { alert('No hay datos para exportar.'); return; }
+        if (window.jspdf && window.jspdf.jsPDF) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const headers = Object.keys(data[0]);
+            const rows = data.map(obj => headers.map(h => obj[h] || ''));
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                theme: 'striped',
+                headStyles: { fillColor: [5, 17, 31], textColor: 255 },
+                margin: { top: 10 }
+            });
+            doc.save(`catalogo_instituciones_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+    };
+
+    window.exportCatalogExcel = function() {
+        const data = getCatalogExportData();
+        if (!data.length) { alert('No hay datos para exportar.'); return; }
+        if (window.XLSX) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Instituciones');
+            XLSX.writeFile(wb, `catalogo_instituciones_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+    };
+
+    window.exportCatalogCSV = function() {
+        const data = getCatalogExportData();
+        if (!data.length) { alert('No hay datos para exportar.'); return; }
+        const headers = Object.keys(data[0]);
+        const csvRows = [headers.join(',')];
+        data.forEach(obj => {
+            const values = headers.map(h => `"${(obj[h] || '').replace(/"/g, '""')}"`);
+            csvRows.push(values.join(','));
+        });
+        const csv = csvRows.join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `catalogo_instituciones_${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+    };
+
+    window.toggleFaq = function(btn) {
+        const item = btn.closest('.faq-item');
+        const content = item.querySelector('.faq-a');
+        const icon = btn.querySelector('i');
+        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+        if (isOpen) {
+            content.style.maxHeight = '0px';
+            icon.style.transform = 'rotate(0deg)';
+            item.classList.remove('open');
+        } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
+            item.classList.add('open');
+        }
+    };
+
+    function setupMobileMenu() {
+        document.getElementById('mobileMenu').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('open');
+        });
+        document.querySelectorAll('.submenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 680) document.getElementById('navMenu').classList.remove('open');
+            });
+        });
+        document.querySelectorAll('.menu-group > a').forEach(groupLink => {
+            groupLink.addEventListener('click', (e) => {
+                if (window.innerWidth <= 680) {
+                    e.preventDefault();
+                    const parentLi = groupLink.closest('.menu-group');
+                    parentLi.classList.toggle('open');
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo PIA | Sistema de Gestión Integral</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+    <link rel="stylesheet" href="/admin/css/database-manager.css">
+    <style>
+        :root {
+            --navy: #05111F;
+            --navy-mid: #0C2033;
+            --navy-light: #163250;
+            --blue: #1A5C8F;
+            --blue-bright: #2B82C9;
+            --cyan: #00C2E0;
+            --green: #22C55E;
+            --red: #EF4444;
+            --orange: #F97316;
+            --surface: #F0F5FB;
+            --text-main: #0C1F30;
+            --text-muted: #5E7A8E;
+            --border: rgba(26,92,143,0.14);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --font-head: 'Sora', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--surface); color: var(--text-main); line-height: 1.6; }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: var(--font-body); cursor: pointer; border: none; }
+        
+        /* LOGIN */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-box {
+            position: relative;
+            z-index: 2;
+            background: rgba(12,32,51,0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,194,224,0.25);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            color: #fff;
+        }
+        .login-box h1 {
+            font-family: var(--font-head);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.3rem;
+            background: linear-gradient(135deg, #00C2E0, #2B82C9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .login-box p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+        .login-form-group {
+            margin-bottom: 1.5rem;
+        }
+        .login-form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .login-form-group input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(0,194,224,0.3);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .login-form-group input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.12);
+            border-color: var(--cyan);
+            box-shadow: 0 0 12px rgba(0,194,224,0.3);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--cyan);
+            color: var(--navy);
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0,194,224,0.3);
+            margin-top: 0.5rem;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            background: #00ddf7;
+            box-shadow: 0 8px 24px rgba(0,194,224,0.4);
+        }
+        .login-error {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #FF8888;
+            padding: 0.85rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* MAIN LAYOUT */
+        .main-layout {
+            display: none;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: var(--navy);
+            color: #fff;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(26,92,143,0.2);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2.5rem;
+        }
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--cyan), var(--blue-bright));
+            color: var(--navy);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-head);
+            font-weight: 800;
+            font-size: 1.4rem;
+        }
+        .logo-text {
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1.2;
+        }
+        .nav-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+            font-weight: 700;
+        }
+        .nav-list { list-style: none; }
+        .nav-list button {
+            width: 100%;
+            text-align: left;
+            padding: 0.8rem 1rem;
+            background: transparent;
+            color: rgba(255,255,255,0.75);
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .nav-list button:hover, .nav-list button.active {
+            background: rgba(0,194,224,0.15);
+            color: var(--cyan);
+        }
+        
+        .top-header {
+            background: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--navy);
+            color: var(--cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(239,68,68,0.1);
+            color: var(--red);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background: var(--red);
+            color: #fff;
+        }
+        .content-wrapper {
+            padding: 2.5rem;
+            background: var(--surface);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <h1>Panel Administrador PIA</h1>
+            <p>Acceso restringido al sistema de administración de datos</p>
+            
+            <div id="loginError" class="login-error"></div>
+            
+            <form id="loginForm">
+                <div class="login-form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="loginUser" placeholder="admin" required autofocus autocomplete="username">
+                </div>
+                
+                <div class="login-form-group">
+                    <label>Contraseña</label>
+                    <div style="position: relative;">
+                        <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                        <button type="button" id="togglePassword" class="btn-toggle-password" title="Mostrar/ocultar contraseña" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 1.1rem; padding: 0.3rem;">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Iniciar Sesión
+                </button>
+            </form>
+            
+            <div style="margin-top: 2rem; text-align: center; color: rgba(255,255,255,0.5); font-size: 0.85rem;">
+                <p>Portal de Integridad Activa — Gobierno de Guatemala</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MAIN LAYOUT -->
+    <div id="mainLayout" class="main-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">π</div>
+                <div class="logo-text">Panel PIA<br><span style="font-size: 0.75rem; opacity: 0.6; font-weight: normal;">Gestor de Datos JSON</span></div>
+            </div>
+            
+            <div class="nav-section-title">Módulos del Portal</div>
+            <ul class="nav-list">
+                <li>
+                    <button data-module="dashboard" class="active">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </button>
+                </li>
+                <li>
+                    <button data-module="canales">
+                        <i class="fas fa-comments"></i> Canales x Integridad
+                    </button>
+                </li>
+                <li>
+                    <button data-module="directorio">
+                        <i class="fas fa-address-book"></i> Directorio Ejecutivo
+                    </button>
+                </li>
+                <li>
+                    <button data-module="tableros">
+                        <i class="fas fa-chart-bar"></i> Tu Gobierno en Números
+                    </button>
+                </li>
+                <li>
+                    <button data-module="riesgo">
+                        <i class="fas fa-bullseye"></i> Riesgo en la Mira
+                    </button>
+                </li>
+                <li>
+                    <button data-module="vehiculos">
+                        <i class="fas fa-car"></i> Placa Transparente
+                    </button>
+                </li>
+                <li>
+                    <button data-module="portal">
+                        <i class="fas fa-globe"></i> Métricas Portal
+                    </button>
+                </li>
+            </ul>
+
+            <div class="nav-section-title">Administración Avanzada</div>
+            <ul class="nav-list">
+                <li>
+                    <button data-module="audit">
+                        <i class="fas fa-shield-alt"></i> Bitácora de Auditoría
+                    </button>
+                </li>
+                <li>
+                    <button data-module="database">
+                        <i class="fas fa-database"></i> Editor Directo JSON
+                    </button>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- MAIN CONTENT AREA -->
+        <div style="display: flex; flex-direction: column; width: 100%;">
+            <header class="top-header">
+                <div>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);"><i class="fas fa-server"></i> Conectado al Servidor PIA</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.9rem;" id="userEmailDisplay">admin@pia.gob.gt</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);" id="userRoleDisplay">Administrador General</div>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                </div>
+            </header>
+            
+            <main class="content-wrapper" id="contentArea">
+                <!-- Se carga dinámicamente desde app.js -->
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/form-builder.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
