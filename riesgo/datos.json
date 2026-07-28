@@ -8,8 +8,6 @@
         { "icono": "check-circle", "valor": "21%", "etiqueta": "Cumplen" },
         { "icono": "loader-2", "valor": "79%", "etiqueta": "En proceso" },
         { "icono": "star", "valor": "25%", "etiqueta": "Buenas prácticas GRC" },
-        { "icono": "shield-alt", "valor": "CNC", "etiqueta": "Verificación" },
-        { "icono": "clipboard-list", "valor": "NO APLICA", "etiqueta": "Verificación hallazgos CGC" },
         { "icono": "clock", "valor": "2025", "etiqueta": "Ciclo activo" }
       ],
       "instituciones": [
@@ -958,7 +956,7 @@
     {
       "icono": "user-tie",
       "texto": "Ofrecimiento irregular de plazas",
-      "descripcionBreve": "Venta u ofrecimiento indebido de puestos de trabajo",
+      "descripcionBreve": "Venta u offeredimiento indebido de puestos de trabajo",
       "detalleCompleto": "Solicitud, cobro o recepción de dinero, favores o beneficios para otorgar empleo público.",
       "fuente": "Patrones CNC- marzo 2026",
       "categoria": "Recursos humanos"

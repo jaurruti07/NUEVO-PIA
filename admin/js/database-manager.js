@@ -1,4 +1,4 @@
-// database-manager.js - Interfaz de administración de bases de datos y datos mock
+// database-manager.js - Interfaz de administración de almacenamiento JSON homogéneo y asignaciones
 
 import { 
   getDbConfig, saveDbConfig, getAllDatabases, addDatabase, 
@@ -7,7 +7,7 @@ import {
   importDbConfig, DB_TYPES, validateDbConfig
 } from './database-config.js';
 
-// Pages disponibles en el portal
+// Páginas disponibles en el portal PIA
 const AVAILABLE_PAGES = [
   'canales-por-la-integridad',
   'directorio',
@@ -17,10 +17,20 @@ const AVAILABLE_PAGES = [
   'index'
 ];
 
-// Archivos JSON disponibles
+// Detalles explicativos de cada página del portal
+const PAGE_DETAILS = {
+  'canales-por-la-integridad': { label: 'Canales por la Integridad', route: '/canales-por-la-integridad', file: '/canales-por-la-integridad/data_directorio.json', icon: 'fa-comments' },
+  'directorio': { label: 'Directorio Ejecutivo de Acceso', route: '/directorio', file: '/directorio/data_acceso.json', icon: 'fa-address-book' },
+  'gobierno_en_numeros': { label: 'Tu Gobierno en Números', route: '/gobierno_en_numeros', file: '/gobierno_en_numeros/data_tableros.json', icon: 'fa-chart-bar' },
+  'riesgo': { label: 'Riesgo en la Mira', route: '/riesgo', file: '/riesgo/datos.json', icon: 'fa-bullseye' },
+  'vehiculos': { label: 'Placa Transparente', route: '/vehiculos', file: '/vehiculos/vehiculos.json', icon: 'fa-car' },
+  'index': { label: 'Portal Principal PIA', route: '/', file: '/data_portal.json', icon: 'fa-globe' }
+};
+
+// Archivos JSON del sistema
 const AVAILABLE_JSON_FILES = [
-  { path: '/data_portal.json', name: 'data_portal.json', label: 'Portal Principal' },
-  { path: '/canales-por-la-integridad/data_directorio.json', name: 'data_directorio.json', label: 'Canales x Integridad' },
+  { path: '/data_portal.json', name: 'data_portal.json', label: 'Portal Principal PIA' },
+  { path: '/canales-por-la-integridad/data_directorio.json', name: 'data_directorio.json', label: 'Canales por la Integridad' },
   { path: '/directorio/data_acceso.json', name: 'data_acceso.json', label: 'Directorio Ejecutivo' },
   { path: '/gobierno_en_numeros/data_tableros.json', name: 'data_tableros.json', label: 'Gobierno en Números' },
   { path: '/riesgo/datos.json', name: 'datos.json', label: 'Riesgo en la Mira' },
@@ -29,12 +39,30 @@ const AVAILABLE_JSON_FILES = [
 
 let currentDbId = null;
 let currentJsonPath = null;
+let currentTab = 'databases';
 
 // Inicializar el módulo
 export async function initDatabaseManager() {
   renderDatabaseManager();
-  setupEventListeners();
-  initMockDataTab();
+}
+
+// Cambiar de pestaña
+function switchTab(tabName) {
+  currentTab = tabName;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.dataset.tab === tabName) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.add('hidden');
+  });
+  const tabId = tabName + 'Tab';
+  const targetEl = document.getElementById(tabId);
+  if (targetEl) targetEl.classList.remove('hidden');
+
+  if (tabName === 'mockdata') {
+    renderMockFiles();
+  }
 }
 
 // Renderizar la interfaz principal
@@ -43,79 +71,118 @@ function renderDatabaseManager() {
   const databases = getAllDatabases();
   
   const html = `
-    <div class="db-manager-container">
-      <div class="db-header">
-        <h2><i class="fas fa-database"></i> Administrador de Bases de Datos</h2>
-        <div class="db-actions">
-          <button class="btn btn-primary" id="addNewDb"><i class="fas fa-plus"></i> Nueva BD</button>
-          <button class="btn btn-secondary" id="exportConfig"><i class="fas fa-download"></i> Exportar</button>
-          <button class="btn btn-secondary" id="importConfig"><i class="fas fa-upload"></i> Importar</button>
+    <div class="db-manager-container" style="padding: 1.5rem; max-width: 1200px; margin: 0 auto;">
+      <div class="db-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="color: var(--navy); font-family: var(--font-head); font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 0.2rem;">
+            <i class="fas fa-database" style="color: var(--cyan);"></i> Motores de Almacenamiento JSON y Asignaciones
+          </h2>
+          <p class="text-muted" style="font-size: 0.92rem;">
+            Administración unificada de motores de datos JSON locales y asignación transparente de esquemas a cada sección del Portal PIA.
+          </p>
+        </div>
+        <div class="db-actions" style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-primary" id="addNewDb" style="padding: 0.65rem 1rem; font-weight: 700;"><i class="fas fa-plus"></i> Nuevo Almacén JSON</button>
+          <button class="btn btn-secondary" id="exportConfig" style="padding: 0.65rem 1rem;"><i class="fas fa-download"></i> Exportar</button>
+          <button class="btn btn-secondary" id="importConfig" style="padding: 0.65rem 1rem;"><i class="fas fa-upload"></i> Importar</button>
+        </div>
+      </div>
+
+      <!-- Banner informativo sobre arquitectura homogénena -->
+      <div style="background: linear-gradient(135deg, rgba(0,194,224,0.08), rgba(43,130,201,0.08)); border: 1px solid rgba(0,194,224,0.25); padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0,194,224,0.15); color: var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--navy); line-height: 1.4;">
+          <strong>Arquitectura de Datos Homogénea:</strong> Todas las páginas del Portal PIA operan sobre ficheros y motores de persistencia <strong>JSON homogéneos</strong> con soporte de Service Worker. Cada módulo consume datos estructurados con sincronización en tiempo real y registro auditado.
         </div>
       </div>
       
-      <div class="db-tabs">
-        <button class="tab-btn active" data-tab="databases"><i class="fas fa-server"></i> Bases de Datos</button>
-        <button class="tab-btn" data-tab="assignments"><i class="fas fa-link"></i> Asignaciones</button>
-        <button class="tab-btn" data-tab="settings"><i class="fas fa-cog"></i> Configuración</button>
-        <button class="tab-btn" data-tab="mockdata"><i class="fas fa-file-code"></i> Datos Mock</button>
+      <div class="db-tabs" style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem;">
+        <button class="tab-btn ${currentTab === 'databases' ? 'active' : ''}" data-tab="databases">
+          <i class="fas fa-server"></i> Catálogo de Motores JSON (${databases.length})
+        </button>
+        <button class="tab-btn ${currentTab === 'assignments' ? 'active' : ''}" data-tab="assignments">
+          <i class="fas fa-link"></i> Asignación por Página (${Object.keys(config.pageDatabaseMap).length}/${AVAILABLE_PAGES.length})
+        </button>
+        <button class="tab-btn ${currentTab === 'mockdata' ? 'active' : ''}" data-tab="mockdata">
+          <i class="fas fa-file-code"></i> Editor Directo JSON
+        </button>
+        <button class="tab-btn ${currentTab === 'settings' ? 'active' : ''}" data-tab="settings">
+          <i class="fas fa-cog"></i> Configuración Servidor
+        </button>
       </div>
       
-      <div class="tab-content" id="databasesTab">
-        <div class="db-list" id="databaseList">
+      <div class="tab-content ${currentTab === 'databases' ? '' : 'hidden'}" id="databasesTab">
+        <div class="db-list" id="databaseList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.25rem;">
           ${renderDatabaseList(databases, config.defaultDatabase)}
         </div>
       </div>
       
-      <div class="tab-content hidden" id="assignmentsTab">
-        <div class="assignments-container">
-          <h3>Asignar Bases de Datos a Páginas</h3>
-          <p class="text-muted">Selecciona qué base de datos usa cada página del portal</p>
-          <div class="page-assignments" id="pageAssignments">
+      <div class="tab-content ${currentTab === 'assignments' ? '' : 'hidden'}" id="assignmentsTab">
+        <div class="assignments-container" style="background: var(--card-bg); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(5,17,31,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h3 style="color: var(--navy); margin-bottom: 0.25rem; font-family: var(--font-head); font-weight: 700;"><i class="fas fa-link" style="color: var(--cyan);"></i> Asignación Homogénea de Datos a Módulos</h3>
+              <p class="text-muted" style="font-size: 0.88rem;">Selecciona la fuente o fichero JSON asignado a cada sección pública del Portal PIA.</p>
+            </div>
+            <span class="badge badge-success" style="padding: 6px 14px; font-size: 0.85rem;"><i class="fas fa-check-circle"></i> ${Object.keys(config.pageDatabaseMap).length} de ${AVAILABLE_PAGES.length} Módulos Conectados</span>
+          </div>
+          <div class="page-assignments" id="pageAssignments" style="display: flex; flex-direction: column; gap: 1rem;">
             ${renderPageAssignments(config.pageDatabaseMap, databases)}
           </div>
         </div>
       </div>
       
-      <div class="tab-content hidden" id="settingsTab">
-        <div class="settings-container">
-          <h3>Configuración General</h3>
-          <div class="form-group">
-            <label>Base de datos por defecto</label>
-            <select class="form-control" id="defaultDbSelect">
-              <option value="">-- Seleccionar --</option>
-              ${databases.map(db => `<option value="${db.id}" ${config.defaultDatabase === db.id ? 'selected' : ''}>${db.name} (${db.type})</option>`).join('')}
+      <div class="tab-content ${currentTab === 'mockdata' ? '' : 'hidden'}" id="mockdataTab">
+        <div class="mockdata-container">
+          <h3 style="color: var(--navy); margin-bottom: 0.25rem;"><i class="fas fa-edit" style="color: var(--cyan);"></i> Edición Directa de Ficheros JSON del Portal</h3>
+          <p class="text-muted" style="margin-bottom: 1.25rem;">Modifica los registros en formato JSON directo. Cualquier cambio se guardará atómicamente y generará un registro en la Bitácora de Auditoría.</p>
+          <div class="mock-files" id="mockFiles" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.25rem;"></div>
+        </div>
+      </div>
+
+      <div class="tab-content ${currentTab === 'settings' ? '' : 'hidden'}" id="settingsTab">
+        <div class="settings-container" style="background: var(--card-bg); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h3 style="color: var(--navy); margin-bottom: 0.25rem;"><i class="fas fa-cogs" style="color: var(--cyan);"></i> Configuración del Motor JSON Principal</h3>
+              <p class="text-muted">Motor primario de respuesta ante consultas sin asignación específica.</p>
+            </div>
+            <button class="btn btn-secondary" id="resetDefaultDbConfig"><i class="fas fa-undo"></i> Restablecer Catálogo por Defecto</button>
+          </div>
+          
+          <div class="form-group" style="max-width: 550px;">
+            <label style="font-weight: 700; color: var(--navy);">Motor Principal por Defecto</label>
+            <select class="form-control" id="defaultDbSelect" style="padding: 0.7rem 1rem;">
+              <option value="">-- Seleccionar Motor --</option>
+              ${databases.map(db => `<option value="${db.id}" ${config.defaultDatabase === db.id ? 'selected' : ''}>${db.name}</option>`).join('')}
             </select>
           </div>
         </div>
       </div>
-      
-      <div class="tab-content hidden" id="mockdataTab">
-        <div class="mockdata-container">
-          <h3>Editar Datos Mock</h3>
-          <p class="text-muted">Edita los datos JSON que cada página consume.</p>
-          <div class="mock-files" id="mockFiles"></div>
-        </div>
-      </div>
     </div>
     
-    <div class="modal" id="dbModal">
+    <!-- MODAL DE NUEVO / EDITAR ALMACÉN JSON -->
+    <div class="modal" id="dbModal" style="display: none;">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="modalTitle">Nueva Base de Datos</h3>
+          <h3 id="modalTitle">Nuevo Almacén de Datos JSON</h3>
           <button class="modal-close" id="modalClose">&times;</button>
         </div>
         <div class="modal-body" id="modalBody"></div>
         <div class="modal-footer">
           <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
-          <button class="btn btn-primary" id="modalSave">Guardar</button>
+          <button class="btn btn-primary" id="modalSave">Guardar Almacén</button>
         </div>
       </div>
     </div>
     
-    <div class="modal" id="jsonEditorModal">
-      <div class="modal-content" style="max-width: 800px;">
+    <!-- MODAL EDITOR JSON -->
+    <div class="modal" id="jsonEditorModal" style="display: none;">
+      <div class="modal-content" style="max-width: 850px;">
         <div class="modal-header">
-          <h3 id="jsonModalTitle">Editar JSON</h3>
+          <h3 id="jsonModalTitle">Editar Fichero JSON</h3>
           <button class="modal-close" id="jsonModalClose">&times;</button>
         </div>
         <div class="modal-body">
@@ -123,48 +190,56 @@ function renderDatabaseManager() {
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" id="jsonModalCancel">Cancelar</button>
-          <button class="btn btn-primary" id="jsonModalSave">Guardar</button>
+          <button class="btn btn-primary" id="jsonModalSave"><i class="fas fa-save"></i> Guardar Cambios</button>
         </div>
       </div>
     </div>
   `;
   
   document.getElementById('contentArea').innerHTML = html;
+  setupEventListeners();
+  if (currentTab === 'mockdata') {
+    renderMockFiles();
+  }
 }
 
 function renderDatabaseList(databases, defaultDbId) {
   if (databases.length === 0) {
-    return '<p class="text-muted">No hay bases de datos configuradas.</p>';
+    return '<p class="text-muted" style="padding: 1.5rem; text-align: center;">No hay almacenes configurados en el catálogo.</p>';
   }
   
   return databases.map(db => {
-    const typeInfo = DB_TYPES[db.type] || { name: db.type, icon: 'fa-database' };
+    const typeInfo = DB_TYPES[db.type] || { name: db.type, icon: 'fa-file-code' };
     return `
-      <div class="db-card" data-id="${db.id}">
-        <div class="db-card-header">
-          <div class="db-info">
-            <i class="fas ${typeInfo.icon}"></i>
-            <div>
-              <strong>${db.name}</strong>
-              <span class="db-type">${typeInfo.name}</span>
+      <div class="db-card" data-id="${db.id}" style="background: var(--card-bg); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(5,17,31,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 40px; height: 40px; background: rgba(0,194,224,0.12); color: var(--cyan); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                <i class="fas ${typeInfo.icon}"></i>
+              </div>
+              <div>
+                <strong style="font-size: 0.98rem; color: var(--navy); display: block;">${db.name}</strong>
+                <span class="badge badge-info" style="font-size: 0.72rem;">${typeInfo.name}</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <button class="btn-icon edit-db" data-id="${db.id}" title="Editar"><i class="fas fa-pen"></i></button>
+              <button class="btn-icon delete-db" data-id="${db.id}" title="Eliminar"><i class="fas fa-trash"></i></button>
+              ${defaultDbId === db.id ? '<span class="badge badge-success" style="font-size: 0.7rem;">Principal</span>' : ''}
             </div>
           </div>
-          <div class="db-actions">
-            <button class="btn-icon edit-db" data-id="${db.id}" title="Editar"><i class="fas fa-pen"></i></button>
-            <button class="btn-icon delete-db" data-id="${db.id}" title="Eliminar"><i class="fas fa-trash"></i></button>
-            ${defaultDbId === db.id ? '<span class="badge badge-success">Por defecto</span>' : ''}
+
+          <p style="font-size: 0.83rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4;">${db.description || 'Almacén de datos JSON para el portal.'}</p>
+          
+          <div style="background: var(--surface); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.8rem; color: var(--navy); font-family: monospace; margin-bottom: 0.75rem; word-break: break-all; border: 1px solid var(--border);">
+            <i class="fas fa-folder-open" style="color: var(--cyan); margin-right: 4px;"></i> ${db.filePath}
           </div>
         </div>
-        <div class="db-card-body">
-          <div class="db-details">
-            <div><strong>Host:</strong> ${db.host || 'N/A'}</div>
-            <div><strong>Puerto:</strong> ${db.port || 'N/A'}</div>
-            <div><strong>Base de datos:</strong> ${db.database || 'N/A'}</div>
-          </div>
-          <div class="db-status">
-            <span class="status-indicator"></span>
-            <span>Estado: Configurada</span>
-          </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 0.65rem; margin-top: 0.5rem; font-size: 0.78rem;">
+          <span style="color: var(--green); font-weight: 700;"><i class="fas fa-check-circle"></i> Sincronizado</span>
+          <span style="color: var(--text-muted);">${db.syncMode || 'JSON Atómico'}</span>
         </div>
       </div>
     `;
@@ -174,16 +249,31 @@ function renderDatabaseList(databases, defaultDbId) {
 function renderPageAssignments(pageMap, databases) {
   return AVAILABLE_PAGES.map(page => {
     const dbId = pageMap[page];
+    const assignedDb = databases.find(db => db.id === dbId);
+    const info = PAGE_DETAILS[page] || { label: page, route: page, file: 'N/A', icon: 'fa-file-alt' };
+    
     return `
-      <div class="page-assignment" data-page="${page}">
-        <div class="page-info">
-          <i class="fas fa-file-alt"></i>
-          <span>${page}</span>
+      <div class="page-assignment" data-page="${page}" style="background: var(--surface); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <div class="page-info" style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 280px;">
+          <div style="width: 44px; height: 44px; background: rgba(0,194,224,0.12); color: var(--cyan); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+            <i class="fas ${info.icon}"></i>
+          </div>
+          <div>
+            <strong style="font-size: 1.02rem; color: var(--navy); display: block; font-family: var(--font-head);">${info.label}</strong>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 2px;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;"><i class="fas fa-link"></i> ${info.route}</span>
+              <span style="font-size: 0.8rem; color: var(--blue-bright); font-family: monospace;"><i class="fas fa-file-code"></i> ${info.file}</span>
+            </div>
+            <div style="margin-top: 6px;">
+              ${assignedDb ? `<span class="badge badge-success" style="font-size: 0.75rem; padding: 3px 10px;"><i class="fas fa-database"></i> Motor Asignado: <strong>${assignedDb.name}</strong></span>` : '<span style="font-size: 0.75rem; color: var(--red); font-weight: 700;"><i class="fas fa-exclamation-triangle"></i> Sin asignación</span>'}
+            </div>
+          </div>
         </div>
-        <div class="assignment-select">
-          <select class="form-control page-db-select" data-page="${page}">
-            <option value="">-- Sin asignar --</option>
-            ${databases.map(db => `<option value="${db.id}" ${dbId === db.id ? 'selected' : ''}>${db.name} (${db.type})</option>`).join('')}
+        <div class="assignment-select" style="min-width: 280px;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--navy); display: block; margin-bottom: 4px;">Seleccionar Motor JSON:</label>
+          <select class="form-control page-db-select" data-page="${page}" style="padding: 0.65rem 0.9rem; font-weight: 600; border-radius: 10px; width: 100%;">
+            <option value="">-- Sin Asignar --</option>
+            ${databases.map(db => `<option value="${db.id}" ${dbId === db.id ? 'selected' : ''}>${db.name}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -195,7 +285,7 @@ async function renderMockFiles() {
   const container = document.getElementById('mockFiles');
   if (!container) return;
 
-  container.innerHTML = '<p class="text-muted">Cargando archivos JSON...</p>';
+  container.innerHTML = '<p class="text-muted">Cargando ficheros JSON...</p>';
 
   const filePromises = AVAILABLE_JSON_FILES.map(async f => {
     let preview = 'Sin datos';
@@ -210,23 +300,21 @@ async function renderMockFiles() {
     }
 
     return `
-      <div class="mock-file-card" data-path="${f.path}">
-        <div class="mock-file-header">
-          <div class="mock-file-info">
-            <i class="fas fa-file-code"></i>
+      <div class="mock-file-card" data-path="${f.path}" style="background: var(--card-bg); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(5,17,31,0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-file-code" style="font-size: 1.5rem; color: var(--cyan);"></i>
             <div>
-              <strong>${f.name}</strong>
-              <span class="mock-file-type">${f.label}</span>
+              <strong style="color: var(--navy); font-size: 0.95rem;">${f.name}</strong>
+              <span style="display: block; font-size: 0.78rem; color: var(--text-muted);">${f.label}</span>
             </div>
           </div>
-          <div class="mock-file-actions">
-            <button class="btn btn-primary edit-json-btn" data-path="${f.path}" title="Editar JSON">
-              <i class="fas fa-edit"></i> Editar JSON
-            </button>
-          </div>
+          <button class="btn btn-primary edit-json-btn" data-path="${f.path}" style="padding: 0.45rem 0.85rem; font-size: 0.82rem;">
+            <i class="fas fa-edit"></i> Editar JSON
+          </button>
         </div>
-        <div class="mock-file-preview">
-          <pre>${preview}</pre>
+        <div style="background: var(--surface); padding: 0.65rem; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 0.75rem; color: var(--navy); overflow: hidden;">
+          <pre style="margin: 0;">${preview}</pre>
         </div>
       </div>
     `;
@@ -243,63 +331,88 @@ async function renderMockFiles() {
 function setupEventListeners() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      btn.classList.add('active');
-      const tabId = btn.dataset.tab + 'Tab';
-      document.getElementById(tabId).classList.remove('hidden');
+      const tab = btn.dataset.tab;
+      if (tab) switchTab(tab);
     });
   });
   
-  document.getElementById('addNewDb').addEventListener('click', () => openDbModal());
-  document.getElementById('exportConfig').addEventListener('click', exportConfig);
-  document.getElementById('importConfig').addEventListener('click', importConfig);
+  const addNewBtn = document.getElementById('addNewDb');
+  if (addNewBtn) addNewBtn.addEventListener('click', () => openDbModal());
   
-  document.getElementById('defaultDbSelect').addEventListener('change', (e) => {
-    const dbId = e.target.value;
-    if (dbId) {
-      setDefaultDatabase(dbId);
-      showToast('Base de datos por defecto actualizada', 'success');
-      renderDatabaseManager();
-    }
-  });
+  const exportBtn = document.getElementById('exportConfig');
+  if (exportBtn) exportBtn.addEventListener('click', exportConfig);
   
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.edit-db')) {
-      const dbId = e.target.closest('.edit-db').dataset.id;
-      openDbModal(dbId);
-    }
-    if (e.target.closest('.delete-db')) {
-      const dbId = e.target.closest('.delete-db').dataset.id;
-      deleteDbHandler(dbId);
-    }
-    if (e.target.closest('.page-db-select')) {
-      const select = e.target;
+  const importBtn = document.getElementById('importConfig');
+  if (importBtn) importBtn.addEventListener('click', importConfig);
+
+  const resetBtn = document.getElementById('resetDefaultDbConfig');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (confirm('¿Desea restablecer el catálogo por defecto?')) {
+        localStorage.removeItem('pia_db_configurations_v2');
+        getDbConfig();
+        showToast('Catálogo restablecido por defecto', 'success');
+        renderDatabaseManager();
+      }
+    });
+  }
+  
+  const defaultSelect = document.getElementById('defaultDbSelect');
+  if (defaultSelect) {
+    defaultSelect.addEventListener('change', (e) => {
+      const dbId = e.target.value;
+      if (dbId) {
+        setDefaultDatabase(dbId);
+        showToast('Motor principal actualizado', 'success');
+        renderDatabaseManager();
+      }
+    });
+  }
+
+  document.querySelectorAll('.page-db-select').forEach(select => {
+    select.addEventListener('change', (e) => {
       const page = select.dataset.page;
       const dbId = select.value;
       if (dbId) {
         assignDatabaseToPage(page, dbId);
-        showToast('Asignación actualizada para ' + page, 'success');
+        showToast(`Motor asignado correctamente a '${page}'`, 'success');
       } else {
         removePageAssignment(page);
-        showToast('Asignación removida para ' + page, 'success');
+        showToast(`Asignación removida para '${page}'`, 'info');
       }
-    }
+      renderDatabaseManager();
+    });
+  });
+
+  document.querySelectorAll('.edit-db').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openDbModal(btn.dataset.id);
+    });
+  });
+
+  document.querySelectorAll('.delete-db').forEach(btn => {
+    btn.addEventListener('click', () => {
+      deleteDbHandler(btn.dataset.id);
+    });
   });
   
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('modalCancel').addEventListener('click', closeModal);
-  document.getElementById('modalSave').addEventListener('click', saveDbHandler);
-  document.getElementById('dbModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal();
-  });
-  
-  document.getElementById('jsonModalClose').addEventListener('click', closeJsonModal);
-  document.getElementById('jsonModalCancel').addEventListener('click', closeJsonModal);
-  document.getElementById('jsonModalSave').addEventListener('click', saveJsonEditor);
-  document.getElementById('jsonEditorModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeJsonModal();
-  });
+  const modalClose = document.getElementById('modalClose');
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+
+  const modalCancel = document.getElementById('modalCancel');
+  if (modalCancel) modalCancel.addEventListener('click', closeModal);
+
+  const modalSave = document.getElementById('modalSave');
+  if (modalSave) modalSave.addEventListener('click', saveDbHandler);
+
+  const jsonModalClose = document.getElementById('jsonModalClose');
+  if (jsonModalClose) jsonModalClose.addEventListener('click', closeJsonModal);
+
+  const jsonModalCancel = document.getElementById('jsonModalCancel');
+  if (jsonModalCancel) jsonModalCancel.addEventListener('click', closeJsonModal);
+
+  const jsonModalSave = document.getElementById('jsonModalSave');
+  if (jsonModalSave) jsonModalSave.addEventListener('click', saveJsonEditor);
 }
 
 function openDbModal(dbId = null) {
@@ -310,85 +423,42 @@ function openDbModal(dbId = null) {
   const formHtml = `
     <form id="dbForm">
       <div class="form-group">
-        <label for="dbName">Nombre *</label>
-        <input type="text" class="form-control" id="dbName" value="${db ? db.name : ''}" required />
+        <label for="dbName">Nombre del Almacén JSON *</label>
+        <input type="text" class="form-control" id="dbName" value="${db ? db.name : ''}" required placeholder="Ej. Fichero JSON - Canales x Integridad" />
       </div>
       
       <div class="form-group">
-        <label for="dbType">Tipo de Base de Datos *</label>
+        <label for="dbType">Tipo de Almacén *</label>
         <select class="form-control" id="dbType" required>
           ${Object.entries(DB_TYPES).map(([key, info]) => `<option value="${key}" ${db && db.type === key ? 'selected' : ''}>${info.name}</option>`).join('')}
         </select>
       </div>
-      
-      <div id="dbFieldsContainer">
-        ${renderDbFields(db)}
-      </div>
-      
+
       <div class="form-group">
-        <label for="dbPages">Páginas que usan esta BD</label>
-        <select class="form-control" id="dbPages" multiple>
-          ${AVAILABLE_PAGES.map(page => `<option value="${page}" ${db && db.pages && db.pages.includes(page) ? 'selected' : ''}>${page}</option>`).join('')}
-        </select>
-        <small class="text-muted">Mantén Ctrl/Cmd para seleccionar múltiples</small>
+        <label for="dbFilePath">Ruta del Fichero o Endpoint JSON *</label>
+        <input type="text" class="form-control" id="dbFilePath" value="${db ? db.filePath : ''}" required placeholder="/directorio/data_acceso.json" />
+      </div>
+
+      <div class="form-group">
+        <label for="dbDescription">Descripción</label>
+        <textarea class="form-control" id="dbDescription" rows="2">${db ? db.description : ''}</textarea>
       </div>
     </form>
   `;
   
-  document.getElementById('modalTitle').textContent = db ? 'Editar Base de Datos' : 'Nueva Base de Datos';
+  document.getElementById('modalTitle').textContent = db ? 'Editar Almacén JSON' : 'Nuevo Almacén JSON';
   document.getElementById('modalBody').innerHTML = formHtml;
   document.getElementById('dbModal').style.display = 'flex';
-  
-  document.getElementById('dbType').addEventListener('change', () => {
-    const type = document.getElementById('dbType').value;
-    document.getElementById('dbFieldsContainer').innerHTML = renderDbFields({ type });
-  });
-}
-
-function renderDbFields(db) {
-  const type = db ? db.type : 'postgresql';
-  const typeInfo = DB_TYPES[type];
-  if (!typeInfo) return '';
-  
-  return typeInfo.fields.map(field => {
-    const label = field.charAt(0).toUpperCase() + field.slice(1);
-    const value = db ? db[field] : '';
-    const inputType = field === 'password' ? 'password' : 'text';
-    const fieldId = `db${field.charAt(0).toUpperCase() + field.slice(1)}`;
-    
-    if (field === 'ssl') {
-      return `
-        <div class="form-group form-check">
-          <input type="checkbox" class="form-check-input" id="${fieldId}" ${value ? 'checked' : ''} />
-          <label class="form-check-label" for="${fieldId}">Usar SSL</label>
-        </div>
-      `;
-    }
-    
-    return `
-      <div class="form-group">
-        <label for="${fieldId}">${label} ${!['password', 'ssl', 'collectionPrefix'].includes(field) ? '*' : ''}</label>
-        <input type="${inputType}" class="form-control" id="${fieldId}" value="${value}" />
-      </div>
-    `;
-  }).join('');
 }
 
 function saveDbHandler() {
   const dbData = {
     name: document.getElementById('dbName').value,
     type: document.getElementById('dbType').value,
-    pages: Array.from(document.getElementById('dbPages').selectedOptions).map(opt => opt.value)
+    filePath: document.getElementById('dbFilePath').value,
+    description: document.getElementById('dbDescription').value,
+    syncMode: 'Sincronización Atómica JSON'
   };
-  
-  const typeInfo = DB_TYPES[dbData.type];
-  typeInfo.fields.forEach(field => {
-    const fieldId = `db${field.charAt(0).toUpperCase() + field.slice(1)}`;
-    const element = document.getElementById(fieldId);
-    if (element) {
-      dbData[field] = element.type === 'checkbox' ? element.checked : element.value;
-    }
-  });
   
   const errors = validateDbConfig(dbData);
   if (errors.length > 0) {
@@ -399,10 +469,10 @@ function saveDbHandler() {
   try {
     if (currentDbId) {
       updateDatabase(currentDbId, dbData);
-      showToast('Base de datos actualizada', 'success');
+      showToast('Almacén actualizado correctamente', 'success');
     } else {
       addDatabase(dbData);
-      showToast('Base de datos creada', 'success');
+      showToast('Almacén registrado en el catálogo', 'success');
     }
     closeModal();
     renderDatabaseManager();
@@ -412,10 +482,10 @@ function saveDbHandler() {
 }
 
 function deleteDbHandler(dbId) {
-  if (!confirm('Eliminar esta base de datos?')) return;
+  if (!confirm('¿Estás seguro de eliminar este almacén del catálogo?')) return;
   try {
     deleteDatabase(dbId);
-    showToast('Base de datos eliminada', 'success');
+    showToast('Almacén eliminado del catálogo', 'success');
     renderDatabaseManager();
   } catch (err) {
     showToast(err.message, 'error');
@@ -428,10 +498,10 @@ function exportConfig() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'pia-db-config-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.download = 'pia-db-json-config-' + new Date().toISOString().slice(0, 10) + '.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Configuración exportada', 'success');
+  showToast('Configuración exportada correctamente', 'success');
 }
 
 function importConfig() {
@@ -444,10 +514,10 @@ function importConfig() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (importDbConfig(ev.target.result)) {
-        showToast('Configuración importada', 'success');
+        showToast('Configuración importada correctamente', 'success');
         renderDatabaseManager();
       } else {
-        showToast('Error al importar', 'error');
+        showToast('Error al importar la configuración', 'error');
       }
     };
     reader.readAsText(file);
@@ -456,11 +526,12 @@ function importConfig() {
 }
 
 function closeModal() {
-  document.getElementById('dbModal').style.display = 'none';
+  const modal = document.getElementById('dbModal');
+  if (modal) modal.style.display = 'none';
   currentDbId = null;
 }
 
-// MOCK DATA & JSON EDITOR FUNCTIONS
+// EDITOR JSON DIRECTO
 
 async function openJsonEditor(path) {
   currentJsonPath = path;
@@ -479,10 +550,10 @@ async function openJsonEditor(path) {
   const html = `
     <div class="json-editor">
       <div class="form-group">
-        <label>Archivo: <strong>${f.name}</strong> (${f.label})</label>
-        <textarea id="jsonEditorTextarea" class="form-control" rows="18" style="font-family: monospace; white-space: pre;">${JSON.stringify(currentData, null, 2)}</textarea>
+        <label style="color: var(--navy); font-weight: 700;">Archivo: <strong>${f.name}</strong> (${f.label})</label>
+        <textarea id="jsonEditorTextarea" class="form-control" rows="18" style="font-family: monospace; white-space: pre; font-size: 0.85rem; padding: 0.75rem;">${JSON.stringify(currentData, null, 2)}</textarea>
       </div>
-      <p class="text-muted"><i class="fas fa-info-circle"></i> Al guardar, se actualizará directamente el archivo en el servidor y la modificación quedará registrada en la Bitácora de Auditoría.</p>
+      <p class="text-muted" style="font-size: 0.8rem;"><i class="fas fa-info-circle"></i> Al guardar, se actualizará directamente el fichero en el servidor con registro en auditoría.</p>
     </div>
   `;
   
@@ -499,7 +570,7 @@ async function saveJsonEditor() {
   try {
     parsedData = JSON.parse(textarea.value);
   } catch (e) {
-    showToast('Error: JSON con formato inválido. Por favor verifica la sintaxis.', 'error');
+    showToast('Error: JSON con formato inválido. Revisa la sintaxis.', 'error');
     return;
   }
 
@@ -518,7 +589,7 @@ async function saveJsonEditor() {
       throw new Error(err.error || 'Error al guardar el archivo');
     }
 
-    showToast('Archivo JSON actualizado en el servidor y registrado en auditoría', 'success');
+    showToast('Fichero JSON actualizado correctamente en el servidor', 'success');
     closeJsonModal();
     await renderMockFiles();
   } catch (err) {
@@ -526,40 +597,13 @@ async function saveJsonEditor() {
   }
 }
 
-function clearMockData(path) {
-  const mockData = JSON.parse(localStorage.getItem('pia_mock_data') || '{}');
-  delete mockData[path];
-  localStorage.setItem('pia_mock_data', JSON.stringify(mockData));
-  
-  if (typeof updateMockData === 'function') {
-    updateMockData(path, undefined);
-  }
-  
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      type: 'UPDATE_MOCK_DATA',
-      payload: { [path]: undefined }
-    });
-  }
-  
-  renderMockFiles();
-  showToast('Datos restablecidos', 'success');
-}
-
 function closeJsonModal() {
-  document.getElementById('jsonEditorModal').style.display = 'none';
+  const modal = document.getElementById('jsonEditorModal');
+  if (modal) modal.style.display = 'none';
   currentJsonPath = null;
 }
 
-function initMockDataTab() {
-  const tabBtn = document.querySelector('.tab-btn[data-tab="mockdata"]');
-  if (tabBtn) {
-    tabBtn.addEventListener('click', () => renderMockFiles());
-  }
-}
-
-// Toast
-export function showToast(message, type = 'info') {
+function showToast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.textContent = message;

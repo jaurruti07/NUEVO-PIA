@@ -13,7 +13,10 @@ async function login(username, password) {
         throw new Error(err.error || 'Error de autenticación');
     }
     const data = await res.json();
-    return data; // { token, user: { id, username, role } }
+    if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data; // { token, user }
 }
 
 async function verifyToken(token) {
@@ -21,10 +24,19 @@ async function verifyToken(token) {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Token inválido');
-    return res.json(); // { user }
+    const data = await res.json();
+    if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data; // { user }
 }
 
 function logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     window.location.reload();
 }
+
+window.login = login;
+window.verifyToken = verifyToken;
+window.logout = logout;

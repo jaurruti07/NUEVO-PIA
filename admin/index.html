@@ -273,8 +273,11 @@
                 </button>
             </form>
             
-            <div style="margin-top: 2rem; text-align: center; color: rgba(255,255,255,0.5); font-size: 0.85rem;">
-                <p>Portal de Integridad Activa — Gobierno de Guatemala</p>
+            <div style="margin-top: 2rem; text-align: center; color: rgba(255,255,255,0.7); font-size: 0.85rem;">
+                <p style="margin-bottom: 0.75rem;">Portal de Integridad Activa — Gobierno de Guatemala</p>
+                <a href="/" style="display: inline-flex; align-items: center; gap: 8px; color: var(--cyan); text-decoration: none; font-weight: 600; padding: 0.5rem 1rem; background: rgba(0,194,224,0.1); border-radius: 8px; border: 1px solid rgba(0,194,224,0.25); transition: all 0.2s;">
+                    <i class="fas fa-arrow-left"></i> Volver al Portal Público
+                </a>
             </div>
         </div>
     </div>
@@ -288,6 +291,15 @@
                 <div class="logo-text">Panel PIA<br><span style="font-size: 0.75rem; opacity: 0.6; font-weight: normal;">Gestor de Datos JSON</span></div>
             </div>
             
+            <div class="nav-section-title">Navegación Externa</div>
+            <ul class="nav-list" style="margin-bottom: 1.5rem;">
+                <li>
+                    <a href="/" style="width: 100%; padding: 0.8rem 1rem; background: linear-gradient(135deg, rgba(0,194,224,0.15), rgba(43,130,201,0.2)); color: var(--cyan); border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 12px; font-size: 0.92rem; border: 1px solid rgba(0,194,224,0.3); text-decoration: none; transition: all 0.2s;">
+                        <i class="fas fa-globe"></i> Regresar al Portal PIA
+                    </a>
+                </li>
+            </ul>
+
             <div class="nav-section-title">Módulos del Portal</div>
             <ul class="nav-list">
                 <li>
@@ -330,13 +342,18 @@
             <div class="nav-section-title">Administración Avanzada</div>
             <ul class="nav-list">
                 <li>
+                    <button data-module="users">
+                        <i class="fas fa-users-cog"></i> Usuarios y Seguridad
+                    </button>
+                </li>
+                <li>
                     <button data-module="audit">
                         <i class="fas fa-shield-alt"></i> Bitácora de Auditoría
                     </button>
                 </li>
                 <li>
                     <button data-module="database">
-                        <i class="fas fa-database"></i> Editor Directo JSON
+                        <i class="fas fa-database"></i> Motores de Datos JSON
                     </button>
                 </li>
             </ul>
@@ -345,8 +362,11 @@
         <!-- MAIN CONTENT AREA -->
         <div style="display: flex; flex-direction: column; width: 100%;">
             <header class="top-header">
-                <div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
                     <span style="font-size: 0.9rem; color: var(--text-muted);"><i class="fas fa-server"></i> Conectado al Servidor PIA</span>
+                    <a href="/" style="display: inline-flex; align-items: center; gap: 8px; padding: 0.45rem 0.9rem; background: var(--surface); color: var(--navy); border: 1px solid var(--border); border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;" title="Ir al Portal Público">
+                        <i class="fas fa-home" style="color: var(--cyan-dim);"></i> Ir al Portal Público PIA
+                    </a>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">A</div>

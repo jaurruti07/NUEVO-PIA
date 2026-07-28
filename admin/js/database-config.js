@@ -1,30 +1,99 @@
-// database-config.js - Esquema y funciones de configuración de bases de datos
+// database-config.js - Esquema y funciones de configuración de bases de datos JSON homogénes
 
 // Esquema de configuración de base de datos
 const DB_CONFIG_SCHEMA = {
   id: '',
   name: '',
-  type: 'postgresql',
-  host: '',
-  port: 5432,
-  database: '',
-  username: '',
-  password: '',
-  ssl: false,
-  connectionString: '',
+  type: 'json_file',
+  filePath: '',
+  description: '',
+  syncMode: 'Realtime JSON Sync',
   pages: []
 };
 
 // Clave en localStorage
-const STORAGE_KEY = 'pia_db_configurations';
+const STORAGE_KEY = 'pia_db_configurations_v2';
 
-// Configuración inicial
+// Configuración inicial con catálogo homogéneo de almacenamiento JSON
 function getInitialConfig() {
+  const initialDatabases = [
+    {
+      id: 'db_json_canales',
+      name: 'Fichero JSON Directo - Canales por la Integridad',
+      type: 'json_file',
+      filePath: '/canales-por-la-integridad/data_directorio.json',
+      description: 'Base de datos JSON para directorio de denuncias, unidades de integridad y contactos.',
+      syncMode: 'Sincronización Atómica JSON',
+      pages: ['canales-por-la-integridad']
+    },
+    {
+      id: 'db_json_directorio',
+      name: 'Fichero JSON Directo - Directorio Ejecutivo de Acceso',
+      type: 'json_file',
+      filePath: '/directorio/data_acceso.json',
+      description: 'Base de datos JSON con directorio de autoridades, teléfonos e información del Ejecutivo.',
+      syncMode: 'Sincronización Atómica JSON',
+      pages: ['directorio']
+    },
+    {
+      id: 'db_json_tableros',
+      name: 'Fichero JSON Directo - Tu Gobierno en Números',
+      type: 'json_file',
+      filePath: '/gobierno_en_numeros/data_tableros.json',
+      description: 'Almacén estructurado de tableros de rendición de cuentas, proyectos e indicadores.',
+      syncMode: 'Sincronización Atómica JSON',
+      pages: ['gobierno_en_numeros']
+    },
+    {
+      id: 'db_json_riesgo',
+      name: 'Fichero JSON Directo - Riesgo en la Mira',
+      type: 'json_file',
+      filePath: '/riesgo/datos.json',
+      description: 'Almacén de matriz de evaluación de riesgos de corrupción por institución y período.',
+      syncMode: 'Sincronización Atómica JSON',
+      pages: ['riesgo']
+    },
+    {
+      id: 'db_json_vehiculos',
+      name: 'Fichero JSON Directo - Placa Transparente',
+      type: 'json_file',
+      filePath: '/vehiculos/vehiculos.json',
+      description: 'Catálogo e inventario de vehículos oficiales, placas, asignación y estado.',
+      syncMode: 'Sincronización Atómica JSON',
+      pages: ['vehiculos']
+    },
+    {
+      id: 'db_json_portal',
+      name: 'Fichero JSON Directo - Portal Central y Métricas',
+      type: 'json_file',
+      filePath: '/data_portal.json',
+      description: 'Almacén de configuración general del portal, banners, estadísticas y accesos directos.',
+      syncMode: 'Sincronización Atómica JSON',
+      pages: ['index']
+    },
+    {
+      id: 'db_json_api_engine',
+      name: 'Motor de Sincronización REST API & Service Worker',
+      type: 'json_api',
+      filePath: '/api/raw-json',
+      description: 'Servicio API unificado de backend para lectura y escritura JSON en tiempo real con auditoría.',
+      syncMode: 'Service Worker Sync Proxy',
+      pages: ['canales-por-la-integridad', 'directorio', 'gobierno_en_numeros', 'riesgo', 'vehiculos', 'index']
+    }
+  ];
+
   return {
-    version: '1.0',
-    databases: [],
-    defaultDatabase: null,
-    pageDatabaseMap: {}
+    version: '2.0',
+    databases: initialDatabases,
+    defaultDatabase: 'db_json_portal',
+    pageDatabaseMap: {
+      'canales-por-la-integridad': 'db_json_canales',
+      'directorio': 'db_json_directorio',
+      'gobierno_en_numeros': 'db_json_tableros',
+      'riesgo': 'db_json_riesgo',
+      'vehiculos': 'db_json_vehiculos',
+      'index': 'db_json_portal'
+    }
   };
 }
 
@@ -37,7 +106,17 @@ export function getDbConfig() {
     return initial;
   }
   try {
-    return JSON.parse(stored);
+    const config = JSON.parse(stored);
+    if (!config.databases || !Array.isArray(config.databases) || config.databases.length === 0) {
+      const initial = getInitialConfig();
+      config.databases = initial.databases;
+      if (!config.defaultDatabase) config.defaultDatabase = initial.defaultDatabase;
+      if (!config.pageDatabaseMap || Object.keys(config.pageDatabaseMap).length === 0) {
+        config.pageDatabaseMap = initial.pageDatabaseMap;
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+    return config;
   } catch (e) {
     console.error('Error parsing DB config:', e);
     return getInitialConfig();
@@ -68,7 +147,7 @@ export function addDatabase(dbConfig) {
   const newDb = {
     ...DB_CONFIG_SCHEMA,
     ...dbConfig,
-    id: `db_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    id: `db_json_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`
   };
   config.databases.push(newDb);
   saveDbConfig(config);
@@ -79,7 +158,7 @@ export function addDatabase(dbConfig) {
 export function updateDatabase(id, updates) {
   const config = getDbConfig();
   const index = config.databases.findIndex(db => db.id === id);
-  if (index === -1) throw new Error('Database not found');
+  if (index === -1) throw new Error('Base de datos no encontrada');
   config.databases[index] = { ...config.databases[index], ...updates };
   saveDbConfig(config);
   return config.databases[index];
@@ -93,7 +172,7 @@ export function deleteDatabase(id) {
     .map(([page]) => page);
   
   if (pagesUsingDb.length > 0) {
-    throw new Error(`No se puede eliminar: usada por ${pagesUsingDb.length} página(s): ${pagesUsingDb.join(', ')}`);
+    throw new Error(`No se puede eliminar: asignada a ${pagesUsingDb.length} página(s): ${pagesUsingDb.join(', ')}`);
   }
   config.databases = config.databases.filter(db => db.id !== id);
   if (config.defaultDatabase === id) {
@@ -137,7 +216,7 @@ export function importDbConfig(jsonString) {
   try {
     const imported = JSON.parse(jsonString);
     if (!imported.databases || !Array.isArray(imported.databases)) {
-      throw new Error('Formato inválido: debe contener "databases" array');
+      throw new Error('Formato inválido: debe contener el arreglo "databases"');
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
     return true;
@@ -147,27 +226,29 @@ export function importDbConfig(jsonString) {
   }
 }
 
-// Tipos de bases de datos
+// Tipos homogéneos de almacenamiento de bases de datos JSON
 export const DB_TYPES = {
-  postgres: { name: 'PostgreSQL', icon: 'fa-database', defaultPort: 5432, fields: ['host', 'port', 'database', 'username', 'password', 'ssl'] },
-  mysql: { name: 'MySQL/MariaDB', icon: 'fa-database', defaultPort: 3306, fields: ['host', 'port', 'database', 'username', 'password', 'ssl'] },
-  mongodb: { name: 'MongoDB', icon: 'fa-leaf', defaultPort: 27017, fields: ['host', 'port', 'database', 'username', 'password', 'collectionPrefix'] },
-  sqlite: { name: 'SQLite', icon: 'fa-file', defaultPort: null, fields: ['filePath'] }
+  json_file: { 
+    name: 'Almacén JSON Directo (Fichero)', 
+    icon: 'fa-file-code', 
+    fields: ['filePath', 'description'] 
+  },
+  json_api: { 
+    name: 'Motor REST API & Service Worker JSON', 
+    icon: 'fa-network-wired', 
+    fields: ['filePath', 'description'] 
+  },
+  json_cluster: { 
+    name: 'Cluster Central JSON PIA', 
+    icon: 'fa-server', 
+    fields: ['filePath', 'description'] 
+  }
 };
 
 // Validar configuración
 export function validateDbConfig(dbConfig) {
   const errors = [];
-  const typeConfig = DB_TYPES[dbConfig.type];
-  if (!typeConfig) {
-    errors.push(`Tipo no soportado: ${dbConfig.type}`);
-    return errors;
-  }
-  for (const field of typeConfig.fields) {
-    if (field === 'port' && dbConfig.port === null) continue;
-    if (!dbConfig[field] && field !== 'password' && field !== 'ssl' && field !== 'collectionPrefix') {
-      errors.push(`Campo requerido: ${field}`);
-    }
-  }
+  if (!dbConfig.name) errors.push('El nombre es requerido');
+  if (!dbConfig.filePath) errors.push('La ruta o endpoint de datos JSON es requerida');
   return errors;
 }

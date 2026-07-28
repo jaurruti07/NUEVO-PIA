@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -199,6 +200,95 @@ app.use((req, res, next) => {
   next();
 });
 
+// Users and Security Files
+const USERS_FILE = path.join(__dirname, 'users.json');
+const SECURITY_FILE = path.join(__dirname, 'security_policies.json');
+
+// Password Hashing and Security Helpers
+function hashPassword(password) {
+  if (!password) return '';
+  if (password.startsWith('pbkdf2:')) return password; // Already hashed
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return `pbkdf2:${salt}:${hash}`;
+}
+
+function verifyPassword(inputPassword, storedPassword) {
+  if (!storedPassword || !inputPassword) return false;
+
+  if (storedPassword.startsWith('pbkdf2:')) {
+    const parts = storedPassword.split(':');
+    if (parts.length !== 3) return false;
+    const salt = parts[1];
+    const storedHash = parts[2];
+    const hash = crypto.pbkdf2Sync(inputPassword, salt, 10000, 64, 'sha512').toString('hex');
+    try {
+      return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(storedHash, 'hex'));
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Legacy plain-text password match
+  return inputPassword === storedPassword;
+}
+
+function getUsersData() {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return [];
+    const content = fs.readFileSync(USERS_FILE, 'utf8');
+    const users = JSON.parse(content);
+    let dirty = false;
+    for (const u of users) {
+      if (u.password && !u.password.startsWith('pbkdf2:')) {
+        u.password = hashPassword(u.password);
+        dirty = true;
+      }
+    }
+    if (dirty) {
+      saveUsersData(users);
+    }
+    return users;
+  } catch (err) {
+    console.error('Error reading users.json:', err);
+    return [];
+  }
+}
+
+function saveUsersData(users) {
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.error('Error saving users.json:', err);
+    return false;
+  }
+}
+
+function getSecurityPoliciesData() {
+  try {
+    if (!fs.existsSync(SECURITY_FILE)) return {};
+    return JSON.parse(fs.readFileSync(SECURITY_FILE, 'utf8'));
+  } catch (err) {
+    return {};
+  }
+}
+
+function saveSecurityPoliciesData(policies) {
+  try {
+    fs.writeFileSync(SECURITY_FILE, JSON.stringify(policies, null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function sanitizeUser(u) {
+  if (!u) return null;
+  const { password, ...userWithoutPass } = u;
+  return userWithoutPass;
+}
+
 // Initialize initial audit log if empty
 if (getAuditLogs().length === 0) {
   logAudit({
@@ -219,25 +309,52 @@ app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body || {};
   const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
 
-  if (username === 'admin' && password === 'Detector.25.') {
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Usuario y contraseña son requeridos.' });
+  }
+
+  const users = getUsersData();
+  const cleanUser = username.trim().toLowerCase();
+  const user = users.find(u => u.username.toLowerCase() === cleanUser);
+
+  if (user && verifyPassword(password, user.password)) {
+    // If user's password was plain text, transparently upgrade it to hash
+    if (!user.password.startsWith('pbkdf2:')) {
+      user.password = hashPassword(password);
+      saveUsersData(users);
+    }
+
+    if (user.status === 'inactive' || user.status === 'suspended') {
+      logAudit({
+        user: user.username,
+        userId: String(user.id),
+        action: 'INTENTO FALLIDO',
+        module: 'auth',
+        target: 'autenticacion',
+        details: `Intento de inicio de sesión con cuenta desactivada/suspendida: '${user.username}'`,
+        ip: clientIp
+      });
+      return res.status(401).json({ error: 'La cuenta de usuario está inactiva o suspendida.' });
+    }
+
+    user.lastLogin = new Date().toISOString();
+    saveUsersData(users);
+
+    const token = `pia-token-${user.id}-${user.username}`;
+
     logAudit({
-      user: 'admin',
-      userId: '1',
+      user: user.username,
+      userId: String(user.id),
       action: 'INICIO DE SESIÓN',
       module: 'auth',
       target: 'autenticacion',
-      details: 'Inicio de sesión exitoso en el panel administrativo',
+      details: `Inicio de sesión exitoso como ${user.role} (${user.fullName || user.username})`,
       ip: clientIp
     });
 
     return res.json({
-      token: 'pia-admin-valid-token-detector25',
-      user: {
-        id: 1,
-        username: 'admin',
-        role: 'Administrador',
-        email: 'admin@pia.gob.gt'
-      }
+      token,
+      user: sanitizeUser(user)
     });
   }
 
@@ -255,19 +372,186 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.includes('pia-admin-valid-token-detector25')) {
-    return res.json({
-      user: {
-        id: 1,
-        username: 'admin',
-        role: 'Administrador',
-        email: 'admin@pia.gob.gt'
-      }
-    });
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '').trim();
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token no proporcionado' });
   }
+
+  const users = getUsersData();
+  let user = null;
+
+  if (token === 'pia-admin-valid-token-detector25') {
+    user = users.find(u => u.username === 'admin') || users[0];
+  } else if (token.startsWith('pia-token-')) {
+    const parts = token.split('-');
+    const userId = parts[2];
+    const username = parts[3];
+    user = users.find(u => String(u.id) === String(userId) || u.username === username);
+  }
+
+  if (user) {
+    return res.json({ user: sanitizeUser(user) });
+  }
+
   return res.status(401).json({ error: 'Token inválido o expirado' });
 });
+
+// ==========================================
+// USER MANAGEMENT ENDPOINTS
+// ==========================================
+
+app.get('/api/users', (req, res) => {
+  const users = getUsersData().map(u => sanitizeUser(u));
+  res.json(users);
+});
+
+app.get('/api/users/:id', (req, res) => {
+  const users = getUsersData();
+  const u = users.find(item => String(item.id) === String(req.params.id) || item.username === req.params.id);
+  if (!u) return res.status(404).json({ error: 'Usuario no encontrado' });
+  res.json(sanitizeUser(u));
+});
+
+app.post('/api/users', (req, res) => {
+  const { username, fullName, email, role, modules, status, mfaEnabled, forcePasswordChange, password } = req.body || {};
+
+  if (!username || !fullName || !email) {
+    return res.status(400).json({ error: 'Nombre completo, usuario y correo son requeridos.' });
+  }
+
+  const users = getUsersData();
+  if (users.some(u => u.username.toLowerCase() === username.trim().toLowerCase())) {
+    return res.status(400).json({ error: `El nombre de usuario '${username}' ya está registrado.` });
+  }
+
+  const rawPassword = password && password.trim() ? password.trim() : 'Detector.25.';
+
+  const newUser = {
+    id: `usr_${Date.now()}`,
+    username: username.trim(),
+    fullName: fullName.trim(),
+    email: email.trim(),
+    role: role || 'module_admin',
+    modules: Array.isArray(modules) ? modules : ['canales', 'directorio'],
+    status: status || 'active',
+    mfaEnabled: !!mfaEnabled,
+    forcePasswordChange: !!forcePasswordChange,
+    password: hashPassword(rawPassword),
+    lastLogin: new Date().toISOString()
+  };
+
+  users.push(newUser);
+  saveUsersData(users);
+
+  logAudit({
+    user: 'admin',
+    userId: '1',
+    action: 'CREACIÓN DE USUARIO',
+    module: 'users',
+    target: 'users.json',
+    recordId: newUser.id,
+    details: `Creación de usuario '@${newUser.username}' (${newUser.fullName}) con rol ${newUser.role}`,
+    newValue: sanitizeUser(newUser),
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.status(201).json(sanitizeUser(newUser));
+});
+
+app.put('/api/users/:id', (req, res) => {
+  const users = getUsersData();
+  const idx = users.findIndex(u => String(u.id) === String(req.params.id) || u.username === req.params.id);
+
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
+  const prevUser = { ...users[idx] };
+  const { fullName, username, email, role, modules, status, mfaEnabled, forcePasswordChange, password } = req.body || {};
+
+  if (fullName) users[idx].fullName = fullName.trim();
+  if (username) users[idx].username = username.trim();
+  if (email) users[idx].email = email.trim();
+  if (role) users[idx].role = role;
+  if (Array.isArray(modules)) users[idx].modules = modules;
+  if (status) users[idx].status = status;
+  if (mfaEnabled !== undefined) users[idx].mfaEnabled = !!mfaEnabled;
+  if (forcePasswordChange !== undefined) users[idx].forcePasswordChange = !!forcePasswordChange;
+  if (password && password.trim()) users[idx].password = hashPassword(password.trim());
+
+  saveUsersData(users);
+
+  logAudit({
+    user: 'admin',
+    userId: '1',
+    action: 'ACTUALIZACIÓN DE USUARIO',
+    module: 'users',
+    target: 'users.json',
+    recordId: users[idx].id,
+    details: `Modificación de datos del usuario '@${users[idx].username}'`,
+    previousValue: sanitizeUser(prevUser),
+    newValue: sanitizeUser(users[idx]),
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json(sanitizeUser(users[idx]));
+});
+
+app.delete('/api/users/:id', (req, res) => {
+  let users = getUsersData();
+  const idx = users.findIndex(u => String(u.id) === String(req.params.id) || u.username === req.params.id);
+
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
+  const userToDelete = users[idx];
+  if (userToDelete.username === 'admin') {
+    return res.status(400).json({ error: 'No se puede eliminar el usuario administrador principal' });
+  }
+
+  users.splice(idx, 1);
+  saveUsersData(users);
+
+  logAudit({
+    user: 'admin',
+    userId: '1',
+    action: 'ELIMINACIÓN DE USUARIO',
+    module: 'users',
+    target: 'users.json',
+    recordId: userToDelete.id,
+    details: `Eliminación del usuario '@${userToDelete.username}' (${userToDelete.fullName})`,
+    previousValue: sanitizeUser(userToDelete),
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({ message: 'Usuario eliminado correctamente', success: true });
+});
+
+// Security Policies Endpoints
+app.get('/api/security-policies', (req, res) => {
+  res.json(getSecurityPoliciesData());
+});
+
+app.post('/api/security-policies', (req, res) => {
+  saveSecurityPoliciesData(req.body);
+  logAudit({
+    user: 'admin',
+    userId: '1',
+    action: 'ACTUALIZACIÓN SEGURIDAD',
+    module: 'security',
+    target: 'security_policies.json',
+    details: 'Actualización de políticas globales de seguridad',
+    newValue: req.body,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+  res.json({ success: true, message: 'Políticas guardadas correctamente' });
+});
+
+// Helper for reserved modules
+const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies'];
 
 // ==========================================
 // MODULES & CRUD ENDPOINTS
@@ -280,7 +564,7 @@ app.get('/api/modules', (req, res) => {
 // Get all records of a module
 app.get('/api/:module', (req, res, next) => {
   const { module } = req.params;
-  if (module === 'auth' || module === 'dashboard' || module === 'raw-json' || module === 'files' || module === 'audit') {
+  if (RESERVED_MODULES.includes(module)) {
     return next();
   }
   try {
@@ -294,7 +578,7 @@ app.get('/api/:module', (req, res, next) => {
 // Get single record
 app.get('/api/:module/:id', (req, res, next) => {
   const { module, id } = req.params;
-  if (module === 'auth' || module === 'dashboard' || module === 'raw-json' || module === 'files' || module === 'audit') {
+  if (RESERVED_MODULES.includes(module)) {
     return next();
   }
   try {
@@ -310,7 +594,7 @@ app.get('/api/:module/:id', (req, res, next) => {
 // Create new record
 app.post('/api/:module', (req, res, next) => {
   const { module } = req.params;
-  if (module === 'auth' || module === 'dashboard' || module === 'raw-json' || module === 'files' || module === 'audit') {
+  if (RESERVED_MODULES.includes(module)) {
     return next();
   }
   try {
@@ -346,7 +630,7 @@ app.post('/api/:module', (req, res, next) => {
 // Update record
 app.put('/api/:module/:id', (req, res, next) => {
   const { module, id } = req.params;
-  if (module === 'auth' || module === 'dashboard' || module === 'raw-json' || module === 'files' || module === 'audit') {
+  if (RESERVED_MODULES.includes(module)) {
     return next();
   }
   try {
@@ -385,7 +669,7 @@ app.put('/api/:module/:id', (req, res, next) => {
 // Delete record
 app.delete('/api/:module/:id', (req, res, next) => {
   const { module, id } = req.params;
-  if (module === 'auth' || module === 'dashboard' || module === 'raw-json' || module === 'files' || module === 'audit') {
+  if (RESERVED_MODULES.includes(module)) {
     return next();
   }
   try {

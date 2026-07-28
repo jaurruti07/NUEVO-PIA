@@ -1,5 +1,6 @@
 // app.js - Controlador principal del panel administrativo PIA
 import { initDatabaseManager } from './database-manager.js';
+import { initUserManager } from './user-manager.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Verificar token guardado
@@ -79,10 +80,51 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================
-// MOSTRAR / OCULTAR PÁGINAS
+// MOSTRAR / OCULTAR PÁGINAS Y ROLES
 // ============================
 
+let currentUser = null;
+
+const ROLE_LABELS = {
+    superadmin: 'Super Administrador',
+    module_admin: 'Administrador de Módulo',
+    editor: 'Editor de Contenido',
+    auditor: 'Auditor de Seguridad'
+};
+
+function hasAccessToModule(moduleName) {
+    if (!currentUser) return true;
+    if (currentUser.role === 'superadmin' || currentUser.username === 'admin' || currentUser.username === 'jaurruti') return true;
+    if (moduleName === 'dashboard' || moduleName === 'audit') return true;
+    if (moduleName === 'users' || moduleName === 'database') {
+        return currentUser.role === 'superadmin' || currentUser.username === 'admin';
+    }
+    const userMods = currentUser.modules || [];
+    return userMods.includes(moduleName);
+}
+
+function updateSidebarPermissions() {
+    if (!currentUser) return;
+    const isSuper = currentUser.role === 'superadmin' || currentUser.username === 'admin' || currentUser.username === 'jaurruti';
+    const userMods = currentUser.modules || [];
+
+    document.querySelectorAll('[data-module]').forEach(btn => {
+        const mod = btn.dataset.module;
+        const parent = btn.closest('li') || btn;
+        if (mod === 'dashboard' || mod === 'audit') {
+            parent.style.display = 'block';
+        } else if (mod === 'users' || mod === 'database') {
+            parent.style.display = isSuper ? 'block' : 'none';
+        } else {
+            const allowed = isSuper || userMods.includes(mod);
+            parent.style.display = allowed ? 'block' : 'none';
+        }
+    });
+}
+
 function showLogin() {
+    currentUser = null;
+    localStorage.removeItem('user');
     const loginContainer = document.getElementById('loginContainer');
     const mainLayout = document.getElementById('mainLayout');
     if (loginContainer) loginContainer.style.display = 'flex';
@@ -90,6 +132,11 @@ function showLogin() {
 }
 
 function showDashboard(user) {
+    currentUser = user;
+    if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+    }
+
     const loginContainer = document.getElementById('loginContainer');
     const mainLayout = document.getElementById('mainLayout');
     if (loginContainer) loginContainer.style.display = 'none';
@@ -100,9 +147,12 @@ function showDashboard(user) {
     const roleDisplay = document.getElementById('userRoleDisplay');
     const userAvatar = document.getElementById('userAvatar');
 
-    if (emailDisplay) emailDisplay.textContent = user.email || `${user.username}@pia.gob.gt`;
-    if (roleDisplay) roleDisplay.textContent = user.role || 'Administrador';
-    if (userAvatar) userAvatar.textContent = (user.username || 'A').charAt(0).toUpperCase();
+    const displayName = user.fullName ? `${user.fullName} (@${user.username})` : `@${user.username}`;
+    if (emailDisplay) emailDisplay.textContent = user.email ? `${displayName} - ${user.email}` : displayName;
+    if (roleDisplay) roleDisplay.textContent = ROLE_LABELS[user.role] || user.role || 'Administrador';
+    if (userAvatar) userAvatar.textContent = (user.fullName || user.username || 'A').charAt(0).toUpperCase();
+
+    updateSidebarPermissions();
 
     // Default navigate
     navigateTo('dashboard');
@@ -110,11 +160,18 @@ function showDashboard(user) {
 
 window.logout = function() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     showLogin();
     showToast('Sesión cerrada', 'info');
 };
 
 window.navigateTo = async function(module) {
+    if (!hasAccessToModule(module)) {
+        showToast(`No tienes permisos para acceder al módulo '${module}'.`, 'error');
+        navigateTo('dashboard');
+        return;
+    }
+
     // Highlight sidebar active state
     document.querySelectorAll('[data-module]').forEach(b => {
         if (b.dataset.module === module) {
@@ -135,6 +192,11 @@ window.navigateTo = async function(module) {
 
     if (module === 'database') {
         await initDatabaseManager();
+        return;
+    }
+
+    if (module === 'users') {
+        await initUserManager();
         return;
     }
 
