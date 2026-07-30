@@ -560,6 +560,209 @@
         #directorio.theme-dark .counter-val { color: #fff; }
 
         /* ============================================================
+           SELECTOR DE VISTA (TARJETA / LISTA)
+        ============================================================ */
+        .view-toggle-group {
+            display: inline-flex;
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            padding: 3px;
+            gap: 2px;
+            box-shadow: var(--shadow-sm);
+        }
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            font-family: var(--font-head);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .view-btn:hover {
+            color: var(--blue-bright);
+        }
+        .view-btn.active {
+            background: var(--navy);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(5,17,31,0.2);
+        }
+        #directorio.theme-dark .view-toggle-group {
+            background: var(--navy-mid);
+            border-color: rgba(0,194,224,0.18);
+        }
+        #directorio.theme-dark .view-btn {
+            color: rgba(255,255,255,0.6);
+        }
+        #directorio.theme-dark .view-btn.active {
+            background: var(--cyan);
+            color: var(--navy);
+        }
+
+        /* ============================================================
+           VISTA DE LISTA
+        ============================================================ */
+        .dir-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+        .dir-list-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.25rem 1.6rem;
+            display: grid;
+            grid-template-columns: 2.2fr 1.8fr 1.5fr 1fr;
+            gap: 1.25rem;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s;
+        }
+        .dir-list-item:hover {
+            border-color: var(--blue-bright);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .dir-list-col-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .dir-list-title {
+            font-family: var(--font-head);
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+        .dir-list-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .dir-list-sector {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--blue-bright);
+            background: rgba(43,130,201,0.08);
+            padding: 2px 10px;
+            border-radius: 50px;
+        }
+        .dir-list-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+        .dir-list-contact div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            word-break: break-word;
+        }
+        .dir-list-contact i {
+            color: var(--blue-bright);
+            width: 14px;
+            text-align: center;
+        }
+        .dir-list-contact a {
+            color: var(--blue-bright);
+        }
+        .dir-list-contact a:hover {
+            text-decoration: underline;
+        }
+        .dir-list-avail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .dir-list-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .btn-list-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0.55rem 1.1rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-list-details {
+            background: var(--navy);
+            color: #fff;
+        }
+        .btn-list-details:hover {
+            background: var(--blue-bright);
+            transform: translateY(-1px);
+        }
+        .btn-list-share {
+            background: #DCFCE7;
+            color: #15803D;
+            padding: 0.55rem 0.8rem;
+        }
+        .btn-list-share:hover {
+            background: #22C55E;
+            color: #fff;
+        }
+
+        #directorio.theme-dark .dir-list-item {
+            background: #0F1E2E;
+            border-color: rgba(0,194,224,0.15);
+        }
+        #directorio.theme-dark .dir-list-title {
+            color: #fff;
+        }
+        #directorio.theme-dark .dir-list-contact {
+            color: rgba(255,255,255,0.65);
+        }
+        #directorio.theme-dark .dir-list-sector {
+            background: rgba(0,194,224,0.12);
+            color: var(--cyan);
+        }
+        #directorio.theme-dark .btn-list-details {
+            background: var(--cyan);
+            color: var(--navy);
+        }
+
+        @media (max-width: 992px) {
+            .dir-list-item {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 640px) {
+            .dir-list-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1.1rem;
+            }
+            .dir-list-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        /* ============================================================
            DIRECTORY CARDS
         ============================================================ */
         .dir-swiper { padding: 1rem 0.5rem 3rem !important; }
@@ -1222,7 +1425,8 @@
                     <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
-                        
+                        <li><a href="#directorio" id="navViewCardsLink"><i class="fas fa-th-large"></i> Vista por tarjetas</a></li>
+                        <li><a href="#directorio" id="navViewListLink"><i class="fas fa-list"></i> Vista por lista</a></li>
                     </ul>
                 </li>
 
@@ -1391,9 +1595,19 @@
                 <div class="section-tag">Directorio</div>
                 <h2 class="section-title">Directorio de Acceso al Ejecutivo</h2>
             </div>
-            <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
-                <i class="fas fa-palette"></i> Cambiar tema
-            </button>
+            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                <div class="view-toggle-group" id="viewToggleGroup" role="group" aria-label="Modo de visualización">
+                    <button id="viewCardsBtn" class="view-btn active" type="button" title="Vista de Tarjetas">
+                        <i class="fas fa-th-large"></i> <span>Tarjetas</span>
+                    </button>
+                    <button id="viewListBtn" class="view-btn" type="button" title="Vista de Lista">
+                        <i class="fas fa-list"></i> <span>Lista</span>
+                    </button>
+                </div>
+                <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
+                    <i class="fas fa-palette"></i> Cambiar tema
+                </button>
+            </div>
         </div>
 
         <!-- FILTROS -->
@@ -1464,12 +1678,17 @@
         </div>
 
         <!-- SWIPER TARJETAS -->
-        <div style="position:relative; padding: 0 30px;">
+        <div id="cardsViewWrapper" style="position:relative; padding: 0 30px;">
             <div class="swiper dir-swiper" id="dirSwiper">
                 <div class="swiper-wrapper" id="cardsContainer"></div>
             </div>
             <button class="swiper-nav-btn swiper-prev"><i class="fas fa-chevron-left"></i></button>
             <button class="swiper-nav-btn swiper-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- VISTA DE LISTA -->
+        <div id="listViewWrapper" style="display:none; margin-bottom:2rem;">
+            <div class="dir-list-container" id="listContainer"></div>
         </div>
 
         <div class="export-row">
@@ -1661,6 +1880,7 @@ let currentFilters = {
     oficio: false
 };
 let currentTheme = localStorage.getItem('dir_theme') || 'light';
+let currentView = localStorage.getItem('dir_view') || 'cards';
 let recognition = null;
 
 /* ============================================================
@@ -1969,6 +2189,82 @@ document.querySelectorAll('.modal-tab').forEach(tab => {
 });
 
 /* ============================================================
+   RENDER VISTA DE LISTA
+============================================================ */
+function renderList(list) {
+    const $list = document.getElementById('listContainer');
+    if (!$list) return;
+    $list.innerHTML = '';
+
+    if (!list.length) {
+        $list.innerHTML = `<div style="background:#fff; border-radius:var(--radius-xl); padding:3rem; text-align:center; color:var(--text-muted); width:100%; border:1px solid var(--border);">No se encontraron instituciones.</div>`;
+        return;
+    }
+
+    list.forEach(inst => {
+        const phone = cleanPhone(inst.telefono);
+        const safe  = inst.nombre_institucion.replace(/'/g,"\\'");
+        const tieneSolicitud = inst.solicitud_en_linea === true;
+        const tieneOficio = inst.informacion_publica_oficio === true;
+
+        const row = document.createElement('div');
+        row.className = 'dir-list-item';
+        row.innerHTML = `
+            <div class="dir-list-col-main">
+                <div class="dir-list-title">${inst.nombre_institucion}${inst.siglas ? ' ('+inst.siglas+')' : ''}</div>
+                <div class="dir-list-badges">
+                    <span class="dir-list-sector"><i class="fas fa-building"></i> ${inst.sector || 'Sector no definido'}</span>
+                    ${inst.departamento ? `<span style="font-size:0.75rem; color:var(--text-muted);"><i class="fas fa-map-marker-alt"></i> ${inst.departamento}</span>` : ''}
+                </div>
+            </div>
+            <div class="dir-list-contact">
+                <div><i class="fas fa-envelope"></i> ${inst.correo ? `<a href="mailto:${inst.correo}">${inst.correo}</a>` : '<span style="color:var(--text-light)">Sin correo</span>'}</div>
+                <div><i class="fas fa-phone-alt"></i> ${inst.telefono ? `<a href="tel:${phone}">${inst.telefono}</a>` : '<span style="color:var(--text-light)">Sin teléfono</span>'}</div>
+                <div><i class="fas fa-clock"></i> <span style="font-size:0.78rem;">${inst.horario_atencion || 'Horario no especificado'}</span></div>
+            </div>
+            <div class="dir-list-avail">
+                <span class="acceso-badge ${tieneSolicitud ? 'si' : 'no'}" style="margin:2px 0;"><i class="fas ${tieneSolicitud ? 'fa-check-circle' : 'fa-times-circle'}"></i> Solicitud en línea</span>
+                <span class="acceso-badge ${tieneOficio ? 'si' : 'no'}" style="margin:2px 0;"><i class="fas ${tieneOficio ? 'fa-check-circle' : 'fa-times-circle'}"></i> Información de oficio</span>
+            </div>
+            <div class="dir-list-actions">
+                <button class="btn-list-action btn-list-details" onclick="window._openModal('${safe}')"><i class="fas fa-info-circle"></i> Detalles</button>
+                <button class="btn-list-action btn-list-share" onclick="window._shareCard('${safe}')" title="Compartir"><i class="fab fa-whatsapp"></i></button>
+            </div>
+        `;
+        $list.appendChild(row);
+    });
+}
+
+/* ============================================================
+   CAMBIO DE VISTA (TARJETAS / LISTA)
+============================================================ */
+function switchView(view) {
+    currentView = view;
+    localStorage.setItem('dir_view', currentView);
+
+    const $cardsWrapper = document.getElementById('cardsViewWrapper');
+    const $listWrapper  = document.getElementById('listViewWrapper');
+    const $btnCards     = document.getElementById('viewCardsBtn');
+    const $btnList      = document.getElementById('viewListBtn');
+
+    if (currentView === 'list') {
+        if ($cardsWrapper) $cardsWrapper.style.display = 'none';
+        if ($listWrapper)  $listWrapper.style.display  = 'block';
+        if ($btnCards) $btnCards.classList.remove('active');
+        if ($btnList)  $btnList.classList.add('active');
+        if (swiperDir && swiperDir.autoplay && swiperDir.autoplay.running) swiperDir.autoplay.stop();
+    } else {
+        if ($cardsWrapper) $cardsWrapper.style.display = 'block';
+        if ($listWrapper)  $listWrapper.style.display  = 'none';
+        if ($btnCards) $btnCards.classList.add('active');
+        if ($btnList)  $btnList.classList.remove('active');
+        if (swiperDir && swiperDir.autoplay && !swiperDir.autoplay.running && !$cards.querySelector('.flip-card.flipped')) {
+            swiperDir.autoplay.start();
+        }
+    }
+}
+
+/* ============================================================
    APLICAR FILTROS Y ACTUALIZAR UI
 ============================================================ */
 function applyFilters() {
@@ -1989,6 +2285,8 @@ function applyFilters() {
     $statsOficio.textContent = sumOficio(instituciones);
 
     renderCards(filtered);
+    renderList(filtered);
+    switchView(currentView);
 }
 
 function readFilters() {
@@ -2143,6 +2441,16 @@ $themeBtn.addEventListener('click', () => {
     applyTheme();
     showToast(`Tema cambiado a modo ${currentTheme === 'dark' ? 'oscuro' : 'claro'}`);
 });
+
+const $viewCardsBtn = document.getElementById('viewCardsBtn');
+const $viewListBtn = document.getElementById('viewListBtn');
+if ($viewCardsBtn) $viewCardsBtn.addEventListener('click', () => { switchView('cards'); showToast('Vista cambiada a Tarjetas 🎴'); });
+if ($viewListBtn) $viewListBtn.addEventListener('click', () => { switchView('list'); showToast('Vista cambiada a Lista 📋'); });
+
+const $navCardsLink = document.getElementById('navViewCardsLink');
+const $navListLink = document.getElementById('navViewListLink');
+if ($navCardsLink) $navCardsLink.addEventListener('click', (e) => { e.preventDefault(); switchView('cards'); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
+if ($navListLink) $navListLink.addEventListener('click', (e) => { e.preventDefault(); switchView('list'); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
 
 document.getElementById('mobileMenu').addEventListener('click', () => {
     document.getElementById('navMenu').classList.toggle('open');

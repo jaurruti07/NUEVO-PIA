@@ -31,9 +31,13 @@ async function verifyToken(token) {
     return data; // { user }
 }
 
-function logout() {
+function logout(reason) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    if (reason) {
+        sessionStorage.setItem('logout_reason', reason);
+    }
     window.location.reload();
 }
 

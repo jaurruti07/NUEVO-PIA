@@ -662,61 +662,257 @@ table tr:hover {
 }
 
 /* ============================
-   RESPONSIVE
+   RESPONSIVE & MOBILE OPTIMIZATIONS
 ============================ */
+
+/* Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 17, 31, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 998;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Mobile Toggle & Close Buttons */
+.mobile-toggle-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--navy);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 194, 224, 0.3);
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.mobile-toggle-btn:hover {
+    background: var(--navy-light);
+    color: #fff;
+}
+
+.sidebar-close-btn {
+    display: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.sidebar-close-btn:hover {
+    background: var(--red);
+    border-color: var(--red);
+}
+
+/* Base Responsive Layouts */
 @media (max-width: 992px) {
-    #dashboardScreen {
-        grid-template-columns: 1fr;
+    .main-layout, #dashboardScreen {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh;
     }
+
     .sidebar {
-        position: fixed;
-        left: -280px;
-        top: 0;
-        width: 280px;
-        height: 100vh;
-        z-index: 999;
-        transition: left 0.3s ease;
+        position: fixed !important;
+        left: -300px !important;
+        top: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        z-index: 999 !important;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
     }
+
     .sidebar.open {
-        left: 0;
+        left: 0 !important;
     }
-    .sidebar-toggle {
-        display: block;
+
+    .mobile-toggle-btn {
+        display: inline-flex !important;
     }
-    .sidebar-toggle-mobile {
-        display: block;
+
+    .sidebar-close-btn {
+        display: inline-block !important;
     }
-    .main-content {
-        padding: 1rem;
+
+    .top-header {
+        padding: 0.85rem 1.25rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.75rem !important;
     }
-    .chart-row {
-        grid-template-columns: 1fr;
+
+    .content-wrapper {
+        padding: 1.25rem 1rem !important;
     }
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+
+    .user-manager-container, .db-manager-container {
+        padding: 0.5rem 0 !important;
+    }
+
+    /* Tabs Horizontal Scrolling */
+    .db-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding-bottom: 6px !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .tab-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        padding: 0.65rem 1rem !important;
+        font-size: 0.88rem !important;
+    }
+
+    /* Cards & Grids */
+    .indicators-grid, .stats-grid, .mock-files, .db-list {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+        gap: 1rem !important;
+    }
+
+    #usersCardGrid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
     }
 }
-@media (max-width: 600px) {
-    .topbar {
-        flex-direction: column;
-        align-items: stretch;
+
+@media (max-width: 640px) {
+    .top-header {
+        padding: 0.75rem 0.85rem !important;
     }
-    .topbar-right {
-        justify-content: flex-end;
+
+    .server-status-tag {
+        display: none !important;
     }
-    .table-toolbar {
-        flex-direction: column;
-        align-items: stretch;
+
+    .portal-btn-text {
+        display: none !important;
     }
-    .table-toolbar .left,
-    .table-toolbar .right {
-        flex-wrap: wrap;
+
+    .user-info div {
+        display: none !important; /* Hide email/role labels on small phone screens */
     }
+
+    .user-info {
+        gap: 0.5rem !important;
+    }
+
+    .btn-logout {
+        padding: 0.4rem 0.75rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .content-wrapper {
+        padding: 0.75rem 0.5rem !important;
+    }
+
+    /* Metric Cards on Mobile Phones */
+    .indicators-grid, .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .indicator-card {
+        padding: 1rem !important;
+    }
+
+    .indicator-card div:nth-child(2) {
+        font-size: 1.5rem !important;
+    }
+
+    #usersCardGrid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Page headers & titles */
+    h1, .page-header h1 {
+        font-size: 1.3rem !important;
+    }
+
+    h2, .db-header h2 {
+        font-size: 1.2rem !important;
+    }
+
+    /* Form and Table Toolbars */
+    .table-toolbar, .crud-toolbar, .db-header, .db-actions {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+    }
+
+    .table-toolbar input, .table-toolbar select, .table-toolbar button,
+    .crud-toolbar input, .crud-toolbar select, .crud-toolbar button,
+    .db-header button, #btnAddNewUser, #inputSearchUsers {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Tables Auto Horizontal Scroll Container */
+    table {
+        font-size: 0.82rem !important;
+    }
+
+    th, td {
+        padding: 0.6rem 0.75rem !important;
+        white-space: nowrap !important;
+    }
+
+    .table-responsive, [style*="overflow-x: auto"] {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 10px;
+    }
+
+    /* Login Box */
     .login-box {
-        padding: 1.5rem;
+        padding: 1.5rem !important;
+        max-width: 92vw !important;
     }
-    .modal-box {
-        max-width: 100%;
-        margin: 0.5rem;
+
+    .login-box h1 {
+        font-size: 1.6rem !important;
+    }
+
+    /* Modals */
+    .modal-content, .modal-box {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin: 0.5rem auto !important;
+        border-radius: 14px !important;
+    }
+
+    .modal-body {
+        padding: 1rem !important;
+    }
+
+    /* Modal Form Grids */
+    .modal-body [style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .modal-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .modal-footer button {
+        width: 100% !important;
     }
 }

@@ -1,0 +1,497 @@
+/* ============================================================
+   PIA CHATBOT INTELIGENTE - FRONTEND CLIENT
+   ============================================================ */
+
+(function () {
+    'use strict';
+
+    // State Variables
+    let isOpen = false;
+    let isDark = false;
+    let sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    let conversationHistory = [];
+    let isWaitingResponse = false;
+
+    // DOM Elements
+    let triggerBtn, chatWindow, messagesContainer, textareaInput, sendBtn;
+
+    // Initialize Chatbot Widget on DOM Ready
+    function initChatbot() {
+        if (document.getElementById('piaChatbotWindow')) return; // Avoid duplicate
+
+        // Append CSS link
+        if (!document.querySelector('link[href*="pia-chatbot.css"]')) {
+            const css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = '/css/pia-chatbot.css';
+            document.head.appendChild(css);
+        }
+
+        // Render HTML markup
+        renderChatbotHTML();
+
+        // Query DOM elements
+        triggerBtn = document.getElementById('piaChatbotTrigger');
+        chatWindow = document.getElementById('piaChatbotWindow');
+        messagesContainer = document.getElementById('piaCbMessages');
+        textareaInput = document.getElementById('piaCbTextarea');
+        sendBtn = document.getElementById('piaCbSendBtn');
+
+        // Check stored theme
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            isDark = true;
+            chatWindow.classList.add('dark');
+        }
+
+        // Load Stored Session History
+        loadLocalHistory();
+
+        // Attach Event Listeners
+        attachEventListeners();
+
+        // Fetch Initial Config
+        fetchConfig();
+    }
+
+    function renderChatbotHTML() {
+        const triggerMarkup = `
+            <button id="piaChatbotTrigger" class="pia-chatbot-trigger" aria-label="Abrir Asistente Virtual IA PIA" title="Asistente Virtual IA PIA">
+                <div class="pia-chatbot-trigger-icon">
+                    <img src="/img/red-fox.svg" alt="Asistente Zorro Rojo PIA" class="pia-fox-icon" />
+                    <span class="pia-chatbot-pulse"></span>
+                </div>
+                <div class="pia-chatbot-trigger-text">
+                    <span class="pia-chatbot-trigger-title">Asistente PIA</span>
+                    <span class="pia-chatbot-trigger-sub">Pregúntame en vivo</span>
+                </div>
+            </button>
+        `;
+
+        const windowMarkup = `
+            <div id="piaChatbotWindow" class="pia-chatbot-window" role="dialog" aria-labelledby="piaCbHeaderTitle" aria-hidden="true">
+                <!-- Header -->
+                <div class="pia-cb-header">
+                    <div class="pia-cb-header-brand">
+                        <div class="pia-cb-avatar">
+                            <img src="/img/red-fox.svg" alt="Asistente Zorro Rojo PIA" class="pia-fox-icon" />
+                        </div>
+                        <div class="pia-cb-title-box">
+                            <h2 id="piaCbHeaderTitle" class="pia-cb-title">Asistente Virtual PIA</h2>
+                            <span class="pia-cb-status">
+                                <span class="pia-cb-status-dot"></span> En línea · IA Transparente
+                            </span>
+                        </div>
+                    </div>
+                    <div class="pia-cb-header-actions">
+                        <button class="pia-cb-action-btn" id="piaCbThemeBtn" title="Cambiar tema claro/oscuro">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button class="pia-cb-action-btn" id="piaCbExportBtn" title="Descargar conversación (TXT)">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="pia-cb-action-btn" id="piaCbResetBtn" title="Reiniciar conversación">
+                            <i class="fas fa-rotate-right"></i>
+                        </button>
+                        <button class="pia-cb-action-btn" id="piaCbCloseBtn" title="Cerrar chat">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Suggestions Bar -->
+                <div class="pia-cb-suggestions-bar" id="piaCbSuggestions">
+                    <!-- Dynamic Suggestion Chips -->
+                </div>
+
+                <!-- Messages Body -->
+                <div class="pia-cb-messages" id="piaCbMessages" role="log" aria-live="polite">
+                    <!-- Welcome Message -->
+                    <div class="pia-cb-msg bot">
+                        <div class="pia-cb-bubble">
+                            👋 ¡Hola! Soy el <strong>Asistente Virtual Oficial del Portal de Integridad Activa (PIA)</strong> de Guatemala.<br><br>
+                            Puedo guiarte para presentar denuncias por corrupción, consultar el directorio de funcionarios públicos, revisar la asignación de vehículos oficiales con Placa Transparente y entender los tableros estadísticos.<br><br>
+                            ¿En qué puedo ayudarte hoy?
+                        </div>
+                        <span class="pia-cb-timestamp">${getCurrentTimeString()}</span>
+                    </div>
+                </div>
+
+                <!-- Footer Input Area -->
+                <div class="pia-cb-footer">
+                    <div class="pia-cb-input-wrapper">
+                        <textarea id="piaCbTextarea" class="pia-cb-textarea" rows="1" placeholder="Escribe tu consulta aquí..." aria-label="Escribe tu consulta para el asistente virtual"></textarea>
+                        <button id="piaCbSendBtn" class="pia-cb-send-btn" aria-label="Enviar mensaje">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="pia-cb-disclaimer">
+                        <i class="fas fa-lock" style="color: #00C2E0; margin-right: 3px;"></i> Información oficial verificada del Gobierno de Guatemala.
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const wrapper = document.createElement('div');
+        wrapper.id = 'piaChatbotWrapper';
+        wrapper.innerHTML = triggerMarkup + windowMarkup;
+        document.body.appendChild(wrapper);
+    }
+
+    function attachEventListeners() {
+        triggerBtn.addEventListener('click', toggleChatbot);
+        document.getElementById('piaCbCloseBtn').addEventListener('click', closeChatbot);
+
+        document.getElementById('piaCbThemeBtn').addEventListener('click', () => {
+            isDark = !isDark;
+            chatWindow.classList.toggle('dark', isDark);
+            const icon = document.querySelector('#piaCbThemeBtn i');
+            if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        document.getElementById('piaCbResetBtn').addEventListener('click', resetConversation);
+        document.getElementById('piaCbExportBtn').addEventListener('click', exportConversationTXT);
+
+        sendBtn.addEventListener('click', handleUserSendMessage);
+
+        textareaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleUserSendMessage();
+            }
+        });
+
+        // Auto height for textarea
+        textareaInput.addEventListener('input', () => {
+            textareaInput.style.height = 'auto';
+            textareaInput.style.height = Math.min(textareaInput.scrollHeight, 80) + 'px';
+        });
+
+        // ESC key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                closeChatbot();
+            }
+        });
+    }
+
+    function toggleChatbot() {
+        if (isOpen) closeChatbot();
+        else openChatbot();
+    }
+
+    function openChatbot() {
+        isOpen = true;
+        chatWindow.classList.add('open');
+        chatWindow.setAttribute('aria-hidden', 'false');
+        textareaInput.focus();
+    }
+
+    function closeChatbot() {
+        isOpen = false;
+        chatWindow.classList.remove('open');
+        chatWindow.setAttribute('aria-hidden', 'true');
+    }
+
+    async function fetchConfig() {
+        try {
+            const res = await fetch('/api/chatbot/config');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.faqs && Array.isArray(data.faqs)) {
+                    renderSuggestionChips(data.faqs);
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching chatbot config:', e);
+            renderSuggestionChips([
+                "¿Cómo presento una denuncia anónima?",
+                "¿Dónde veo el directorio de ministros?",
+                "Verificar placa de vehículo oficial",
+                "Estadísticas del Gobierno en Números"
+            ]);
+        }
+    }
+
+    function renderSuggestionChips(faqs) {
+        const chipsContainer = document.getElementById('piaCbSuggestions');
+        if (!chipsContainer) return;
+        chipsContainer.innerHTML = '';
+
+        faqs.forEach(faq => {
+            const chip = document.createElement('button');
+            chip.className = 'pia-cb-chip';
+            chip.innerHTML = `<i class="fas fa-lightbulb" style="color: #F5A623;"></i> ${escapeHTML(faq)}`;
+            chip.addEventListener('click', () => {
+                textareaInput.value = faq;
+                handleUserSendMessage();
+            });
+            chipsContainer.appendChild(chip);
+        });
+    }
+
+    async function handleUserSendMessage() {
+        if (isWaitingResponse) return;
+        const text = textareaInput.value.trim();
+        if (!text) return;
+
+        // Clear input
+        textareaInput.value = '';
+        textareaInput.style.height = 'auto';
+
+        // Add User Message to UI & History
+        appendMessage('user', text);
+        conversationHistory.push({ role: 'user', text });
+        saveLocalHistory();
+
+        // Show Typing Indicator
+        showTypingIndicator();
+        isWaitingResponse = true;
+
+        try {
+            const response = await fetch('/api/chatbot/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    history: conversationHistory,
+                    sessionId
+                })
+            });
+
+            removeTypingIndicator();
+            isWaitingResponse = false;
+
+            if (response.ok) {
+                const data = await response.json();
+                appendMessage('bot', data.text, data.messageId, data.references);
+                conversationHistory.push({ role: 'model', text: data.text });
+                saveLocalHistory();
+
+                if (data.suggestedFollowUps && data.suggestedFollowUps.length > 0) {
+                    renderSuggestionChips(data.suggestedFollowUps);
+                }
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                appendMessage('bot', `⚠️ ${errData.error || 'Ocurrió un inconveniente al procesar su consulta. Por favor intente de nuevo.'}`);
+            }
+        } catch (err) {
+            removeTypingIndicator();
+            isWaitingResponse = false;
+            console.error('Error in chatbot fetch:', err);
+            appendMessage('bot', '⚠️ No se pudo conectar con el servidor del Asistente Virtual. Verifique su conexión de red.');
+        }
+    }
+
+    function appendMessage(sender, text, messageId = null, references = null) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `pia-cb-msg ${sender}`;
+
+        const formattedText = formatMarkdown(text);
+        let html = `<div class="pia-cb-bubble">${formattedText}`;
+
+        if (references && references.length > 0) {
+            html += `<div style="margin-top: 10px; border-top: 1px dashed rgba(0,194,224,0.3); padding-top: 6px; font-size: 0.78rem; opacity: 0.9;"><strong>Referencias Oficiales:</strong><br>`;
+            references.forEach(ref => {
+                html += `<a href="${ref.link}" class="pia-cb-link-btn" style="margin-right: 6px;"><i class="fas fa-external-link-alt"></i> ${escapeHTML(ref.title)}</a>`;
+            });
+            html += `</div>`;
+        }
+
+        html += `</div>`;
+        html += `<span class="pia-cb-timestamp">${getCurrentTimeString()}</span>`;
+
+        if (sender === 'bot' && messageId) {
+            html += `
+                <div class="pia-cb-msg-actions">
+                    <button class="pia-cb-msg-btn" onclick="window.PIA_CHATBOT.copyMessageText(this)" title="Copiar respuesta">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                    <button class="pia-cb-msg-btn" onclick="window.PIA_CHATBOT.rateMessage('${messageId}', 'like', this)" title="Útil 👍">
+                        <i class="fas fa-thumbs-up"></i>
+                    </button>
+                    <button class="pia-cb-msg-btn" onclick="window.PIA_CHATBOT.rateMessage('${messageId}', 'dislike', this)" title="No útil 👎">
+                        <i class="fas fa-thumbs-down"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        msgDiv.innerHTML = html;
+        messagesContainer.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'piaCbTyping';
+        typingDiv.className = 'pia-cb-msg bot';
+        typingDiv.innerHTML = `
+            <div class="pia-cb-typing">
+                <span class="pia-cb-dot"></span>
+                <span class="pia-cb-dot"></span>
+                <span class="pia-cb-dot"></span>
+                <span style="font-size: 0.75rem; color: #00C2E0; font-weight: 600; margin-left: 6px;">Asistente PIA escribiendo...</span>
+            </div>
+        `;
+        messagesContainer.appendChild(typingDiv);
+        scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+        const typingDiv = document.getElementById('piaCbTyping');
+        if (typingDiv) typingDiv.remove();
+    }
+
+    function resetConversation() {
+        if (confirm('¿Desea reiniciar la conversación y borrar el historial actual?')) {
+            conversationHistory = [];
+            localStorage.removeItem('pia_chatbot_history');
+            messagesContainer.innerHTML = `
+                <div class="pia-cb-msg bot">
+                    <div class="pia-cb-bubble">
+                        🔄 Conversación reiniciada.<br>
+                        ¿En qué puedo ayudarte nuevamente sobre el Portal de Integridad Activa?
+                    </div>
+                    <span class="pia-cb-timestamp">${getCurrentTimeString()}</span>
+                </div>
+            `;
+            fetchConfig();
+        }
+    }
+
+    function exportConversationTXT() {
+        if (conversationHistory.length === 0) {
+            alert('No hay mensajes en el historial para exportar.');
+            return;
+        }
+
+        let content = `====================================================\n`;
+        content += `TRANSCRIPCIÓN DE CHAT - ASISTENTE VIRTUAL PIA\n`;
+        content += `Gobierno de Guatemala - Portal de Integridad Activa\n`;
+        content += `Fecha: ${new Date().toLocaleString('es-GT')}\n`;
+        content += `ID de Sesión: ${sessionId}\n`;
+        content += `====================================================\n\n`;
+
+        conversationHistory.forEach((msg, idx) => {
+            const role = msg.role === 'user' ? 'CIUDADANO' : 'ASISTENTE PIA';
+            content += `[${role}]:\n${msg.text}\n\n----------------------------------------------------\n`;
+        });
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Conversacion_PIA_IA_${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function rateMessage(messageId, rating, btnEl) {
+        fetch('/api/chatbot/rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messageId, rating })
+        }).catch(err => console.error('Error rating message:', err));
+
+        if (btnEl) {
+            const parent = btnEl.parentElement;
+            if (parent) {
+                parent.querySelectorAll('.pia-cb-msg-btn').forEach(b => {
+                    b.classList.remove('active-like', 'active-dislike');
+                });
+            }
+            if (rating === 'like') btnEl.classList.add('active-like');
+            if (rating === 'dislike') btnEl.classList.add('active-dislike');
+        }
+    }
+
+    function copyMessageText(btnEl) {
+        const bubble = btnEl.closest('.pia-cb-msg')?.querySelector('.pia-cb-bubble');
+        if (bubble) {
+            const textToCopy = bubble.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                btnEl.innerHTML = '<i class="fas fa-check"></i> ¡Copiado!';
+                setTimeout(() => {
+                    btnEl.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                }, 2000);
+            });
+        }
+    }
+
+    function loadLocalHistory() {
+        try {
+            const stored = localStorage.getItem('pia_chatbot_history');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    conversationHistory = parsed;
+                    parsed.forEach(msg => {
+                        appendMessage(msg.role === 'user' ? 'user' : 'bot', msg.text);
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('Error loading chatbot history:', e);
+        }
+    }
+
+    function saveLocalHistory() {
+        try {
+            localStorage.setItem('pia_chatbot_history', JSON.stringify(conversationHistory.slice(-20)));
+        } catch (e) {
+            console.error('Error saving chatbot history:', e);
+        }
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return '';
+        let str = escapeHTML(text);
+
+        // Bold **text**
+        str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Italic *text*
+        str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Bullet points
+        str = str.replace(/^\s*[-•]\s+(.*)$/g, '• $1<br>');
+        // Links [Label](url)
+        str = str.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_self">$1</a>');
+        // New lines
+        str = str.replace(/\n/g, '<br>');
+
+        return str;
+    }
+
+    function escapeHTML(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function getCurrentTimeString() {
+        const d = new Date();
+        return d.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function scrollToBottom() {
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+
+    // Expose global methods for onclick handlers
+    window.PIA_CHATBOT = {
+        rateMessage,
+        copyMessageText
+    };
+
+    // Auto init on DOM Ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChatbot);
+    } else {
+        initChatbot();
+    }
+})();

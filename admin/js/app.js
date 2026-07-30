@@ -1,14 +1,48 @@
 // app.js - Controlador principal del panel administrativo PIA
 import { initDatabaseManager } from './database-manager.js';
 import { initUserManager } from './user-manager.js';
+import { initChatbotManager } from './chatbot-manager.js';
+
+// Session Inactivity Timer Configuration (30 minutos)
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
+let inactivityTimer = null;
+
+function resetInactivityTimer() {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    const token = localStorage.getItem('token');
+    if (token) {
+        inactivityTimer = setTimeout(() => {
+            if (localStorage.getItem('token')) {
+                logout('Expiración de sesión por inactividad (30 minutos de inactividad por motivos de seguridad).');
+            }
+        }, INACTIVITY_TIMEOUT_MS);
+    }
+}
+
+// Escuchar eventos del usuario para reiniciar el temporizador de inactividad
+['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, resetInactivityTimer, { passive: true });
+});
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Verificar si hay alguna razón de cierre de sesión guardada
+    const logoutReason = sessionStorage.getItem('logout_reason');
+    if (logoutReason) {
+        sessionStorage.removeItem('logout_reason');
+        const errorDiv = document.getElementById('loginError');
+        if (errorDiv) {
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="margin-right: 6px; color: var(--orange);"></i> ${logoutReason}`;
+            errorDiv.style.display = 'block';
+        }
+    }
+
     // Verificar token guardado
     const token = localStorage.getItem('token');
     if (token) {
         try {
             const { user } = await verifyToken(token);
             showDashboard(user);
+            resetInactivityTimer();
         } catch {
             showLogin();
         }
@@ -22,7 +56,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         togglePassBtn.addEventListener('click', () => {
             const passInput = document.getElementById('loginPassword') || document.getElementById('loginPass');
             if (passInput) {
-                passInput.type = passInput.type === 'password' ? 'text' : 'password';
+                const isPass = passInput.type === 'password';
+                passInput.type = isPass ? 'text' : 'password';
+                togglePassBtn.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
             }
         });
     }
@@ -35,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const usernameInput = document.getElementById('loginUser');
             const passwordInput = document.getElementById('loginPassword') || document.getElementById('loginPass');
             const errorDiv = document.getElementById('loginError');
+            const submitBtn = document.getElementById('btnLoginSubmit');
 
             if (errorDiv) {
                 errorDiv.style.display = 'none';
@@ -44,37 +81,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             const username = usernameInput ? usernameInput.value.trim() : '';
             const password = passwordInput ? passwordInput.value : '';
 
+            if (!username || !password) {
+                if (errorDiv) {
+                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese su usuario y contraseña.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Autenticando...';
+            }
+
             try {
                 const { token, user } = await login(username, password);
                 localStorage.setItem('token', token);
-                showToast('¡Bienvenido al Panel PIA!', 'success');
+                if (passwordInput) passwordInput.value = ''; // Limpiar campo de contraseña por seguridad
+                showToast('¡Autenticación exitosa! Bienvenido al Panel PIA', 'success');
                 showDashboard(user);
+                resetInactivityTimer();
             } catch (err) {
                 if (errorDiv) {
-                    errorDiv.textContent = err.message || 'Credenciales incorrectas';
+                    errorDiv.innerHTML = `<i class="fas fa-shield-alt" style="margin-right: 6px;"></i> ${err.message || 'Error de autenticación'}`;
                     errorDiv.style.display = 'block';
                 }
                 showToast(err.message || 'Error de inicio de sesión', 'error');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Iniciar Sesión Segura';
+                }
             }
         });
     }
 
-    // Sidebar toggles
+    // Sidebar toggles & overlay for mobile
     const sidebar = document.getElementById('sidebar');
     const toggleMob = document.getElementById('sidebarToggleMobile');
-    const toggleDesk = document.getElementById('sidebarToggle');
-    if (toggleMob && sidebar) {
-        toggleMob.addEventListener('click', () => sidebar.classList.toggle('open'));
+    const closeMob = document.getElementById('sidebarCloseMobile');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    function openMobileSidebar() {
+        if (sidebar) sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('active');
     }
-    if (toggleDesk && sidebar) {
-        toggleDesk.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    function closeMobileSidebar() {
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
     }
+
+    if (toggleMob) toggleMob.addEventListener('click', openMobileSidebar);
+    if (closeMob) closeMob.addEventListener('click', closeMobileSidebar);
+    if (overlay) overlay.addEventListener('click', closeMobileSidebar);
 
     // Delegation for nav buttons in sidebar
     document.querySelectorAll('[data-module]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const mod = btn.dataset.module;
-            if (mod) navigateTo(mod);
+            if (mod) {
+                navigateTo(mod);
+                if (window.innerWidth <= 992) {
+                    closeMobileSidebar();
+                }
+            }
         });
     });
 });
@@ -95,8 +166,8 @@ const ROLE_LABELS = {
 function hasAccessToModule(moduleName) {
     if (!currentUser) return true;
     if (currentUser.role === 'superadmin' || currentUser.username === 'admin' || currentUser.username === 'jaurruti') return true;
-    if (moduleName === 'dashboard' || moduleName === 'audit') return true;
-    if (moduleName === 'users' || moduleName === 'database') {
+    if (moduleName === 'dashboard' || moduleName === 'audit' || moduleName === 'chatbot') return true;
+    if (moduleName === 'users' || moduleName === 'roles' || moduleName === 'security' || moduleName === 'database') {
         return currentUser.role === 'superadmin' || currentUser.username === 'admin';
     }
     const userMods = currentUser.modules || [];
@@ -111,9 +182,9 @@ function updateSidebarPermissions() {
     document.querySelectorAll('[data-module]').forEach(btn => {
         const mod = btn.dataset.module;
         const parent = btn.closest('li') || btn;
-        if (mod === 'dashboard' || mod === 'audit') {
+        if (mod === 'dashboard' || mod === 'audit' || mod === 'chatbot') {
             parent.style.display = 'block';
-        } else if (mod === 'users' || mod === 'database') {
+        } else if (mod === 'users' || mod === 'roles' || mod === 'security' || mod === 'database') {
             parent.style.display = isSuper ? 'block' : 'none';
         } else {
             const allowed = isSuper || userMods.includes(mod);
@@ -196,7 +267,22 @@ window.navigateTo = async function(module) {
     }
 
     if (module === 'users') {
-        await initUserManager();
+        await initUserManager('users_list');
+        return;
+    }
+
+    if (module === 'roles') {
+        await initUserManager('roles_matrix');
+        return;
+    }
+
+    if (module === 'security') {
+        await initUserManager('security_policies');
+        return;
+    }
+
+    if (module === 'chatbot') {
+        await initChatbotManager();
         return;
     }
 

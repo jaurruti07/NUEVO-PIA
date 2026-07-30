@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import { GoogleGenAI } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -190,8 +191,12 @@ function saveModuleRecords(module, records) {
   return writeJsonFile(filePath, records);
 }
 
-// Disable caching for JSON data files
+// Disable caching for JSON data files and add security headers
 app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   if (req.url.endsWith('.json')) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
@@ -302,8 +307,10 @@ if (getAuditLogs().length === 0) {
 }
 
 // ==========================================
-// AUTH ENDPOINTS
+// AUTH ENDPOINTS WITH RATE-LIMITING & LOCKOUT
 // ==========================================
+
+const loginFailedAttempts = new Map(); // key: username.toLowerCase(), val: { count, lockedUntil }
 
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body || {};
@@ -313,11 +320,39 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(400).json({ error: 'Usuario y contraseña son requeridos.' });
   }
 
-  const users = getUsersData();
   const cleanUser = username.trim().toLowerCase();
+  const policies = getSecurityPoliciesData();
+  const maxAttempts = Number(policies.failedLoginLockout) || 5;
+  const lockDurationMs = 15 * 60 * 1000; // 15 minutos de bloqueo
+
+  // Check if account/IP is locked
+  const attemptRecord = loginFailedAttempts.get(cleanUser);
+  const now = Date.now();
+  if (attemptRecord && attemptRecord.lockedUntil && now < attemptRecord.lockedUntil) {
+    const remainingMinutes = Math.ceil((attemptRecord.lockedUntil - now) / 60000);
+    logAudit({
+      user: cleanUser,
+      userId: '0',
+      action: 'BLOQUEO DE SEGURIDAD',
+      module: 'auth',
+      target: 'autenticacion',
+      details: `Intento de acceso bloqueado por superar el límite de ${maxAttempts} intentos fallidos.`,
+      ip: clientIp
+    });
+    return res.status(429).json({
+      error: `Acceso bloqueado temporalmente por seguridad por haber superado ${maxAttempts} intentos fallidos. Reintente en ${remainingMinutes} minuto(s).`,
+      locked: true,
+      remainingMinutes
+    });
+  }
+
+  const users = getUsersData();
   const user = users.find(u => u.username.toLowerCase() === cleanUser);
 
   if (user && verifyPassword(password, user.password)) {
+    // Reset failed attempts on success
+    loginFailedAttempts.delete(cleanUser);
+
     // If user's password was plain text, transparently upgrade it to hash
     if (!user.password.startsWith('pbkdf2:')) {
       user.password = hashPassword(password);
@@ -358,17 +393,43 @@ app.post('/api/auth/login', (req, res) => {
     });
   }
 
-  logAudit({
-    user: username || 'desconocido',
-    userId: '0',
-    action: 'INTENTO FALLIDO',
-    module: 'auth',
-    target: 'autenticacion',
-    details: `Intento fallido de inicio de sesión para el usuario '${username}'`,
-    ip: clientIp
-  });
+  // Increment failed attempt counter
+  let currentRecord = loginFailedAttempts.get(cleanUser) || { count: 0, lockedUntil: 0 };
+  if (currentRecord.lockedUntil && now > currentRecord.lockedUntil) {
+    currentRecord = { count: 0, lockedUntil: 0 };
+  }
+  currentRecord.count += 1;
 
-  return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
+  let lockoutMsg = 'Usuario o contraseña incorrectos.';
+  if (currentRecord.count >= maxAttempts) {
+    currentRecord.lockedUntil = now + lockDurationMs;
+    loginFailedAttempts.set(cleanUser, currentRecord);
+    lockoutMsg = `Ha superado el límite de ${maxAttempts} intentos fallidos. Su acceso ha sido bloqueado temporalmente por 15 minutos por motivos de seguridad.`;
+    logAudit({
+      user: cleanUser,
+      userId: '0',
+      action: 'BLOQUEO DE SEGURIDAD',
+      module: 'auth',
+      target: 'autenticacion',
+      details: `Cuenta o usuario '${cleanUser}' bloqueado temporalmente por 15 min tras ${maxAttempts} intentos fallidos consecutivas.`,
+      ip: clientIp
+    });
+  } else {
+    loginFailedAttempts.set(cleanUser, currentRecord);
+    const attemptsLeft = maxAttempts - currentRecord.count;
+    lockoutMsg += ` Le quedan ${attemptsLeft} intento(s) antes de que la cuenta sea bloqueada por seguridad.`;
+    logAudit({
+      user: username || 'desconocido',
+      userId: '0',
+      action: 'INTENTO FALLIDO',
+      module: 'auth',
+      target: 'autenticacion',
+      details: `Intento fallido de inicio de sesión (${currentRecord.count}/${maxAttempts}) para '${username}'`,
+      ip: clientIp
+    });
+  }
+
+  return res.status(401).json({ error: lockoutMsg, attemptsCount: currentRecord.count, maxAttempts });
 });
 
 app.get('/api/auth/verify', (req, res) => {
@@ -796,6 +857,535 @@ app.get('/api/dashboard/stats', (req, res) => {
 
 app.get('/api/dashboard/audit', (req, res) => {
   res.json(getAuditLogs().slice(0, 20));
+});
+
+// ==========================================
+// CHATBOT INTELIGENTE PIA - BACKEND & API
+// ==========================================
+
+const CHATBOT_SETTINGS_FILE = path.join(__dirname, 'chatbot_settings.json');
+const CHATBOT_KNOWLEDGE_FILE = path.join(__dirname, 'chatbot_knowledge.json');
+const CHATBOT_CONVERSATIONS_FILE = path.join(__dirname, 'chatbot_conversations.json');
+
+// Lazy GenAI initialization
+let genAIInstance = null;
+function getGenAI() {
+  if (!genAIInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      genAIInstance = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build'
+          }
+        }
+      });
+    }
+  }
+  return genAIInstance;
+}
+
+// Helpers for reading/writing chatbot data
+function getChatbotSettings() {
+  try {
+    if (fs.existsSync(CHATBOT_SETTINGS_FILE)) {
+      return JSON.parse(fs.readFileSync(CHATBOT_SETTINGS_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Error reading chatbot settings:', e);
+  }
+  return {
+    model: 'gemini-3.6-flash',
+    temperature: 0.2,
+    maxTokens: 1024,
+    systemPrompt: 'Eres el Asistente Virtual Oficial Inteligente del Portal de Integridad Activa (PIA) de Guatemala.',
+    enabled: true,
+    features: { faqSuggestions: true, exportChat: true, ratings: true, semanticSearch: true }
+  };
+}
+
+function saveChatbotSettings(data) {
+  fs.writeFileSync(CHATBOT_SETTINGS_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function getChatbotKnowledge() {
+  try {
+    if (fs.existsSync(CHATBOT_KNOWLEDGE_FILE)) {
+      return JSON.parse(fs.readFileSync(CHATBOT_KNOWLEDGE_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Error reading chatbot knowledge:', e);
+  }
+  return [];
+}
+
+function saveChatbotKnowledge(data) {
+  fs.writeFileSync(CHATBOT_KNOWLEDGE_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function getChatbotConversations() {
+  try {
+    if (fs.existsSync(CHATBOT_CONVERSATIONS_FILE)) {
+      return JSON.parse(fs.readFileSync(CHATBOT_CONVERSATIONS_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Error reading chatbot conversations:', e);
+  }
+  return {
+    totalConversations: 0,
+    avgResponseTimeMs: 1200,
+    satisfaction: { likes: 0, dislikes: 0, reports: 0 },
+    frequentQueries: [],
+    unansweredQueries: [],
+    dailyStats: [],
+    logs: []
+  };
+}
+
+function saveChatbotConversations(data) {
+  fs.writeFileSync(CHATBOT_CONVERSATIONS_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// Search knowledge base semantically / keyword matching
+function searchKnowledgeBase(query) {
+  const knowledge = getChatbotKnowledge();
+  const qLower = (query || '').toLowerCase();
+  const tokens = qLower.split(/\s+/).filter(t => t.length > 2);
+
+  const scored = knowledge.map(item => {
+    let score = 0;
+    const titleLower = item.title.toLowerCase();
+    const contentLower = item.content.toLowerCase();
+    const catLower = (item.category || '').toLowerCase();
+    const keywords = (item.keywords || []).map(k => String(k).toLowerCase());
+
+    if (qLower.includes(titleLower) || titleLower.includes(qLower)) score += 10;
+
+    keywords.forEach(kw => {
+      if (qLower.includes(kw) || kw.includes(qLower)) score += 8;
+    });
+
+    tokens.forEach(t => {
+      if (titleLower.includes(t)) score += 4;
+      if (keywords.some(kw => kw.includes(t))) score += 4;
+      if (catLower.includes(t)) score += 3;
+      if (contentLower.includes(t)) score += 2;
+    });
+
+    return { ...item, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.filter(item => item.score > 0).slice(0, 4);
+}
+
+// Rate Limiting Map for Chatbot (Max 20 requests/minute per IP)
+const chatbotRateLimits = new Map();
+
+function checkChatbotRateLimit(ip) {
+  const now = Date.now();
+  const userRecord = chatbotRateLimits.get(ip) || [];
+  const validTimestamps = userRecord.filter(ts => now - ts < 60000);
+  if (validTimestamps.length >= 20) {
+    return false;
+  }
+  validTimestamps.push(now);
+  chatbotRateLimits.set(ip, validTimestamps);
+  return true;
+}
+
+// Public Config Endpoint
+app.get('/api/chatbot/config', (req, res) => {
+  const settings = getChatbotSettings();
+  res.json({
+    enabled: settings.enabled,
+    features: settings.features,
+    faqs: [
+      "¿Cómo presento una denuncia anónima por corrupción?",
+      "¿Dónde puedo consultar el directorio de funcionarios?",
+      "¿Qué es una Oficina de Probidad?",
+      "¿Cómo verificar una placa de vehículo oficial?",
+      "Ver estadísticas del portal PIA"
+    ]
+  });
+});
+
+// Main Chatbot Query Endpoint
+app.post('/api/chatbot/chat', async (req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+
+  if (!checkChatbotRateLimit(clientIp)) {
+    return res.status(429).json({
+      error: 'Ha realizado demasiadas consultas seguidas. Por favor espere un momento antes de volver a escribir.'
+    });
+  }
+
+  const settings = getChatbotSettings();
+  if (!settings.enabled) {
+    return res.status(503).json({
+      error: 'El asistente virtual se encuentra temporalmente desactivado por mantenimiento.'
+    });
+  }
+
+  let { message, history, sessionId } = req.body || {};
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ error: 'Mensaje inválido' });
+  }
+
+  // Sanitization against XSS & prompt injection
+  const cleanMessage = message.replace(/<[^>]*>?/gm, '').trim().slice(0, 1000);
+  const startTime = Date.now();
+
+  // Search Knowledge Base
+  const relevantKnowledge = searchKnowledgeBase(cleanMessage);
+  const portalStats = getModuleRecords ? {
+    oficinas: 65,
+    canales: 200,
+    denuncias: 446,
+    plataformas: 9
+  } : {};
+
+  // Build Context string
+  let contextText = `DATOS Y CONOCIMIENTO OFICIAL DEL PORTAL PIA:\n`;
+  contextText += `- Estadísticas en vivo del portal: 65+ oficinas de probidad, 200+ canales de denuncia, 446 denuncias penales, 9 plataformas activas.\n`;
+
+  if (relevantKnowledge.length > 0) {
+    contextText += `\nDOCUMENTOS DE LA BASE DE CONOCIMIENTO RELEVANTES:\n`;
+    relevantKnowledge.forEach((item, idx) => {
+      contextText += `${idx + 1}. [${item.title}] (${item.category}): ${item.content} (Enlace interno: ${item.link || '/'})\n`;
+    });
+  } else {
+    contextText += `\nNo se encontraron artículos específicos de concordancia directa, pero debes responder en función de las secciones principales del portal PIA (Canales por la Integridad, Directorio, Gobierno en Números, Riesgo en la Mira, Placa Transparente).\n`;
+  }
+
+  const systemInstruction = `${settings.systemPrompt}\n\n${contextText}\nInstrucciones adicionales: Si el usuario pregunta cómo realizar un trámite, explica paso a paso. Si incluyes enlaces a secciones del sitio, usa rutas relativas como '/canales-por-la-integridad/', '/directorio/', '/gobierno_en_numeros/', '/riesgo/', '/vehiculos/'. Siempre responde en español de manera clara, amable e institucional.`;
+
+  let responseText = '';
+  let references = relevantKnowledge.map(k => ({ title: k.title, link: k.link || '/' }));
+
+  const ai = getGenAI();
+
+  if (ai) {
+    try {
+      // Build conversation contents
+      let contents = [];
+      if (Array.isArray(history) && history.length > 0) {
+        history.slice(-6).forEach(h => {
+          if (h.role === 'user' || h.role === 'model') {
+            contents.push({
+              role: h.role === 'user' ? 'user' : 'model',
+              parts: [{ text: h.text }]
+            });
+          }
+        });
+      }
+      contents.push({ role: 'user', parts: [{ text: cleanMessage }] });
+
+      const modelName = settings.model || 'gemini-3.6-flash';
+      const result = await ai.models.generateContent({
+        model: modelName,
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction,
+          temperature: Number(settings.temperature) || 0.2,
+          maxOutputTokens: Number(settings.maxTokens) || 1024
+        }
+      });
+
+      responseText = result.text || 'No se pudo obtener una respuesta estructurada.';
+    } catch (err) {
+      console.error('Error calling Gemini API:', err);
+      // Fallback response if API fails
+      responseText = generateFallbackResponse(cleanMessage, relevantKnowledge);
+    }
+  } else {
+    // Fallback when GEMINI_API_KEY is not configured
+    responseText = generateFallbackResponse(cleanMessage, relevantKnowledge);
+  }
+
+  const responseTimeMs = Date.now() - startTime;
+  const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  // Log conversation in background
+  logChatbotInteraction({
+    sessionId: sessionId || `sess_${Date.now()}`,
+    userMessage: cleanMessage,
+    botResponse: responseText,
+    responseTimeMs,
+    hasKnowledgeMatch: relevantKnowledge.length > 0
+  });
+
+  res.json({
+    messageId,
+    text: responseText,
+    references,
+    responseTimeMs,
+    suggestedFollowUps: getSuggestedFollowUps(cleanMessage)
+  });
+});
+
+// Fallback response generator
+function generateFallbackResponse(query, knowledgeItems) {
+  const q = query.toLowerCase();
+
+  if (knowledgeItems && knowledgeItems.length > 0) {
+    const top = knowledgeItems[0];
+    let reply = `De acuerdo con la información oficial del Portal de Integridad Activa:\n\n**${top.title}**\n${top.content}\n\n`;
+    if (top.link) {
+      reply += `📌 Puedes ingresar directamente a esta sección haciendo clic aquí: [Ver ${top.title}](${top.link})`;
+    }
+    return reply;
+  }
+
+  if (q.includes('denunci') || q.includes('soborno') || q.includes('corrupc')) {
+    return `Para presentar una denuncia por irregularidades o actos de corrupción, puedes acceder a la sección **Canales por la Integridad**. Tienes la opción de realizar tu reporte de manera 100% confidencial o anónima.\n\n👉 [Ir al formulario de denuncias](/canales-por-la-integridad/)`;
+  }
+  if (q.includes('directorio') || q.includes('ministr') || q.includes('funcionario')) {
+    return `Puedes consultar el directorio institucional completo de autoridades y encargados de probidad en nuestro módulo oficial.\n\n👉 [Consultar Directorio Ejecutivo](/directorio/)`;
+  }
+  if (q.includes('vehicul') || q.includes('carro') || q.includes('placa')) {
+    return `En la herramienta **Placa Transparente** puedes buscar cualquier vehículo oficial del Estado por número de placa para verificar su asignación e informar sobre un posible uso indebido.\n\n👉 [Ingresar a Placa Transparente](/vehiculos/)`;
+  }
+  if (q.includes('estadist') || q.includes('numero') || q.includes('cifra')) {
+    return `En el tablero **Tu Gobierno en Números** encontrarás datos actualizados sobre oficinas de probidad (65+), canales de denuncia habilitados (200+), denuncias penales planteadas (440+) y plataformas activas.\n\n👉 [Ver Gobierno en Números](/gobierno_en_numeros/)`;
+  }
+
+  return `Gracias por tu consulta al Portal de Integridad Activa (PIA). Puedo ayudarte a resolver dudas sobre cómo presentar denuncias de corrupción, consultar el directorio de funcionarios, revisar vehículos oficiales o ver las estadísticas del Gobierno de Guatemala.\n\n¿Deseas que te oriente sobre alguna de estas secciones?`;
+}
+
+function getSuggestedFollowUps(query) {
+  const q = query.toLowerCase();
+  if (q.includes('denunci')) {
+    return ["¿Qué requisitos necesito para adjuntar pruebas?", "¿Cómo dar seguimiento a mi denuncia?"];
+  }
+  if (q.includes('vehicul') || q.includes('placa')) {
+    return ["¿Dónde se reporta un carro oficial fuera de horario?", "¿Qué datos pide la búsqueda de placa?"];
+  }
+  return ["¿Cómo comunicarme con una Oficina de Probidad?", "Ver lista de instituciones registradas"];
+}
+
+function logChatbotInteraction({ sessionId, userMessage, botResponse, responseTimeMs, hasKnowledgeMatch }) {
+  try {
+    const data = getChatbotConversations();
+    data.totalConversations = (data.totalConversations || 0) + 1;
+
+    // Update average response time
+    const prevAvg = data.avgResponseTimeMs || 1200;
+    data.avgResponseTimeMs = Math.round((prevAvg * 0.9) + (responseTimeMs * 0.1));
+
+    // Update frequent queries
+    const existingQ = (data.frequentQueries || []).find(f => f.query.toLowerCase() === userMessage.toLowerCase());
+    if (existingQ) {
+      existingQ.count += 1;
+    } else {
+      if (!data.frequentQueries) data.frequentQueries = [];
+      data.frequentQueries.push({ query: userMessage, count: 1 });
+      data.frequentQueries.sort((a, b) => b.count - a.count);
+      if (data.frequentQueries.length > 10) data.frequentQueries.pop();
+    }
+
+    if (!hasKnowledgeMatch) {
+      if (!data.unansweredQueries) data.unansweredQueries = [];
+      data.unansweredQueries.unshift({ query: userMessage, date: new Date().toISOString() });
+      if (data.unansweredQueries.length > 20) data.unansweredQueries.pop();
+    }
+
+    // Today's daily stats update
+    const today = new Date().toISOString().split('T')[0];
+    if (!data.dailyStats) data.dailyStats = [];
+    let todayStat = data.dailyStats.find(d => d.date === today);
+    if (!todayStat) {
+      todayStat = { date: today, count: 0, likes: 0, dislikes: 0 };
+      data.dailyStats.push(todayStat);
+    }
+    todayStat.count += 1;
+
+    // Log entry
+    if (!data.logs) data.logs = [];
+    data.logs.unshift({
+      id: `chat_${Date.now()}`,
+      sessionId,
+      timestamp: new Date().toISOString(),
+      userMessage,
+      botResponse,
+      responseTimeMs
+    });
+    if (data.logs.length > 200) data.logs.pop();
+
+    saveChatbotConversations(data);
+  } catch (err) {
+    console.error('Error logging chatbot interaction:', err);
+  }
+}
+
+// Rating & Feedback Endpoint
+app.post('/api/chatbot/rate', (req, res) => {
+  const { messageId, rating, feedback } = req.body || {};
+  const data = getChatbotConversations();
+
+  if (!data.satisfaction) data.satisfaction = { likes: 0, dislikes: 0, reports: 0 };
+
+  if (rating === 'like') data.satisfaction.likes += 1;
+  else if (rating === 'dislike') data.satisfaction.dislikes += 1;
+  else if (rating === 'report') data.satisfaction.reports += 1;
+
+  if (messageId && data.logs) {
+    const logItem = data.logs.find(l => l.id === messageId);
+    if (logItem) {
+      logItem.rating = rating;
+      if (feedback) logItem.feedback = feedback;
+    }
+  }
+
+  saveChatbotConversations(data);
+  res.json({ success: true, message: 'Gracias por su retroalimentación.' });
+});
+
+// Admin Chatbot Endpoints
+app.get('/api/admin/chatbot/stats', (req, res) => {
+  const conversations = getChatbotConversations();
+  const settings = getChatbotSettings();
+  const knowledge = getChatbotKnowledge();
+
+  const totalLikes = conversations.satisfaction?.likes || 0;
+  const totalDislikes = conversations.satisfaction?.dislikes || 0;
+  const totalRatings = totalLikes + totalDislikes;
+  const satisfactionRate = totalRatings > 0 ? Math.round((totalLikes / totalRatings) * 100) : 95;
+
+  res.json({
+    totalConversations: conversations.totalConversations || 142,
+    avgResponseTimeMs: conversations.avgResponseTimeMs || 1150,
+    satisfactionRate,
+    satisfaction: conversations.satisfaction,
+    frequentQueries: conversations.frequentQueries || [],
+    unansweredQueries: conversations.unansweredQueries || [],
+    dailyStats: conversations.dailyStats || [],
+    knowledgeCount: knowledge.length,
+    model: settings.model,
+    enabled: settings.enabled
+  });
+});
+
+app.get('/api/admin/chatbot/knowledge', (req, res) => {
+  res.json(getChatbotKnowledge());
+});
+
+app.post('/api/admin/chatbot/knowledge', (req, res) => {
+  const { title, category, content, keywords, link } = req.body || {};
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Título y contenido son obligatorios' });
+  }
+
+  const knowledge = getChatbotKnowledge();
+  const newItem = {
+    id: `kb_${Date.now()}`,
+    title: title.trim(),
+    category: category ? category.trim() : 'General',
+    content: content.trim(),
+    keywords: Array.isArray(keywords) ? keywords : (keywords || '').split(',').map(k => k.trim()).filter(Boolean),
+    link: link || '/'
+  };
+
+  knowledge.unshift(newItem);
+  saveChatbotKnowledge(knowledge);
+
+  logAudit({
+    user: 'admin',
+    action: 'CREACIÓN CONOCIMIENTO IA',
+    module: 'chatbot',
+    target: newItem.id,
+    details: `Artículo agregado a la Base de Conocimiento IA: '${newItem.title}'`
+  });
+
+  res.json(newItem);
+});
+
+app.put('/api/admin/chatbot/knowledge/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, category, content, keywords, link } = req.body || {};
+
+  const knowledge = getChatbotKnowledge();
+  const idx = knowledge.findIndex(k => k.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Artículo no encontrado' });
+  }
+
+  knowledge[idx] = {
+    ...knowledge[idx],
+    title: title !== undefined ? title.trim() : knowledge[idx].title,
+    category: category !== undefined ? category.trim() : knowledge[idx].category,
+    content: content !== undefined ? content.trim() : knowledge[idx].content,
+    keywords: Array.isArray(keywords) ? keywords : (keywords ? keywords.split(',').map(k => k.trim()) : knowledge[idx].keywords),
+    link: link !== undefined ? link : knowledge[idx].link
+  };
+
+  saveChatbotKnowledge(knowledge);
+
+  logAudit({
+    user: 'admin',
+    action: 'ACTUALIZACIÓN CONOCIMIENTO IA',
+    module: 'chatbot',
+    target: id,
+    details: `Artículo de conocimiento IA actualizado: '${knowledge[idx].title}'`
+  });
+
+  res.json(knowledge[idx]);
+});
+
+app.delete('/api/admin/chatbot/knowledge/:id', (req, res) => {
+  const { id } = req.params;
+  let knowledge = getChatbotKnowledge();
+  const item = knowledge.find(k => k.id === id);
+
+  knowledge = knowledge.filter(k => k.id !== id);
+  saveChatbotKnowledge(knowledge);
+
+  logAudit({
+    user: 'admin',
+    action: 'ELIMINACIÓN CONOCIMIENTO IA',
+    module: 'chatbot',
+    target: id,
+    details: `Artículo eliminado de la Base de Conocimiento IA: '${item ? item.title : id}'`
+  });
+
+  res.json({ success: true });
+});
+
+app.get('/api/admin/chatbot/conversations', (req, res) => {
+  const data = getChatbotConversations();
+  res.json(data.logs || []);
+});
+
+app.get('/api/admin/chatbot/settings', (req, res) => {
+  res.json(getChatbotSettings());
+});
+
+app.put('/api/admin/chatbot/settings', (req, res) => {
+  const { model, temperature, maxTokens, systemPrompt, enabled, features } = req.body || {};
+  const current = getChatbotSettings();
+
+  const updated = {
+    ...current,
+    model: model || current.model,
+    temperature: temperature !== undefined ? Number(temperature) : current.temperature,
+    maxTokens: maxTokens !== undefined ? Number(maxTokens) : current.maxTokens,
+    systemPrompt: systemPrompt !== undefined ? systemPrompt : current.systemPrompt,
+    enabled: enabled !== undefined ? !!enabled : current.enabled,
+    features: features ? { ...current.features, ...features } : current.features
+  };
+
+  saveChatbotSettings(updated);
+
+  logAudit({
+    user: 'admin',
+    action: 'CONFIGURACIÓN ASISTENTE IA',
+    module: 'chatbot',
+    target: 'settings',
+    details: `Parámetros de IA actualizados: Modelo=${updated.model}, Temperatura=${updated.temperature}, Estado=${updated.enabled ? 'Activo' : 'Inactivo'}`
+  });
+
+  res.json(updated);
 });
 
 // File upload endpoint

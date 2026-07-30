@@ -561,3 +561,42 @@
   cursor: pointer;
   font-weight: 600;
 }
+
+/* Responsive Media Queries for Database Manager */
+@media (max-width: 768px) {
+  .db-list, .mock-files {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  .db-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .db-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .db-actions button {
+    width: 100% !important;
+  }
+
+  .db-tabs {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 8px !important;
+  }
+
+  .tab-btn {
+    padding: 10px 14px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .json-editor textarea {
+    min-height: 220px !important;
+    font-size: 0.8rem !important;
+  }
+}

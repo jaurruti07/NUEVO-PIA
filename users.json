@@ -2,7 +2,7 @@
   {
     "id": "usr_1",
     "username": "admin",
-    "password": "pbkdf2:c8812eae620e78fb34f050865f8b9f91:2dc882b872eaba4b88977d12712ff96499f1acbf12a7afeb492cfe13170ffef157cf1d56dd64734a93a5515e5f1adea2eebf381c00acea438534c46c76607c49",
+    "password": "pbkdf2:1be7a8063c2f154eda23eacdda8f921d:2e5c17ca318cbdd4b31304e18c79ce5484b20040c2ddaab9431ebf4fde498e6eebbe717a406295a671e683d1f6c7dea2eaed79147d80738c2487e2656596804b",
     "fullName": "Administrador General PIA",
     "email": "admin@pia.gob.gt",
     "role": "superadmin",
@@ -24,7 +24,7 @@
   {
     "id": "usr_jaurruti",
     "username": "jaurruti",
-    "password": "pbkdf2:c79ebb4f62601e0720c10b21e67708d7:8cb6fd0d212b431b3a3a3b9f88c00f1fb6c998538e3b06878126ab938d355f46e896921e587ada7584a7facbe2cedb77aca3ea7e6952bcaf7f5c07c5279070ab",
+    "password": "pbkdf2:57c0712e87a7d1e86fa6393aa9cf8fd0:19ffbfd6d2d592819918b5611bdb3de55fac68ee0f9386e29db121d6aea1da86c7e99a971f72359ec76a329284aaf1314494ae3c119653f7b5d1c444dcc96f2c",
     "fullName": "Josué Urrutia",
     "email": "josueurrutia@gmail.com",
     "role": "superadmin",
@@ -46,7 +46,7 @@
   {
     "id": "usr_2",
     "username": "editor_integridad",
-    "password": "pbkdf2:129afdc1c4fd8b62e6fc2c66e02346e6:6d37d74cb37a61ab52622c47a10bec1bb2a7eb90f619a8bbf3ed613c5889d772625f841b28643d9a170512dc18274fa4e3a31ad923e9350375963f031d4e76c7",
+    "password": "pbkdf2:3f9223d65e1a9ba433f8c7a4248faa2f:985b4ab93a9d0050bcdbd3d57f3e98218dc97e4859563c847047e92f97fef3ba43cdfaff18802c8347781ab8e3a8ed88d1d260c2a1b36d522fe13596881146e6",
     "fullName": "Licda. María Fernanda López",
     "email": "mlopez@pia.gob.gt",
     "role": "module_admin",
@@ -64,7 +64,7 @@
   {
     "id": "usr_3",
     "username": "gestor_transparencia",
-    "password": "pbkdf2:c45a47f2667109d7408b23c5e070bcda:f88fab557579f21b754a8dfcf3c035c65cc1432fb6fbd97cb63114563794180c6fbdb5c1dd63e87eb708cbe89c0ab8fd5fca7763ad4b98d10f41a85a4acadf88",
+    "password": "pbkdf2:5b7ee24e57cd86640d634465d1292d05:668ad510e75531592e1670505c8ac5d05f0ce3caffa5a46118fc017a66a2e34c25020990e4e03ecdac7d79cc4a5ba43ff0553c9fd64c2e0b7461f9461b967529",
     "fullName": "Ing. Carlos Mendoza",
     "email": "cmendoza@pia.gob.gt",
     "role": "editor",
@@ -82,7 +82,7 @@
   {
     "id": "usr_4",
     "username": "auditor_riesgos",
-    "password": "pbkdf2:0208770f69d77bd452dcd32de8184bba:fe4bb3d19665b4562f78c9af2df1295ba5bcc5a388fd6712c5e6c02db46f0d8a4a35b44e257d707f313d48277cd0d4504fe3cca9976947b89ffeb28763edcf4a",
+    "password": "pbkdf2:76730a67109488db1620cae4b9ae9fe5:cf51663f435411f78a1f53055373417530d02af0068ddca5a2f3295bff753ceba0f1f0f9e39318a4af11a1a9a3ba965b5bd506151038ff2b14833323a89f7ecd",
     "fullName": "Dr. Roberto Juárez",
     "email": "rjuarez@pia.gob.gt",
     "role": "auditor",
