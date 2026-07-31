@@ -55,14 +55,14 @@
 
     function renderChatbotHTML() {
         const triggerMarkup = `
-            <button id="piaChatbotTrigger" class="pia-chatbot-trigger" aria-label="Abrir Asistente Virtual IA PIA" title="Asistente Virtual IA PIA">
+            <button id="piaChatbotTrigger" class="pia-chatbot-trigger" aria-label="Abrir Asistente Virtual Lupita" title="Lupita - Asistente Virtual IA">
                 <div class="pia-chatbot-trigger-icon">
-                    <img src="/img/red-fox.svg" alt="Asistente Zorro Rojo PIA" class="pia-fox-icon" />
+                    <img src="/img/integra-assistant.svg" alt="Asistente Virtual Lupita" class="pia-assistant-icon" />
                     <span class="pia-chatbot-pulse"></span>
                 </div>
                 <div class="pia-chatbot-trigger-text">
-                    <span class="pia-chatbot-trigger-title">Asistente PIA</span>
-                    <span class="pia-chatbot-trigger-sub">Pregúntame en vivo</span>
+                    <span class="pia-chatbot-trigger-title">Lupita</span>
+                    <span class="pia-chatbot-trigger-sub">Asistente Virtual IA</span>
                 </div>
             </button>
         `;
@@ -73,12 +73,12 @@
                 <div class="pia-cb-header">
                     <div class="pia-cb-header-brand">
                         <div class="pia-cb-avatar">
-                            <img src="/img/red-fox.svg" alt="Asistente Zorro Rojo PIA" class="pia-fox-icon" />
+                            <img src="/img/integra-assistant.svg" alt="Asistente Virtual Lupita" class="pia-assistant-icon" />
                         </div>
                         <div class="pia-cb-title-box">
-                            <h2 id="piaCbHeaderTitle" class="pia-cb-title">Asistente Virtual PIA</h2>
+                            <h2 id="piaCbHeaderTitle" class="pia-cb-title">Lupita · Asistente Virtual</h2>
                             <span class="pia-cb-status">
-                                <span class="pia-cb-status-dot"></span> En línea · IA Transparente
+                                <span class="pia-cb-status-dot"></span> En línea · Transparencia e Integridad
                             </span>
                         </div>
                     </div>
@@ -108,8 +108,8 @@
                     <!-- Welcome Message -->
                     <div class="pia-cb-msg bot">
                         <div class="pia-cb-bubble">
-                            👋 ¡Hola! Soy el <strong>Asistente Virtual Oficial del Portal de Integridad Activa (PIA)</strong> de Guatemala.<br><br>
-                            Puedo guiarte para presentar denuncias por corrupción, consultar el directorio de funcionarios públicos, revisar la asignación de vehículos oficiales con Placa Transparente y entender los tableros estadísticos.<br><br>
+                            👋 ¡Hola! Soy <strong>Lupita</strong>, la asistente virtual oficial del <strong>Portal de Integridad Activa (PIA)</strong> de Guatemala.<br><br>
+                            Puedo guiarte para presentar denuncias por corrupción, consultar el directorio de funcionarios públicos, revisar la asignación de vehículos oficiales con Transparencia Vehicular y entender los tableros estadísticos.<br><br>
                             ¿En qué puedo ayudarte hoy?
                         </div>
                         <span class="pia-cb-timestamp">${getCurrentTimeString()}</span>
@@ -119,7 +119,7 @@
                 <!-- Footer Input Area -->
                 <div class="pia-cb-footer">
                     <div class="pia-cb-input-wrapper">
-                        <textarea id="piaCbTextarea" class="pia-cb-textarea" rows="1" placeholder="Escribe tu consulta aquí..." aria-label="Escribe tu consulta para el asistente virtual"></textarea>
+                        <textarea id="piaCbTextarea" class="pia-cb-textarea" rows="1" placeholder="Escribe tu consulta aquí..." aria-label="Escribe tu consulta para la asistente virtual Lupita"></textarea>
                         <button id="piaCbSendBtn" class="pia-cb-send-btn" aria-label="Enviar mensaje">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -330,7 +330,7 @@
                 <span class="pia-cb-dot"></span>
                 <span class="pia-cb-dot"></span>
                 <span class="pia-cb-dot"></span>
-                <span style="font-size: 0.75rem; color: #00C2E0; font-weight: 600; margin-left: 6px;">Asistente PIA escribiendo...</span>
+                <span style="font-size: 0.75rem; color: #00C2E0; font-weight: 600; margin-left: 6px;">Lupita está escribiendo...</span>
             </div>
         `;
         messagesContainer.appendChild(typingDiv);
@@ -350,7 +350,7 @@
                 <div class="pia-cb-msg bot">
                     <div class="pia-cb-bubble">
                         🔄 Conversación reiniciada.<br>
-                        ¿En qué puedo ayudarte nuevamente sobre el Portal de Integridad Activa?
+                        ¡Hola! Soy <strong>Lupita</strong>, ¿en qué puedo ayudarte sobre el Portal de Integridad Activa?
                     </div>
                     <span class="pia-cb-timestamp">${getCurrentTimeString()}</span>
                 </div>
@@ -366,7 +366,7 @@
         }
 
         let content = `====================================================\n`;
-        content += `TRANSCRIPCIÓN DE CHAT - ASISTENTE VIRTUAL PIA\n`;
+        content += `TRANSCRIPCIÓN DE CHAT - ASISTENTE VIRTUAL LUPITA\n`;
         content += `Gobierno de Guatemala - Portal de Integridad Activa\n`;
         content += `Fecha: ${new Date().toLocaleString('es-GT')}\n`;
         content += `ID de Sesión: ${sessionId}\n`;

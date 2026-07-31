@@ -899,7 +899,7 @@ function getChatbotSettings() {
     model: 'gemini-3.6-flash',
     temperature: 0.2,
     maxTokens: 1024,
-    systemPrompt: 'Eres el Asistente Virtual Oficial Inteligente del Portal de Integridad Activa (PIA) de Guatemala.',
+    systemPrompt: 'Te llamas Lupita. Eres la Asistente Virtual Oficial Inteligente del Portal de Integridad Activa (PIA) de Guatemala.',
     enabled: true,
     features: { faqSuggestions: true, exportChat: true, ratings: true, semanticSearch: true }
   };
@@ -1056,7 +1056,7 @@ app.post('/api/chatbot/chat', async (req, res) => {
       contextText += `${idx + 1}. [${item.title}] (${item.category}): ${item.content} (Enlace interno: ${item.link || '/'})\n`;
     });
   } else {
-    contextText += `\nNo se encontraron artículos específicos de concordancia directa, pero debes responder en función de las secciones principales del portal PIA (Canales por la Integridad, Directorio, Gobierno en Números, Riesgo en la Mira, Placa Transparente).\n`;
+    contextText += `\nNo se encontraron artículos específicos de concordancia directa, pero debes responder en función de las secciones principales del portal PIA (Canales por la Integridad, Directorio, Gobierno en Números, Riesgo en la Mira, Transparencia Vehicular).\n`;
   }
 
   const systemInstruction = `${settings.systemPrompt}\n\n${contextText}\nInstrucciones adicionales: Si el usuario pregunta cómo realizar un trámite, explica paso a paso. Si incluyes enlaces a secciones del sitio, usa rutas relativas como '/canales-por-la-integridad/', '/directorio/', '/gobierno_en_numeros/', '/riesgo/', '/vehiculos/'. Siempre responde en español de manera clara, amable e institucional.`;
@@ -1145,7 +1145,7 @@ function generateFallbackResponse(query, knowledgeItems) {
     return `Puedes consultar el directorio institucional completo de autoridades y encargados de probidad en nuestro módulo oficial.\n\n👉 [Consultar Directorio Ejecutivo](/directorio/)`;
   }
   if (q.includes('vehicul') || q.includes('carro') || q.includes('placa')) {
-    return `En la herramienta **Placa Transparente** puedes buscar cualquier vehículo oficial del Estado por número de placa para verificar su asignación e informar sobre un posible uso indebido.\n\n👉 [Ingresar a Placa Transparente](/vehiculos/)`;
+    return `En la herramienta **Transparencia Vehicular** puedes buscar cualquier vehículo oficial del Estado por número de placa para verificar su asignación e informar sobre un posible uso indebido.\n\n👉 [Ingresar a Transparencia Vehicular](/vehiculos/)`;
   }
   if (q.includes('estadist') || q.includes('numero') || q.includes('cifra')) {
     return `En el tablero **Tu Gobierno en Números** encontrarás datos actualizados sobre oficinas de probidad (65+), canales de denuncia habilitados (200+), denuncias penales planteadas (440+) y plataformas activas.\n\n👉 [Ver Gobierno en Números](/gobierno_en_numeros/)`;

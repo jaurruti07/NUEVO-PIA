@@ -59,16 +59,16 @@
     position: relative;
     width: 44px;
     height: 44px;
-    background: linear-gradient(135deg, #FF6D00 0%, #DD2C00 100%);
+    background: linear-gradient(135deg, #38BDF8 0%, #00C2E0 50%, #0284C7 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
-    box-shadow: 0 4px 14px rgba(221, 44, 0, 0.4);
+    padding: 3px;
+    box-shadow: 0 4px 14px rgba(0, 194, 224, 0.45);
 }
 
-.pia-fox-icon {
+.pia-assistant-icon, .pia-fox-icon {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -170,13 +170,13 @@
 .pia-cb-avatar {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #FF6D00 0%, #DD2C00 100%);
+    background: linear-gradient(135deg, #38BDF8 0%, #00C2E0 50%, #0284C7 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3px;
-    box-shadow: 0 4px 10px rgba(221, 44, 0, 0.3);
+    padding: 2px;
+    box-shadow: 0 4px 10px rgba(0, 194, 224, 0.35);
 }
 
 .pia-cb-title-box {

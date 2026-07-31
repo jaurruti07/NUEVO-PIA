@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Placa Transparente · Cumplimiento Vehicular</title>
+    <title>Transparencia Vehicular · Cumplimiento Vehicular</title>
     <!-- Fuentes y estilos base -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -936,18 +936,29 @@
             border-top: 1px solid var(--border);
         }
         .catalog-controls {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg, 16px);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 18px rgba(5,17,31,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .catalog-controls-top {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
         }
         .catalog-controls .left {
             display: flex;
             flex-wrap: wrap;
             gap: 0.8rem;
             align-items: center;
+            flex: 1;
         }
         .catalog-controls .right {
             display: flex;
@@ -955,21 +966,145 @@
             gap: 0.6rem;
             align-items: center;
         }
-        .catalog-controls input {
-            padding: 0.5rem 1rem;
+        .input-with-clear {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .input-with-clear input {
+            padding: 0.6rem 2.2rem 0.6rem 2.2rem;
             border: 1.5px solid var(--border);
             border-radius: 50px;
             font-family: var(--font-body);
-            font-size: 0.85rem;
-            background: var(--surface);
+            font-size: 0.88rem;
+            background: var(--surface-card);
             color: var(--text-main);
-            min-width: 180px;
-            transition: 0.2s;
+            min-width: 220px;
+            transition: all 0.2s ease;
         }
-        .catalog-controls input:focus {
+        .input-with-clear .search-icon-left {
+            position: absolute;
+            left: 0.85rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+        .input-with-clear .clear-btn {
+            position: absolute;
+            right: 0.65rem;
+            background: rgba(0,0,0,0.06);
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .input-with-clear .clear-btn:hover {
+            background: rgba(220, 38, 38, 0.2);
+            color: #DC2626;
+        }
+        .input-with-clear input:focus {
             outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3.5px rgba(0,194,224,0.18);
+            background: #ffffff;
+        }
+        .input-with-clear input.has-value {
             border-color: var(--blue-bright);
-            box-shadow: 0 0 0 3px rgba(43,130,201,0.12);
+            background: #ffffff;
+            font-weight: 500;
+        }
+        .custom-select-styled {
+            padding: 0.6rem 2.5rem 0.6rem 1.1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-main);
+            background-color: var(--surface-card);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230C2033' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .custom-select-styled:hover {
+            border-color: var(--blue-bright);
+            box-shadow: 0 2px 8px rgba(0, 194, 224, 0.12);
+        }
+        .custom-select-styled:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3.5px rgba(0,194,224,0.18);
+            background-color: #ffffff;
+        }
+        .custom-select-styled.has-value {
+            border-color: var(--blue-bright);
+            background-color: rgba(43, 130, 201, 0.06);
+            font-weight: 600;
+            color: var(--navy);
+        }
+        .active-chips-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed var(--border);
+        }
+        .active-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(43, 130, 201, 0.1);
+            border: 1px solid rgba(43, 130, 201, 0.28);
+            color: var(--navy);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.28rem 0.75rem;
+            border-radius: 50px;
+        }
+        .active-chip button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transition: all 0.15s;
+        }
+        .active-chip button:hover {
+            background: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+        }
+        .btn-reset-chips {
+            background: transparent;
+            border: none;
+            color: var(--blue-bright);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0.2rem 0.5rem;
+        }
+        .btn-reset-chips:hover {
+            color: var(--cyan);
         }
         .btn-sm {
             padding: 0.4rem 1rem;
@@ -1627,7 +1762,7 @@
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
                         <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
                         <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
-                        <li><a href="../vehiculos/" class="active"><i class="fas fa-car-side"></i> Placa Transparente</a></li>
+                        <li><a href="../vehiculos/" class="active"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
                 <li class="menu-group">
@@ -1652,7 +1787,7 @@
     <div class="search-hero-bg"></div>
     <div class="container search-hero-inner">
         <div class="badge"><span></span> Consulta de Vehículo Oficial</div>
-        <h1>Placa <em>Transparente</em></h1>
+        <h1>Transparencia <em>Vehicular</em></h1>
         <p class="sub">Consulte la información pública de un vehículo oficial ingresando su número de placa. Verifique su cumplimiento con la normativa 2024.</p>
 
         <div class="search-box-main">
@@ -1852,21 +1987,36 @@
         </div>
 
         <div class="catalog-controls">
-            <div class="left">
-                <input type="text" id="catalogSearch" placeholder="Buscar institución..." />
-                <select id="catalogFilterSector" style="padding:0.5rem 1rem;border:1.5px solid var(--border);border-radius:50px;font-family:var(--font-body);font-size:0.85rem;background:var(--surface);color:var(--text-main);">
-                    <option value="">Todos los tipos</option>
-                    <option value="Ministerios">Ministerios</option>
-                    <option value="Secretarías">Secretarías</option>
-                    <option value="Otras Dependencias">Otras Dependencias</option>
-                    <option value="Gobernaciones">Gobernaciones</option>
-                </select>
+            <div class="catalog-controls-top">
+                <div class="left">
+                    <div class="input-with-clear">
+                        <i class="fas fa-search search-icon-left"></i>
+                        <input type="text" id="catalogSearch" placeholder="Buscar institución o sigla..." aria-label="Buscar institución en el catálogo" />
+                        <button class="clear-btn" id="catalogSearchClear" title="Limpiar búsqueda" aria-label="Limpiar búsqueda"><i class="fas fa-times"></i></button>
+                    </div>
+                    <select id="catalogFilterSector" class="custom-select-styled" aria-label="Filtrar por tipo de institución">
+                        <option value="">Todos los tipos de dependencia</option>
+                        <option value="Ministerios">Ministerios</option>
+                        <option value="Secretarías">Secretarías</option>
+                        <option value="Otras Dependencias">Otras Dependencias</option>
+                        <option value="Gobernaciones">Gobernaciones</option>
+                    </select>
+                    <select id="catalogFilterStatus" class="custom-select-styled" aria-label="Filtrar por estado de cumplimiento">
+                        <option value="">Todos los niveles de cumplimiento</option>
+                        <option value="cumple">Cumple al 100%</option>
+                        <option value="parcial">Cumplimiento Parcial</option>
+                        <option value="proceso">En Proceso</option>
+                        <option value="nocumple">No Cumple</option>
+                    </select>
+                </div>
+                <div class="right">
+                    <span id="catalogActiveBadge" class="counter-lbl" style="font-weight:700; color:var(--blue-bright); margin-right:0.5rem;"></span>
+                    <button class="btn-sm outline" onclick="exportCatalogPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button class="btn-sm outline" onclick="exportCatalogExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                    <button class="btn-sm outline" onclick="exportCatalogCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                </div>
             </div>
-            <div class="right">
-                <button class="btn-sm outline" onclick="exportCatalogPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
-                <button class="btn-sm outline" onclick="exportCatalogExcel()"><i class="fas fa-file-excel"></i> Excel</button>
-                <button class="btn-sm outline" onclick="exportCatalogCSV()"><i class="fas fa-file-csv"></i> CSV</button>
-            </div>
+            <div id="catalogActiveChips" class="active-chips-bar" style="display:none;"></div>
         </div>
 
         <div class="table-wrap">
@@ -1896,7 +2046,7 @@
         <div class="section-header">
             <div class="tag"><span></span> Auditoría Social</div>
             <h2>Del hallazgo a la denuncia, <em>en cuatro pasos</em></h2>
-            <p>Placa Transparente articula la observación ciudadana con la denuncia formal ante los Canales por la Integridad de la Presidencia de la República.</p>
+            <p>Transparencia Vehicular articula la observación ciudadana con la denuncia formal ante los Canales por la Integridad de la Presidencia de la República.</p>
         </div>
         <div class="audit-grid">
             <div class="audit-step">
@@ -1906,7 +2056,7 @@
             </div>
             <div class="audit-step">
                 <div class="step-num">02</div>
-                <h4>Consulta en Placa Transparente</h4>
+                <h4>Consulta en Transparencia Vehicular</h4>
                 <p>Ingresa la placa en el buscador. Verifica a qué institución pertenece, quién la tiene asignada y cuál es su uso autorizado según la normativa vigente.</p>
             </div>
             <div class="audit-step">
@@ -1969,7 +2119,7 @@
         <div class="faq-header">
             <div class="tag"><span></span> Preguntas Frecuentes</div>
             <h2><em>Resolvemos</em> tus dudas</h2>
-            <p>Respuestas a las consultas más comunes sobre el portal Placa Transparente y el proceso de denuncia.</p>
+            <p>Respuestas a las consultas más comunes sobre el portal Transparencia Vehicular y el proceso de denuncia.</p>
         </div>
         <div class="faq-wrap">
             <div class="faq-item">
@@ -2028,7 +2178,7 @@
                 <div class="logos-row">
                     <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
                     <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" style="height:52px; width:auto; object-fit:contain; opacity:0.9;">
-                    <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Placa Transparente" style="height:48px; width:auto; object-fit:contain;">
+                    <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Transparencia Vehicular" style="height:48px; width:auto; object-fit:contain;">
                 </div>
                 <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
             </div>
@@ -2044,7 +2194,7 @@
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
-                    <li><a href="../vehiculos/">Placa Transparente</a></li>
+                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
                 </ul>
             </div>
@@ -2077,7 +2227,7 @@
             <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
                 <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Logo gobierno" style="height:36px; width:auto; opacity:0.6;">
-                <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Placa Transparente" style="height:36px; width:auto; opacity:0.6;">
+                <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Transparencia Vehicular" style="height:36px; width:auto; opacity:0.6;">
             </div>
         </div>
     </div>
@@ -2252,13 +2402,51 @@
         }
     }
 
+    function formatPlateWithHyphen(raw) {
+        if (!raw) return '';
+        let clean = raw.toUpperCase().trim().replace(/[^A-Z0-9]/g, '');
+        if (!clean) return '';
+        const m = clean.match(/^([A-Z]{1,3})([0-9A-Z]+)$/);
+        if (m) {
+            return `${m[1]}-${m[2]}`;
+        }
+        return clean;
+    }
+
     function setupSearchEvents() {
-        document.getElementById('searchBtn').addEventListener('click', () => performSearch(document.getElementById('plateInput').value));
-        document.getElementById('plateInput').addEventListener('keydown', (e) => { 
+        const plateInput = document.getElementById('plateInput');
+
+        function triggerSearch() {
+            let val = plateInput.value.trim();
+            if (!val) {
+                document.getElementById('resultCard').classList.remove('visible');
+                return;
+            }
+            const formatted = formatPlateWithHyphen(val);
+            plateInput.value = formatted;
+            performSearch(formatted);
+        }
+
+        document.getElementById('searchBtn').addEventListener('click', triggerSearch);
+        plateInput.addEventListener('keydown', (e) => { 
             if (e.key === 'Enter') { 
                 e.preventDefault();
-                performSearch(document.getElementById('plateInput').value); 
+                triggerSearch();
             } 
+        });
+        plateInput.addEventListener('blur', () => {
+            if (plateInput.value.trim()) {
+                plateInput.value = formatPlateWithHyphen(plateInput.value);
+            }
+        });
+        plateInput.addEventListener('input', () => {
+            let val = plateInput.value.trim();
+            if (val.length >= 4 && !val.includes('-')) {
+                const formatted = formatPlateWithHyphen(val);
+                if (formatted !== val) {
+                    plateInput.value = formatted;
+                }
+            }
         });
         document.getElementById('closeResult').addEventListener('click', () => document.getElementById('resultCard').classList.remove('visible'));
 
@@ -2474,14 +2662,80 @@
     }
 
     function renderCatalog() {
-        const search = document.getElementById('catalogSearch').value.toLowerCase().trim();
+        const searchInput = document.getElementById('catalogSearch');
+        const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const sectorFilter = document.getElementById('catalogFilterSector').value;
+        const statusFilter = document.getElementById('catalogFilterStatus').value;
+
+        // Toggle clear button on search input
+        const clearBtn = document.getElementById('catalogSearchClear');
+        if (clearBtn) {
+            clearBtn.style.display = search ? 'flex' : 'none';
+        }
+        if (searchInput) {
+            if (search) searchInput.classList.add('has-value');
+            else searchInput.classList.remove('has-value');
+        }
+
+        // Toggle has-value on selects
+        const sectorSelect = document.getElementById('catalogFilterSector');
+        if (sectorSelect) {
+            if (sectorFilter) sectorSelect.classList.add('has-value');
+            else sectorSelect.classList.remove('has-value');
+        }
+
+        const statusSelect = document.getElementById('catalogFilterStatus');
+        if (statusSelect) {
+            if (statusFilter) statusSelect.classList.add('has-value');
+            else statusSelect.classList.remove('has-value');
+        }
 
         let data = catalogData.filter(item => {
-            const matchNombre = item.nombre.toLowerCase().includes(search);
+            const matchNombre = item.nombre.toLowerCase().includes(search) || (item.siglas && item.siglas.toLowerCase().includes(search));
             const matchSector = sectorFilter === '' || item.sector === sectorFilter;
-            return matchNombre && matchSector;
+            let matchStatus = true;
+            if (statusFilter === 'cumple') matchStatus = item.cumple > 0 && item.nocumple === 0 && item.parcial === 0;
+            else if (statusFilter === 'parcial') matchStatus = item.parcial > 0;
+            else if (statusFilter === 'proceso') matchStatus = item.proceso > 0;
+            else if (statusFilter === 'nocumple') matchStatus = item.nocumple > 0;
+
+            return matchNombre && matchSector && matchStatus;
         });
+
+        // Update active badge count
+        const badge = document.getElementById('catalogActiveBadge');
+        if (badge) {
+            badge.textContent = `${data.length} de ${catalogData.length} entidades`;
+        }
+
+        // Render Active Chips
+        const chipsContainer = document.getElementById('catalogActiveChips');
+        if (chipsContainer) {
+            let chipsHtml = '';
+            let activeCount = 0;
+            if (search) {
+                activeCount++;
+                chipsHtml += `<span class="active-chip"><i class="fas fa-search"></i> "${search}" <button onclick="clearCatalogSearch()"><i class="fas fa-times"></i></button></span>`;
+            }
+            if (sectorFilter) {
+                activeCount++;
+                chipsHtml += `<span class="active-chip"><i class="fas fa-sitemap"></i> ${sectorFilter} <button onclick="clearCatalogSector()"><i class="fas fa-times"></i></button></span>`;
+            }
+            if (statusFilter) {
+                activeCount++;
+                const statusLabels = { cumple: 'Cumple 100%', parcial: 'Parcial', proceso: 'En Proceso', nocumple: 'No Cumple' };
+                chipsHtml += `<span class="active-chip"><i class="fas fa-check-circle"></i> ${statusLabels[statusFilter] || statusFilter} <button onclick="clearCatalogStatus()"><i class="fas fa-times"></i></button></span>`;
+            }
+
+            if (activeCount > 0) {
+                chipsHtml += `<button class="btn-reset-chips" onclick="resetAllCatalogFilters()"><i class="fas fa-undo-alt"></i> Limpiar todos</button>`;
+                chipsContainer.innerHTML = chipsHtml;
+                chipsContainer.style.display = 'flex';
+            } else {
+                chipsContainer.innerHTML = '';
+                chipsContainer.style.display = 'none';
+            }
+        }
 
         const key = catalogSort.key;
         const dir = catalogSort.dir === 'asc' ? 1 : -1;
@@ -2499,12 +2753,12 @@
 
         const tbody = document.getElementById('catalogBody');
         if (pageData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No se encontraron instituciones.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--text-muted);"><i class="fas fa-search" style="font-size:2rem;margin-bottom:0.5rem;display:block;opacity:0.5;"></i>No se encontraron instituciones con los filtros seleccionados.</td></tr>`;
         } else {
             tbody.innerHTML = pageData.map(item => `
                 <tr>
                     <td><strong>${item.nombre}</strong></td>
-                    <td>${item.siglas}</td>
+                    <td><span class="badge" style="background:var(--surface);color:var(--text-muted);">${item.siglas}</span></td>
                     <td>${item.sector}</td>
                     <td style="text-align:center;font-weight:700;">${item.total}</td>
                     <td style="text-align:center;color:var(--green);font-weight:600;">${item.cumple}</td>
@@ -2528,10 +2782,36 @@
         }
     }
 
+    window.clearCatalogSearch = function() {
+        document.getElementById('catalogSearch').value = '';
+        catalogPage = 1;
+        renderCatalog();
+    };
+
+    window.clearCatalogSector = function() {
+        document.getElementById('catalogFilterSector').value = '';
+        catalogPage = 1;
+        renderCatalog();
+    };
+
+    window.clearCatalogStatus = function() {
+        document.getElementById('catalogFilterStatus').value = '';
+        catalogPage = 1;
+        renderCatalog();
+    };
+
+    window.resetAllCatalogFilters = function() {
+        document.getElementById('catalogSearch').value = '';
+        document.getElementById('catalogFilterSector').value = '';
+        document.getElementById('catalogFilterStatus').value = '';
+        catalogPage = 1;
+        renderCatalog();
+    };
+
     function populateCatalogFilters() {
         const sel = document.getElementById('catalogFilterSector');
         const sectores = [...new Set(catalogInstituciones.map(i => i.sector))].sort();
-        sel.innerHTML = '<option value="">Todos los tipos</option>';
+        sel.innerHTML = '<option value="">Todos los tipos de dependencia</option>';
         sectores.forEach(s => {
             const opt = document.createElement('option');
             opt.value = s;
@@ -2539,7 +2819,10 @@
             sel.appendChild(opt);
         });
         sel.addEventListener('change', () => { catalogPage = 1; renderCatalog(); });
+        document.getElementById('catalogFilterStatus').addEventListener('change', () => { catalogPage = 1; renderCatalog(); });
         document.getElementById('catalogSearch').addEventListener('input', () => { catalogPage = 1; renderCatalog(); });
+        const clearBtn = document.getElementById('catalogSearchClear');
+        if (clearBtn) clearBtn.addEventListener('click', window.clearCatalogSearch);
     }
 
     document.getElementById('catalogThead').addEventListener('click', (e) => {
@@ -2555,10 +2838,18 @@
     function getCatalogExportData() {
         const search = document.getElementById('catalogSearch').value.toLowerCase().trim();
         const sectorFilter = document.getElementById('catalogFilterSector').value;
+        const statusFilter = document.getElementById('catalogFilterStatus').value;
+
         let data = catalogData.filter(item => {
-            const matchNombre = item.nombre.toLowerCase().includes(search);
+            const matchNombre = item.nombre.toLowerCase().includes(search) || (item.siglas && item.siglas.toLowerCase().includes(search));
             const matchSector = sectorFilter === '' || item.sector === sectorFilter;
-            return matchNombre && matchSector;
+            let matchStatus = true;
+            if (statusFilter === 'cumple') matchStatus = item.cumple > 0 && item.nocumple === 0 && item.parcial === 0;
+            else if (statusFilter === 'parcial') matchStatus = item.parcial > 0;
+            else if (statusFilter === 'proceso') matchStatus = item.proceso > 0;
+            else if (statusFilter === 'nocumple') matchStatus = item.nocumple > 0;
+
+            return matchNombre && matchSector && matchStatus;
         });
         data.sort((a, b) => b.total - a.total);
         return data.map(item => ({

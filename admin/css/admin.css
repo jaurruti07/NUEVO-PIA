@@ -555,18 +555,21 @@ table tr:hover {
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 1.5rem;
+    padding: 1rem;
+    overflow-y: auto;
 }
-.modal-box {
+.modal-box, .modal-content {
     background: var(--surface-card);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 700px;
-    max-height: 90vh;
+    max-height: calc(100vh - 2rem);
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: modalIn 0.25s ease;
+    margin: auto;
+    overflow: hidden;
 }
 @keyframes modalIn {
     from {
@@ -584,6 +587,7 @@ table tr:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 .modal-header h2 {
     font-family: var(--font-head);
@@ -605,6 +609,7 @@ table tr:hover {
     padding: 1.8rem;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
 }
 .modal-footer {
     padding: 1rem 1.8rem;
@@ -612,6 +617,7 @@ table tr:hover {
     display: flex;
     justify-content: flex-end;
     gap: 0.8rem;
+    flex-shrink: 0;
 }
 
 /* Formularios dinámicos */

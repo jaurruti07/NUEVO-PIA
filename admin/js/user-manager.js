@@ -10,7 +10,7 @@ export const PORTAL_MODULES = [
   { id: 'directorio', name: 'Directorio Ejecutivo de Acceso', route: '/directorio', icon: 'fa-address-book' },
   { id: 'tableros', name: 'Tu Gobierno en Números', route: '/gobierno_en_numeros', icon: 'fa-chart-bar' },
   { id: 'riesgo', name: 'Riesgo en la Mira', route: '/riesgo', icon: 'fa-bullseye' },
-  { id: 'vehiculos', name: 'Placa Transparente', route: '/vehiculos', icon: 'fa-car' },
+  { id: 'vehiculos', name: 'Transparencia Vehicular', route: '/vehiculos', icon: 'fa-car' },
   { id: 'portal', name: 'Portal Principal & Métricas', route: '/', icon: 'fa-globe' }
 ];
 
@@ -435,15 +435,15 @@ function renderUserManagerView() {
     </div>
 
     <!-- MODAL DE CREACIÓN / EDICIÓN DE USUARIO -->
-    <div class="modal" id="userModal" style="display: none; position: fixed; inset: 0; background: rgba(5,17,31,0.75); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center;">
-      <div class="modal-content" style="background: var(--card-bg); width: 100%; max-width: 650px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.4); overflow: hidden;">
-        <div class="modal-header" style="background: var(--navy); color: #fff; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div class="modal" id="userModal" style="display: none; position: fixed; inset: 0; background: rgba(5,17,31,0.75); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+      <div class="modal-content" style="background: var(--card-bg); width: 100%; max-width: 650px; max-height: calc(100vh - 2rem); border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; margin: auto; overflow: hidden;">
+        <div class="modal-header" style="background: var(--navy); color: #fff; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
           <h3 id="userModalTitle" style="font-family: var(--font-head); font-size: 1.2rem; margin: 0;"><i class="fas fa-user-cog" style="color: var(--cyan);"></i> Asignar Usuario Administrador</h3>
           <button class="modal-close" id="btnCloseUserModal" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
         </div>
-        <div class="modal-body" style="padding: 1.5rem; max-height: 80vh; overflow-y: auto;">
+        <div class="modal-body" style="padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0;">
           <form id="userForm">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
               <div class="form-group">
                 <label style="font-weight: 700; font-size: 0.85rem; color: var(--navy);">Nombre Completo *</label>
                 <input type="text" class="form-control" id="formFullName" required placeholder="Ej. Licda. María López" style="padding: 0.65rem 0.9rem;" />
@@ -454,7 +454,7 @@ function renderUserManagerView() {
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
               <div class="form-group">
                 <label style="font-weight: 700; font-size: 0.85rem; color: var(--navy);">Correo Electrónico Institucional *</label>
                 <input type="email" class="form-control" id="formEmail" required placeholder="mlopez@pia.gob.gt" style="padding: 0.65rem 0.9rem;" />
@@ -467,7 +467,7 @@ function renderUserManagerView() {
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
               <div class="form-group">
                 <label style="font-weight: 700; font-size: 0.85rem; color: var(--navy);">Contraseña Acceso *</label>
                 <input type="password" class="form-control" id="formPassword" placeholder="••••••••" style="padding: 0.65rem 0.9rem;" />
@@ -489,7 +489,7 @@ function renderUserManagerView() {
               <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
                 Selecciona las secciones del Portal PIA a las que este usuario tendrá autorización para administrar datos:
               </p>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.6rem;">
                 ${PORTAL_MODULES.map(m => `
                   <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--navy); cursor: pointer; background: #fff; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);">
                     <input type="checkbox" class="module-check" value="${m.id}" style="width: 16px; height: 16px;" />
@@ -501,7 +501,7 @@ function renderUserManagerView() {
 
             <div style="border-top: 1px solid var(--border); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
               <label style="font-weight: 700; font-size: 0.85rem; color: var(--navy);">Opciones de Seguridad Adicionales</label>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
                 <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--navy);">
                   <input type="checkbox" id="formMfa" style="width: 16px; height: 16px;" />
                   Activar 2FA / Doble Factor
@@ -514,7 +514,7 @@ function renderUserManagerView() {
             </div>
           </form>
         </div>
-        <div class="modal-footer" style="padding: 1rem 1.5rem; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <div class="modal-footer" style="padding: 1rem 1.5rem; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; flex-shrink: 0;">
           <button class="btn btn-secondary" id="btnCancelUserModal">Cancelar</button>
           <button class="btn btn-primary" id="btnSaveUser">Guardar Usuario y Asignaciones</button>
         </div>

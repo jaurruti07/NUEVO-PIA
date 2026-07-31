@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Directorio de Acceso al Ejecutivo</title>
+    <title>Directorio: Acceso al Ejecutivo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
@@ -470,31 +470,164 @@
            FILTER BAR
         ============================================================ */
         .filter-bar {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-2xl);
-            padding: 2rem 2.5rem;
-            box-shadow: var(--shadow-sm);
+            background: var(--surface-card, #ffffff);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-2xl, 20px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(5, 17, 31, 0.05);
             margin-bottom: 2rem;
+            transition: all 0.25s ease;
         }
-        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; align-items: end; }
+        .filter-bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .filter-bar-title {
+            font-family: var(--font-head);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .filter-active-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 194, 224, 0.12);
+            color: var(--cyan-dim, #0093AA);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.65rem;
+            border-radius: 50px;
+        }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.25rem; align-items: end; }
         .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
         .filter-label {
             font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
-            text-transform: uppercase; color: var(--blue);
+            text-transform: uppercase; color: var(--blue-bright, #2B82C9);
+            display: flex; align-items: center; gap: 6px;
         }
-        .filter-group select,
+        .filter-group select {
+            width: 100%; padding: 0.7rem 2.5rem 0.7rem 1.1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
+            color: var(--text-main); background-color: var(--surface);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230C2033' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
         .filter-group input[type="text"] {
-            width: 100%; padding: 0.75rem 1rem;
+            width: 100%; padding: 0.7rem 2.2rem 0.7rem 1.1rem;
             border: 1.5px solid var(--border);
             border-radius: 50px;
             font-family: var(--font-body); font-size: 0.88rem;
             color: var(--text-main); background: var(--surface);
-            transition: border-color 0.2s, box-shadow 0.2s;
-            appearance: none;
+            transition: all 0.2s ease;
+        }
+        .filter-group select:hover,
+        .filter-group input[type="text"]:hover {
+            border-color: var(--blue-bright);
+            box-shadow: 0 2px 8px rgba(0, 194, 224, 0.08);
         }
         .filter-group select:focus,
-        .filter-group input:focus { outline: none; border-color: var(--blue-bright); box-shadow: 0 0 0 3px rgba(43,130,201,0.12); }
+        .filter-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3.5px rgba(0, 194, 224, 0.18);
+            background-color: #ffffff;
+        }
+        .filter-group select.has-value,
+        .filter-group input[type="text"].has-value {
+            border-color: var(--blue-bright);
+            background-color: rgba(43, 130, 201, 0.06);
+            font-weight: 600;
+            color: var(--navy);
+        }
+        .input-clear-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .input-clear-btn {
+            position: absolute;
+            right: 0.6rem;
+            background: rgba(0, 0, 0, 0.06);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            z-index: 2;
+        }
+        .input-clear-btn:hover {
+            background: rgba(220, 38, 38, 0.2);
+            color: #DC2626;
+        }
+        .active-chips-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+            padding-top: 0.85rem;
+            border-top: 1px dashed var(--border);
+        }
+        .active-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(43, 130, 201, 0.1);
+            border: 1px solid rgba(43, 130, 201, 0.28);
+            color: var(--navy);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.28rem 0.75rem;
+            border-radius: 50px;
+        }
+        .active-filter-chip button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transition: all 0.15s;
+        }
+        .active-filter-chip button:hover {
+            background: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+        }
+        #directorio.theme-dark .filter-group select {
+            background-color: var(--navy-light);
+            color: #ffffff;
+            border-color: rgba(0, 194, 224, 0.25);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300C2E0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        }
 
         .voice-row { display: flex; gap: 8px; }
         .voice-btn {
@@ -1162,9 +1295,16 @@
             display: flex; gap: 0;
             border-bottom: 1px solid var(--border);
             background: #fff; flex-shrink: 0;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            width: 100%;
         }
+        .modal-tabs::-webkit-scrollbar { display: none; }
         .modal-tab {
-            flex: 1; padding: 1rem 1.5rem;
+            flex: 1 0 auto; min-width: max-content; white-space: nowrap;
+            padding: 0.9rem 1.2rem;
             background: none; border: none; border-bottom: 3px solid transparent;
             font-family: var(--font-head); font-size: 0.82rem; font-weight: 700;
             letter-spacing: 0.04em; text-transform: uppercase;
@@ -1238,10 +1378,51 @@
             border: 1px solid var(--border);
         }
         .modal-detail-item .lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-        .modal-detail-item .val { font-size: 0.88rem; color: var(--text-main); font-weight: 500; line-height: 1.5; }
-        .modal-detail-item .val a { color: var(--blue-bright); text-decoration: underline; }
+        .modal-detail-item .val { font-size: 0.88rem; color: var(--text-main); font-weight: 500; line-height: 1.5; word-break: break-word; overflow-wrap: anywhere; }
+        .modal-detail-item .val a { color: var(--blue-bright); text-decoration: underline; word-break: break-all; overflow-wrap: anywhere; }
         .modal-detail-item .val a:hover { color: var(--cyan-dim); }
         .modal-detail-item.full { grid-column: 1 / -1; }
+
+        .acceso-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.55rem 0.85rem;
+            background: rgba(0, 194, 224, 0.08);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 8px;
+            color: var(--blue-bright);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            max-width: 100%;
+        }
+        .acceso-link-btn:hover {
+            background: var(--blue-bright);
+            color: #ffffff !important;
+            border-color: var(--blue-bright);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 194, 224, 0.2);
+        }
+        #directorio.theme-dark .acceso-link-btn {
+            background: rgba(0, 194, 224, 0.12);
+            border-color: rgba(0, 194, 224, 0.3);
+            color: var(--cyan);
+        }
+        #directorio.theme-dark .acceso-link-btn:hover {
+            background: var(--cyan);
+            color: var(--navy) !important;
+            border-color: var(--cyan);
+        }
+        .acceso-links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
 
         .modal-map-area { margin-top: 1.5rem; border-radius: 16px; overflow: hidden; height: 180px; border: 1px solid var(--border); }
         .modal-map-area iframe { width: 100%; height: 100%; border: 0; }
@@ -1321,6 +1502,122 @@
         #directorio.theme-dark .btn-export.excel:hover { background: #4ADE80; color: var(--navy); }
 
         /* ============================================================
+           BANNER TRANSPARENCIA (RESPONSIVO)
+        ============================================================ */
+        .transparencia-banner {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            border-radius: var(--radius-2xl);
+            margin: 3rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 360px;
+            box-shadow: 0 24px 64px rgba(5,17,31,0.22);
+        }
+        .transparencia-banner-left {
+            position: relative;
+            z-index: 1;
+            padding: 3.5rem 3rem 3.5rem 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .transparencia-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(0,194,224,0.3);
+            background: rgba(0,194,224,0.08);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 1.4rem;
+            width: fit-content;
+        }
+        .transparencia-banner-left h2 {
+            font-family: var(--font-head);
+            font-size: clamp(1.5rem, 3vw, 2.3rem);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.025em;
+            line-height: 1.18;
+            margin-bottom: 1rem;
+        }
+        .transparencia-banner-left h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .transparencia-banner-left p {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.62);
+            line-height: 1.78;
+            margin-bottom: 2rem;
+            max-width: 420px;
+        }
+        .transparencia-banner-right {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 2.5rem 2.5rem 1rem;
+        }
+        .transparencia-cards-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+        }
+        .transparencia-feature-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(0,194,224,0.18);
+            border-radius: 20px;
+            padding: 1.1rem 1.3rem;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.3s;
+            margin-top: 0.75rem;
+        }
+        .transparencia-feature-card:first-of-type {
+            margin-top: 0;
+        }
+        .feature-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0,194,224,0.15);
+            border: 1px solid rgba(0,194,224,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--cyan);
+            flex-shrink: 0;
+        }
+        .transparencia-feature-card h4 {
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .transparencia-feature-card p {
+            font-size: 0.74rem;
+            color: rgba(255,255,255,0.52);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        /* ============================================================
            RESPONSIVE
         ============================================================ */
         @media (max-width: 900px) {
@@ -1328,6 +1625,19 @@
             .info-band-img { order: -1; }
             .info-band-img img { max-width: 400px; }
             .footer-grid { grid-template-columns: 1fr 1fr; }
+            .transparencia-banner {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            .transparencia-banner-left {
+                padding: 2.5rem 2rem 1.5rem 2rem;
+            }
+            .transparencia-banner-right {
+                padding: 1rem 2rem 2.5rem 2rem;
+            }
+            .transparencia-cards-wrapper {
+                max-width: 100%;
+            }
         }
         @media (max-width: 680px) {
             .menu-toggle { display: flex; }
@@ -1393,7 +1703,7 @@
             .modal-panel { padding: 1.4rem; }
             .modal-channels-grid { grid-template-columns: 1fr 1fr; }
             .modal-detail-grid { grid-template-columns: 1fr; }
-            .modal-tab { font-size: 0.72rem; padding: 0.9rem 0.75rem; }
+            .modal-tab { font-size: 0.75rem; padding: 0.8rem 0.85rem; min-width: max-content; white-space: nowrap; flex: 1 0 auto; }
             .glosario-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 400px) {
@@ -1425,8 +1735,6 @@
                     <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
-                        <li><a href="#directorio" id="navViewCardsLink"><i class="fas fa-th-large"></i> Vista por tarjetas</a></li>
-                        <li><a href="#directorio" id="navViewListLink"><i class="fas fa-list"></i> Vista por lista</a></li>
                     </ul>
                 </li>
 
@@ -1437,7 +1745,7 @@
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
                         <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
                         <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
-                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Placa Transparente</a></li>
+                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -1466,7 +1774,7 @@
     <div class="hero-bg"></div>
     <div class="container hero-inner">
         <div class="hero-eyebrow"><span></span>Transparencia y Acceso a la Información</div>
-        <h1>Directorio de <br><em>Acceso al Ejecutivo</em></h1>
+        <h1>Directorio:<br><em>Acceso al Ejecutivo</em></h1>
         <p class="hero-lema">Acceso a la Información Pública</p>
         <p class="hero-sub">Esta herramienta pone a disposición de la ciudadanía un directorio consolidado de las dependencias responsables de garantizar el acceso a la información pública en las instituciones del Organismo Ejecutivo. Su objetivo es facilitar la localización de enlaces institucionales, mecanismos de solicitud de información y datos de contacto de las unidades responsables.</p>
         <div class="hero-actions">
@@ -1500,27 +1808,23 @@
         <div class="info-band">
             <div class="info-band-text">
                 <div class="section-tag on-dark" style="color:var(--cyan);">Sobre la plataforma</div>
-                <p class="lead">El <em>Directorio de Acceso al Ejecutivo</em> es una herramienta informativa que consolida los datos de contacto y los mecanismos oficiales para solicitar acceso a la información pública en las instituciones del Organismo Ejecutivo de Guatemala.</p>
+                <p class="lead">El <em>Directorio Acceso al Ejecutivo</em> Es una herramienta que recopila información clave de las dependencias encargadas de información pública en los órganos del Organismo Ejecutivo. Busca mejorar la transparencia, fortalecer la gestión pública y facilitar el acceso a la información.</p>
                 <div class="accordion">
-                    <div class="accordion-item">
-                        <button class="accordion-q">¿Qué es una solicitud de acceso a la información pública? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Es el derecho que tiene toda persona, sin necesidad de justificar su interés, de solicitar y obtener información que se encuentre en posesión de las instituciones públicas, de acuerdo con lo establecido en la Ley de Acceso a la Información Pública (Decreto 57-2008). Las entidades obligadas deben proporcionar la información solicitada, salvo las excepciones expresamente reguladas por la ley.</div>
+                    <div class="accordion-item open">
+                        <button class="accordion-q">¿Qué es la plataforma? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">Es una herramienta digital centralizada de consulta pública que unifica los datos de contacto, ubicaciones y canales oficiales para solicitar acceso a la información pública en todas las dependencias e instituciones del Organismo Ejecutivo de Guatemala.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Qué es la Información Pública de Oficio? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Es la información que las instituciones públicas están obligadas a publicar y mantener actualizada de forma permanente, sin necesidad de que exista una solicitud previa. Esta información incluye aspectos como estructura organizacional, directorios de funcionarios, presupuesto, contrataciones, programas, informes de gestión y otros datos definidos en el artículo 10 de la Ley de Acceso a la Información Pública.</div>
+                        <button class="accordion-q">¿Quiénes pueden ingresar y utilizarla? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">Toda la ciudadanía, estudiantes, investigadores, periodistas, servidores públicos y cualquier persona interesada en consultar información o contactar a las entidades estatales. El acceso es totalmente libre, público y gratuito, sin necesidad de registro ni credenciales.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Cómo encuentro la institución que necesito? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Puede utilizar el buscador y los filtros disponibles en el directorio para localizar la institución de su interés. También puede navegar por categoría, nombre de la entidad o sector gubernamental hasta encontrar la dependencia correspondiente y consultar su información de contacto y acceso a la información pública.</div>
+                        <button class="accordion-q">¿Qué puedes encontrar aquí? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">Encontrarás para cada entidad información relacionada con el electrónico institucional, número de teléfono, dirección y ubicación de la Unidad, enlace para poder realizar solicitudes en línea y para información pública de oficio de cada institución.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿La información del directorio está actualizada? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">La información publicada proviene de las fuentes oficiales de cada institución y es actualizada periódicamente. No obstante, debido a cambios administrativos, organizacionales o tecnológicos que puedan ocurrir en las entidades públicas, se recomienda verificar directamente con la institución correspondiente cualquier dato que requiera confirmación inmediata.</div>
-                    </div>
-                    <div class="accordion-item">
-                        <button class="accordion-q">¿Puedo realizar solicitudes directamente desde esta plataforma? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">No. Esta plataforma tiene un carácter informativo y de consulta. Su objetivo es facilitar el acceso a los datos de contacto, enlaces y canales oficiales de las instituciones públicas. Las solicitudes de acceso a la información pública deben realizarse directamente ante la Unidad de Información Pública de la institución correspondiente, utilizando los medios que esta tenga habilitados para tal fin (portal web, formulario electrónico, correo electrónico, atención presencial u otros canales oficiales).</div>
+                        <button class="accordion-q">¿Cómo usar y navegar en el directorio? <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a">Puedes buscar instituciones por nombre o palabras clave, filtrar por sector gubernamental o por disponibilidad de servicios (solicitud en línea o de oficio), alternar entre vista de tarjetas o de lista, realizar búsquedas por voz y descargar la información consolidada en reportes PDF o Excel.</div>
                     </div>
                 </div>
             </div>
@@ -1610,38 +1914,50 @@
             </div>
         </div>
 
-        <!-- FILTROS -->
+        <!-- FILTROS DE BÚSQUEDA -->
         <div class="filter-bar">
+            <div class="filter-bar-header">
+                <div class="filter-bar-title">
+                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
+                </div>
+                <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
+                    <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
+                </div>
+            </div>
             <div class="filter-grid">
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-building"></i> Sector</span>
-                    <select id="sectorFilter">
-                        <option value="">Todos los sectores</option>
+                    <span class="filter-label"><i class="fas fa-layer-group"></i> Tipo dependencia</span>
+                    <select id="sectorFilter" aria-label="Filtrar por tipo de dependencia">
+                        <option value="">Todas las dependencias</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <span class="filter-label"><i class="fas fa-building"></i> Institución</span>
-                    <select id="institucionFilter">
+                    <select id="institucionFilter" aria-label="Filtrar por institución">
                         <option value="">Todas las instituciones</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <span class="filter-label"><i class="fas fa-search"></i> Búsqueda libre</span>
                     <div class="voice-row">
-                        <input type="text" id="searchInput" placeholder="Nombre, correo, dirección…" style="flex:1;">
-                        <button id="voiceSearchBtn" class="voice-btn" title="Buscar por voz"><i class="fas fa-microphone"></i></button>
+                        <div class="input-clear-wrapper" style="flex:1;">
+                            <input type="text" id="searchInput" placeholder="Nombre, correo, dirección…" aria-label="Buscar en directorio">
+                            <button class="input-clear-btn" id="searchClearBtn" title="Limpiar texto" aria-label="Limpiar texto"><i class="fas fa-times"></i></button>
+                        </div>
+                        <button id="voiceSearchBtn" class="voice-btn" title="Buscar por voz" aria-label="Buscar por voz"><i class="fas fa-microphone"></i></button>
                     </div>
                 </div>
                 <div class="filter-group">
-                    <span class="filter-label">Disponibilidad</span>
+                    <span class="filter-label"><i class="fas fa-check-circle"></i> Disponibilidad</span>
                     <div class="filter-check-group">
                         <label><input type="checkbox" id="chkSolicitud"> Solicitud en línea</label>
                         <label><input type="checkbox" id="chkOficio"> Información pública de oficio</label>
                     </div>
                 </div>
             </div>
-            <div class="filter-actions">
-                <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Limpiar filtros</button>
+            <div id="activeChipsBar" class="active-chips-bar" style="display:none;"></div>
+            <div class="filter-actions" style="margin-top:1rem;">
+                <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Restablecer filtros</button>
             </div>
         </div>
 
@@ -1698,18 +2014,18 @@
     </section>
 
     <!-- ============================================================
-         BANNER INFORMATIVO
+         BANNER INFORMATIVO (RESPONSIVO)
     ============================================================ -->
     <section style="padding:0 0 1rem;">
-        <div class="vigilando-section" style="position:relative; overflow:hidden; background:linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); border-radius:var(--radius-2xl); padding:0; margin:3rem 0; display:grid; grid-template-columns:1fr 1fr; min-height:360px; box-shadow:0 24px 64px rgba(5,17,31,0.22);">
-            <div style="position:relative; z-index:1; padding:3.5rem 3rem 3.5rem 3.5rem; display:flex; flex-direction:column; justify-content:center;">
-                <div style="display:inline-flex; align-items:center; gap:8px; padding:5px 16px; border-radius:50px; border:1px solid rgba(0,194,224,0.3); background:rgba(0,194,224,0.08); font-size:0.72rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--cyan); margin-bottom:1.4rem; width:fit-content;">
+        <div class="transparencia-banner">
+            <div class="transparencia-banner-left">
+                <div class="transparencia-tag">
                     <i class="fas fa-circle" style="font-size:0.45rem; animation:blink 1.8s infinite;"></i> Plataforma oficial de transparencia
                 </div>
-                <h2 style="font-family:var(--font-head); font-size:clamp(1.6rem, 3vw, 2.3rem); font-weight:800; color:#fff; letter-spacing:-0.025em; line-height:1.15; margin-bottom:1rem;">
-                    Accede a la información que <em style="font-style:normal; background:linear-gradient(90deg, var(--cyan), var(--blue-bright)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">necesitas</em>
+                <h2>
+                    Accede a la información que <em>necesitas</em>
                 </h2>
-                <p style="font-size:0.95rem; color:rgba(255,255,255,0.62); line-height:1.78; margin-bottom:2rem; max-width:420px;">
+                <p>
                     Utiliza este directorio para conocer los canales oficiales de cada institución y ejercer tu derecho de acceso a la información pública.
                 </p>
                 <div style="display:flex; gap:0.85rem; flex-wrap:wrap;">
@@ -1718,30 +2034,39 @@
                     </a>
                 </div>
             </div>
-            <div style="position:relative; z-index:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 2.5rem 2.5rem 1rem;">
-                <div style="position:relative; width:100%; max-width:340px;">
+            <div class="transparencia-banner-right">
+                <div class="transparencia-cards-wrapper">
                     <div style="display:flex; justify-content:flex-end; margin-bottom:0.9rem;">
                         <span style="display:inline-flex; align-items:center; gap:6px; background:var(--cyan); color:var(--navy); font-family:var(--font-head); font-size:0.68rem; font-weight:800; padding:5px 14px; border-radius:50px; box-shadow:0 4px 16px rgba(0,194,224,0.45); letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap;">
                             <i class="fas fa-shield-alt"></i> Confiable
                         </span>
                     </div>
-                    <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(0,194,224,0.18); border-radius:20px; padding:1.1rem 1.3rem; backdrop-filter:blur(8px); display:flex; align-items:center; gap:14px; transition:transform 0.3s;">
-                        <div style="width:44px; height:44px; border-radius:14px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.25); display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--cyan); flex-shrink:0;">
+                    <div class="transparencia-feature-card">
+                        <div class="feature-card-icon">
                             <i class="fas fa-envelope"></i>
                         </div>
-                        <div><h4 style="font-family:var(--font-head); font-size:0.85rem; font-weight:700; color:#fff; margin-bottom:2px;">Correo y teléfono</h4><p style="font-size:0.74rem; color:rgba(255,255,255,0.52); line-height:1.45;">Contacta directamente a la unidad de acceso.</p></div>
+                        <div>
+                            <h4>Correo y teléfono</h4>
+                            <p>Contacta directamente a la unidad de acceso.</p>
+                        </div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(0,194,224,0.18); border-radius:20px; padding:1.1rem 1.3rem; backdrop-filter:blur(8px); display:flex; align-items:center; gap:14px; transition:transform 0.3s; margin-top:0.75rem;">
-                        <div style="width:44px; height:44px; border-radius:14px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.25); display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--cyan); flex-shrink:0;">
+                    <div class="transparencia-feature-card">
+                        <div class="feature-card-icon">
                             <i class="fas fa-globe"></i>
                         </div>
-                        <div><h4 style="font-family:var(--font-head); font-size:0.85rem; font-weight:700; color:#fff; margin-bottom:2px;">Solicitud en línea</h4><p style="font-size:0.74rem; color:rgba(255,255,255,0.52); line-height:1.45;">Formularios web para tu petición.</p></div>
+                        <div>
+                            <h4>Solicitud en línea</h4>
+                            <p>Formularios web para tu petición.</p>
+                        </div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(0,194,224,0.18); border-radius:20px; padding:1.1rem 1.3rem; backdrop-filter:blur(8px); display:flex; align-items:center; gap:14px; transition:transform 0.3s; margin-top:0.75rem;">
-                        <div style="width:44px; height:44px; border-radius:14px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.25); display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--cyan); flex-shrink:0;">
+                    <div class="transparencia-feature-card">
+                        <div class="feature-card-icon">
                             <i class="fas fa-file-alt"></i>
                         </div>
-                        <div><h4 style="font-family:var(--font-head); font-size:0.85rem; font-weight:700; color:#fff; margin-bottom:2px;">Información de oficio</h4><p style="font-size:0.74rem; color:rgba(255,255,255,0.52); line-height:1.45;">Publicación proactiva de datos.</p></div>
+                        <div>
+                            <h4>Información de oficio</h4>
+                            <p>Publicación proactiva de datos.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1753,8 +2078,8 @@
     ============================================================ -->
     <section class="section" id="faq" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
-            <h2 class="section-title">Resolvemos tus dudas</h2>
+            <div class="section-tag" style="justify-content:center;">FAQ</div>
+            <h2 class="section-title">Preguntas frecuentes</h2>
             <p class="section-sub">Respuestas a las consultas más comunes sobre el directorio y el acceso a la información pública.</p>
         </div>
         <div class="faq-wrap">
@@ -1793,7 +2118,7 @@
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
-                    <li><a href="../vehiculos/">Placa Transparente</a></li>
+                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
                 </ul>
             </div>
@@ -1951,23 +2276,52 @@ function applyTheme() {
    POBLAR FILTROS
 ============================================================ */
 function populateFilters() {
-    // Poblar sectores
-    const sectores = [...new Set(instituciones.map(i => i.sector).filter(Boolean))].sort();
-    $sectorFilter.innerHTML = '<option value="">Todos los sectores</option>';
+    // Poblar tipo dependencia
+    const catalogOrder = [
+        'MINISTERIO', 'Ministerios', 'Ministerio',
+        'SECRETARÍA', 'Secretarías', 'Secretaría',
+        'VICEPRESIDENCIA', 'Vicepresidencia',
+        'OTRAS DEPENDENCIAS', 'Otras dependencias',
+        'DEPENDENCIAS TEMPORALES', 'Dependencias temporales',
+        'GOBERNACIÓN DEPARTAMENTAL', 'Gobernaciones Departamentales', 'Gobernación Departamental'
+    ];
+    const sectores = [...new Set(instituciones.map(i => i.sector).filter(Boolean))];
+    sectores.sort((a, b) => {
+        let ia = catalogOrder.findIndex(c => c.toLowerCase() === a.toLowerCase());
+        let ib = catalogOrder.findIndex(c => c.toLowerCase() === b.toLowerCase());
+        if (ia === -1) ia = 999;
+        if (ib === -1) ib = 999;
+        if (ia !== ib) return ia - ib;
+        return a.localeCompare(b);
+    });
+    $sectorFilter.innerHTML = '<option value="">Todas las dependencias</option>';
     sectores.forEach(s => {
         const o = document.createElement('option');
         o.value = s; o.textContent = s;
         $sectorFilter.appendChild(o);
     });
 
-    // Poblar instituciones por nombre
-    const nombres = [...new Set(instituciones.map(i => i.nombre_institucion).filter(Boolean))].sort();
+    populateInstFilter();
+}
+
+function populateInstFilter(selectedSector = '') {
+    const prevVal = $institucionFilter ? $institucionFilter.value : '';
+    let list = instituciones;
+    if (selectedSector) {
+        list = list.filter(i => i.sector === selectedSector);
+    }
+    const nombres = [...new Set(list.map(i => i.nombre_institucion).filter(Boolean))].sort();
     $institucionFilter.innerHTML = '<option value="">Todas las instituciones</option>';
     nombres.forEach(n => {
         const o = document.createElement('option');
         o.value = n; o.textContent = n;
         $institucionFilter.appendChild(o);
     });
+    if (prevVal && nombres.includes(prevVal)) {
+        $institucionFilter.value = prevVal;
+    } else {
+        $institucionFilter.value = '';
+    }
 }
 
 /* ============================================================
@@ -2011,6 +2365,25 @@ function renderCards(list) {
             const solicitudClase = tieneSolicitud ? 'si' : 'no';
             const oficioClase = tieneOficio ? 'si' : 'no';
 
+            const solLinks = getAccesoLinks(inst.enlaces_solicitud, inst.solicitud_en_linea, inst.sitio_web);
+            const ofiLinks = getAccesoLinks(inst.enlaces_oficio, inst.informacion_publica_oficio, inst.sitio_web);
+
+            const solLinksHtml = solLinks.length > 0 
+              ? solLinks.map((url, idx) => {
+                  const fullHref = url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
+                  const label = solLinks.length > 1 ? `Solicitud en Línea #${idx + 1}` : 'Abrir Solicitud en Línea';
+                  return `<a href="${fullHref}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; margin-top:3px; padding:3px 8px; background:rgba(0,194,224,0.08); border:1px solid rgba(0,194,224,0.25); border-radius:6px; font-weight:700; font-size:0.78rem; color:var(--blue-bright); text-decoration:none; word-break:break-all;"><i class="fas fa-external-link-alt" style="font-size:0.7rem;"></i> ${label}</a>`;
+                }).join(' ')
+              : (tieneSolicitud ? '<span style="color:#16A34A; font-weight:700;"><i class="fas fa-check-circle"></i> Sí (Disponible)</span>' : '<span style="color:#ef4444; font-weight:600;"><i class="fas fa-times-circle"></i> No disponible</span>');
+
+            const ofiLinksHtml = ofiLinks.length > 0 
+              ? ofiLinks.map((url, idx) => {
+                  const fullHref = url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
+                  const label = ofiLinks.length > 1 ? `Información de Oficio #${idx + 1}` : 'Abrir Información de Oficio';
+                  return `<a href="${fullHref}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; margin-top:3px; padding:3px 8px; background:rgba(0,194,224,0.08); border:1px solid rgba(0,194,224,0.25); border-radius:6px; font-weight:700; font-size:0.78rem; color:var(--blue-bright); text-decoration:none; word-break:break-all;"><i class="fas fa-external-link-alt" style="font-size:0.7rem;"></i> ${label}</a>`;
+                }).join(' ')
+              : (tieneOficio ? '<span style="color:#16A34A; font-weight:700;"><i class="fas fa-check-circle"></i> Sí (Disponible)</span>' : '<span style="color:#ef4444; font-weight:600;"><i class="fas fa-times-circle"></i> No disponible</span>');
+
             const slide = document.createElement('div');
             slide.className = 'swiper-slide';
             slide.innerHTML = `
@@ -2021,7 +2394,7 @@ function renderCards(list) {
                   <div class="card-strip">
                     <div class="card-name">${inst.nombre_institucion}${inst.siglas ? ' ('+inst.siglas+')' : ''}</div>
                     <div class="card-meta">
-                      <span class="card-channels-badge">${inst.sector || 'Sector no definido'}</span>
+                      <span class="card-channels-badge">${inst.sector || 'Tipo dependencia no definido'}</span>
                       <span class="acceso-badge ${solicitudClase}"><i class="fas ${tieneSolicitud ? 'fa-check-circle' : 'fa-times-circle'}"></i> Solicitud en línea</span>
                       <span class="acceso-badge ${oficioClase}"><i class="fas ${tieneOficio ? 'fa-check-circle' : 'fa-times-circle'}"></i> Información de oficio</span>
                       <button class="btn-expand-card" onclick="window._openModal('${safe}')" title="Ampliar tarjeta">
@@ -2048,7 +2421,7 @@ function renderCards(list) {
                   <div class="card-strip">
                     <div class="card-name">${inst.nombre_institucion}${inst.siglas ? ' ('+inst.siglas+')' : ''}</div>
                     <div class="card-meta">
-                      <span class="card-channels-badge">${inst.sector || 'Sector'}</span>
+                      <span class="card-channels-badge">${inst.sector || 'Tipo dependencia'}</span>
                     </div>
                   </div>
                   <div class="back-body">
@@ -2057,8 +2430,8 @@ function renderCards(list) {
                     <div class="detail-row"><div class="detail-label">Teléfono</div><div class="detail-val">${inst.telefono ? `<a href="tel:${phone}">${inst.telefono}</a>` : 'No disponible'}</div></div>
                     <div class="detail-row"><div class="detail-label">Horario de atención</div><div class="detail-val">${fullVal(inst.horario_atencion)}</div></div>
                     <div class="detail-row"><div class="detail-label">Sitio web institucional</div><div class="detail-val">${inst.sitio_web ? `<a href="${inst.sitio_web}" target="_blank" rel="noopener">${inst.sitio_web}</a>` : 'No disponible'}</div></div>
-                    <div class="detail-row"><div class="detail-label">Solicitud en línea</div><div class="detail-val">${inst.solicitud_en_linea ? 'Sí' : 'No'}</div></div>
-                    <div class="detail-row"><div class="detail-label">Información pública de oficio</div><div class="detail-val">${inst.informacion_publica_oficio ? 'Sí' : 'No'}</div></div>
+                    <div class="detail-row"><div class="detail-label"><i class="fas fa-laptop-code"></i> Solicitud de Información en Línea</div><div class="detail-val" style="margin-top:2px;">${solLinksHtml}</div></div>
+                    <div class="detail-row"><div class="detail-label"><i class="fas fa-file-invoice"></i> Información Pública de Oficio</div><div class="detail-val" style="margin-top:2px;">${ofiLinksHtml}</div></div>
                     <div class="map-links">
                       <a href="https://waze.com/ul?q=${addr}&navigate=yes" target="_blank" class="map-link"><i class="fab fa-waze"></i> Waze</a>
                       <a href="https://maps.google.com/maps?q=${addr}" target="_blank" class="map-link"><i class="fas fa-map-marked-alt"></i> Google Maps</a>
@@ -2104,6 +2477,53 @@ function renderCards(list) {
 /* ============================================================
    GLOBAL CALLBACKS
 ============================================================ */
+function getAccesoLinks(linksProp, mainPropVal, fallbackUrl) {
+    let links = [];
+    if (Array.isArray(linksProp)) {
+        links = linksProp.map(item => typeof item === 'string' ? item.trim() : (item && item.url ? item.url.trim() : '')).filter(Boolean);
+    } else if (typeof linksProp === 'string' && linksProp.trim()) {
+        links = linksProp.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    }
+    
+    if (links.length === 0 && (mainPropVal === true || mainPropVal === 'true' || mainPropVal === 'Sí' || mainPropVal === 'Si')) {
+        if (fallbackUrl && fallbackUrl.trim()) {
+            links.push(fallbackUrl.trim());
+        }
+    }
+    
+    return links.slice(0, 5);
+}
+
+function renderAccesoLinksHtml(linksArray, defaultLabelPrefix, iconClass) {
+    if (!linksArray || linksArray.length === 0) {
+        return '<div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px; font-style:italic;">No hay enlaces específicos registrados</div>';
+    }
+    let html = '<div class="acceso-links-container">';
+    linksArray.forEach((url, idx) => {
+        let label = `${defaultLabelPrefix} #${idx + 1}`;
+        let displayUrl = url;
+        if (url.length > 40) {
+            try {
+                const parsed = new URL(url.startsWith('http') ? url : 'https://' + url);
+                displayUrl = parsed.hostname + (parsed.pathname !== '/' ? parsed.pathname.slice(0, 22) + '...' : '');
+            } catch(e) {
+                displayUrl = url.slice(0, 38) + '...';
+            }
+        }
+        const fullHref = url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
+        html += `
+            <a href="${fullHref}" target="_blank" rel="noopener" class="acceso-link-btn" title="${url}">
+                <i class="fas ${iconClass}"></i>
+                <span style="font-weight: 700;">${label}:</span>
+                <span style="font-weight: 400; opacity: 0.9; text-decoration: underline;">${displayUrl}</span>
+                <i class="fas fa-external-link-alt" style="font-size: 0.72rem; margin-left: auto; opacity: 0.7;"></i>
+            </a>
+        `;
+    });
+    html += '</div>';
+    return html;
+}
+
 window._shareCard = function(nombre) {
     const inst = instituciones.find(i => i.nombre_institucion === nombre);
     if (inst) shareCard(inst);
@@ -2115,23 +2535,46 @@ window._openModal = function(nombre) {
     const safe = inst.nombre_institucion.replace(/'/g,"\\'");
     document.getElementById('modalInstName').textContent = inst.nombre_institucion + (inst.siglas ? ' ('+inst.siglas+')' : '');
     document.getElementById('modalMetaRow').innerHTML = `
-        <span class="modal-badge"><i class="fas fa-tag"></i> ${inst.sector || 'Sector no definido'}</span>
+        <span class="modal-badge"><i class="fas fa-layer-group"></i> ${inst.sector || 'Tipo dependencia no definido'}</span>
         ${inst.departamento ? `<span class="modal-tipo-badge"><i class="fas fa-map-marker-alt"></i> ${inst.departamento}</span>` : ''}
     `;
 
     document.getElementById('modalGeneralGrid').innerHTML = `
         ${buildDetailItem('Nombre institución', inst.nombre_institucion, false)}
         ${buildDetailItem('Siglas', inst.siglas, false)}
-        ${buildDetailItem('Sector', inst.sector, false)}
+        ${buildDetailItem('Tipo dependencia', inst.sector, false)}
         ${buildDetailItem('Correo electrónico', inst.correo, false, !!inst.correo, `mailto:${inst.correo}`)}
         ${buildDetailItem('Teléfono', inst.telefono, false, !!inst.telefono, `tel:${cleanPhone(inst.telefono)}`)}
     `;
 
+    const solLinks = getAccesoLinks(inst.enlaces_solicitud, inst.solicitud_en_linea, inst.sitio_web);
+    const ofiLinks = getAccesoLinks(inst.enlaces_oficio, inst.informacion_publica_oficio, inst.sitio_web);
+
+    const hasSol = inst.solicitud_en_linea || solLinks.length > 0;
+    const hasOfi = inst.informacion_publica_oficio || ofiLinks.length > 0;
+
+    const solBadge = hasSol ? '<span style="color:#25D366; font-weight:700; font-size:0.88rem;"><i class="fas fa-check-circle"></i> Sí (Disponible)</span>' : '<span style="color:#ef4444; font-weight:700; font-size:0.88rem;"><i class="fas fa-times-circle"></i> No disponible</span>';
+    const ofiBadge = hasOfi ? '<span style="color:#25D366; font-weight:700; font-size:0.88rem;"><i class="fas fa-check-circle"></i> Sí (Disponible)</span>' : '<span style="color:#ef4444; font-weight:700; font-size:0.88rem;"><i class="fas fa-times-circle"></i> No disponible</span>';
+
     document.getElementById('modalAccesoContent').innerHTML = `
-        <div class="modal-detail-section"><div class="modal-detail-section-title"><i class="fas fa-door-open"></i> Mecanismos de acceso</div>
+        <div class="modal-detail-section"><div class="modal-detail-section-title"><i class="fas fa-door-open"></i> Mecanismos de acceso a la información</div>
         <div class="modal-detail-grid">
-            ${buildDetailItem('Solicitud en línea', inst.solicitud_en_linea ? 'Sí' : 'No', false)}
-            ${buildDetailItem('Información pública de oficio', inst.informacion_publica_oficio ? 'Sí' : 'No', false)}
+            <div class="modal-detail-item full">
+                <div class="lbl"><i class="fas fa-laptop-code"></i> Solicitud de Información en Línea</div>
+                <div class="val" style="margin-top:4px;">
+                    <div>${solBadge}</div>
+                    ${renderAccesoLinksHtml(solLinks, 'Solicitud en línea', 'fa-globe')}
+                </div>
+            </div>
+
+            <div class="modal-detail-item full">
+                <div class="lbl"><i class="fas fa-file-invoice"></i> Información Pública de Oficio</div>
+                <div class="val" style="margin-top:4px;">
+                    <div>${ofiBadge}</div>
+                    ${renderAccesoLinksHtml(ofiLinks, 'Información de oficio', 'fa-folder-open')}
+                </div>
+            </div>
+
             ${buildDetailItem('Sitio web institucional', inst.sitio_web ? inst.sitio_web : '', false, !!inst.sitio_web, inst.sitio_web)}
             ${buildDetailItem('Fecha de actualización', inst.ultima_actualizacion || 'No especificada', false)}
         </div></div>
@@ -2165,8 +2608,8 @@ window._openModal = function(nombre) {
 };
 
 function buildDetailItem(label, value, full, isLink, href) {
-    const displayVal = value && String(value).trim() ? (isLink ? `<a href="${href}" target="_blank" rel="noopener">${value}</a>` : value) : 'No disponible';
-    return `<div class="modal-detail-item${full ? ' full' : ''}"><div class="lbl">${label}</div><div class="val">${displayVal}</div></div>`;
+    const displayVal = value && String(value).trim() ? (isLink ? `<a href="${href}" target="_blank" rel="noopener" style="word-break: break-word; overflow-wrap: anywhere;">${value}</a>` : value) : 'No disponible';
+    return `<div class="modal-detail-item${full ? ' full' : ''}"><div class="lbl">${label}</div><div class="val" style="word-break: break-word; overflow-wrap: anywhere;">${displayVal}</div></div>`;
 }
 
 function closeModal() {
@@ -2213,7 +2656,7 @@ function renderList(list) {
             <div class="dir-list-col-main">
                 <div class="dir-list-title">${inst.nombre_institucion}${inst.siglas ? ' ('+inst.siglas+')' : ''}</div>
                 <div class="dir-list-badges">
-                    <span class="dir-list-sector"><i class="fas fa-building"></i> ${inst.sector || 'Sector no definido'}</span>
+                    <span class="dir-list-sector"><i class="fas fa-layer-group"></i> ${inst.sector || 'Tipo dependencia no definido'}</span>
                     ${inst.departamento ? `<span style="font-size:0.75rem; color:var(--text-muted);"><i class="fas fa-map-marker-alt"></i> ${inst.departamento}</span>` : ''}
                 </div>
             </div>
@@ -2273,16 +2716,16 @@ function applyFilters() {
     const nSolicitud = sumSolicitud(filtered);
     const nOficio = sumOficio(filtered);
 
-    $totalInst.textContent = instituciones.length;
-    $totalSolicitud.textContent = sumSolicitud(instituciones);
-    $totalOficio.textContent = sumOficio(instituciones);
+    $totalInst.textContent = nInst;
+    $totalSolicitud.textContent = nSolicitud;
+    $totalOficio.textContent = nOficio;
     $resultadosFilt.textContent = nInst;
 
-    $statsInst.textContent = instituciones.length;
-    $statsCorreo.textContent = sumCorreo(instituciones);
-    $statsTelefono.textContent = sumTelefono(instituciones);
-    $statsSolicitud.textContent = sumSolicitud(instituciones);
-    $statsOficio.textContent = sumOficio(instituciones);
+    $statsInst.textContent = nInst;
+    $statsCorreo.textContent = sumCorreo(filtered);
+    $statsTelefono.textContent = sumTelefono(filtered);
+    $statsSolicitud.textContent = nSolicitud;
+    $statsOficio.textContent = nOficio;
 
     renderCards(filtered);
     renderList(filtered);
@@ -2295,8 +2738,88 @@ function readFilters() {
     currentFilters.search        = $searchInput.value;
     currentFilters.solicitud     = $chkSolicitud.checked;
     currentFilters.oficio        = $chkOficio.checked;
+
+    updateFilterStylesAndChips();
     applyFilters();
 }
+
+function updateFilterStylesAndChips() {
+    [$sectorFilter, $institucionFilter, $searchInput].forEach(el => {
+        if (!el) return;
+        if (el.value && el.value.trim() !== '') el.classList.add('has-value');
+        else el.classList.remove('has-value');
+    });
+
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    if (searchClearBtn) {
+        searchClearBtn.style.display = ($searchInput.value && $searchInput.value.trim() !== '') ? 'flex' : 'none';
+    }
+
+    const activeChipsBar = document.getElementById('activeChipsBar');
+    const badge = document.getElementById('activeFilterBadge');
+    const badgeText = document.getElementById('activeFilterCountText');
+
+    let activeCount = 0;
+    let chipsHtml = '';
+
+    if (currentFilters.sector) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-layer-group"></i> ${currentFilters.sector} <button onclick="clearFilterField('sectorFilter')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.institucion) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-building"></i> ${currentFilters.institucion} <button onclick="clearFilterField('institucionFilter')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.search) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-search"></i> "${currentFilters.search}" <button onclick="clearFilterField('searchInput')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.solicitud) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-check-circle"></i> Solicitud en línea <button onclick="clearFilterField('chkSolicitud')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.oficio) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-check-circle"></i> Información de oficio <button onclick="clearFilterField('chkOficio')"><i class="fas fa-times"></i></button></span>`;
+    }
+
+    if (activeCount > 0) {
+        if (badge && badgeText) {
+            badgeText.textContent = `${activeCount} filtro${activeCount > 1 ? 's' : ''} activo${activeCount > 1 ? 's' : ''}`;
+            badge.style.display = 'inline-flex';
+        }
+        if (activeChipsBar) {
+            activeChipsBar.innerHTML = chipsHtml;
+            activeChipsBar.style.display = 'flex';
+        }
+    } else {
+        if (badge) badge.style.display = 'none';
+        if (activeChipsBar) {
+            activeChipsBar.innerHTML = '';
+            activeChipsBar.style.display = 'none';
+        }
+    }
+}
+
+window.clearFilterField = function(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (el) {
+        if (el.type === 'checkbox') el.checked = false;
+        else el.value = '';
+        if (fieldId === 'sectorFilter') populateInstFilter('');
+        readFilters();
+    }
+};
+
+window.resetAllFilters = function() {
+    if ($sectorFilter) $sectorFilter.value = '';
+    populateInstFilter('');
+    if ($institucionFilter) $institucionFilter.value = '';
+    if ($searchInput) $searchInput.value = '';
+    if ($chkSolicitud) $chkSolicitud.checked = false;
+    if ($chkOficio) $chkOficio.checked = false;
+    readFilters();
+};
 
 /* ============================================================
    EXPORTAR PDF
@@ -2328,7 +2851,7 @@ async function exportToPdf() {
     const cols = [
         { header:'Institución', dataKey:'nombre_institucion', width:45 },
         { header:'Siglas', dataKey:'siglas', width:15 },
-        { header:'Sector', dataKey:'sector', width:20 },
+        { header:'Tipo dependencia', dataKey:'sector', width:22 },
         { header:'Departamento', dataKey:'departamento', width:18 },
         { header:'Correo', dataKey:'correo', width:38 },
         { header:'Teléfono', dataKey:'telefono', width:18 },
@@ -2377,7 +2900,7 @@ async function exportToPdf() {
 function exportToExcel() {
     const filtered = filtrar();
     if (!filtered.length) { alert('No hay datos para exportar.'); return; }
-    const headers = ['Institución','Siglas','Sector','Departamento','Correo','Teléfono','Horario','Solicitud en línea','Información de oficio','Dirección'];
+    const headers = ['Institución','Siglas','Tipo dependencia','Departamento','Correo','Teléfono','Horario','Solicitud en línea','Información de oficio','Dirección'];
     const rows = filtered.map(i => [
         i.nombre_institucion,
         i.siglas || '',
@@ -2421,19 +2944,24 @@ if ('webkitSpeechRecognition' in window) {
 /* ============================================================
    EVENTOS
 ============================================================ */
-$sectorFilter.addEventListener('change', readFilters);
+$sectorFilter.addEventListener('change', () => {
+    populateInstFilter($sectorFilter.value);
+    readFilters();
+});
 $institucionFilter.addEventListener('change', readFilters);
 $searchInput.addEventListener('input', readFilters);
 $chkSolicitud.addEventListener('change', readFilters);
 $chkOficio.addEventListener('change', readFilters);
-document.getElementById('resetFilters').addEventListener('click', () => {
-    $sectorFilter.value = '';
-    $institucionFilter.value = '';
-    $searchInput.value = '';
-    $chkSolicitud.checked = false;
-    $chkOficio.checked = false;
-    readFilters();
-});
+
+const searchClearBtnEl = document.getElementById('searchClearBtn');
+if (searchClearBtnEl) {
+    searchClearBtnEl.addEventListener('click', () => {
+        $searchInput.value = '';
+        readFilters();
+    });
+}
+
+document.getElementById('resetFilters').addEventListener('click', window.resetAllFilters);
 document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
 document.getElementById('exportXlsBtn').addEventListener('click', exportToExcel);
 $themeBtn.addEventListener('click', () => {

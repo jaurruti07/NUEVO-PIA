@@ -335,7 +335,7 @@ function renderDashboardView() {
                     <button onclick="navigateTo('directorio')" style="padding: 0.6rem 1rem; background: #1A5C8F; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-address-book"></i> Directorio</button>
                     <button onclick="navigateTo('tableros')" style="padding: 0.6rem 1rem; background: #22C55E; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-bar"></i> Tableros</button>
                     <button onclick="navigateTo('riesgo')" style="padding: 0.6rem 1rem; background: #F97316; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-bullseye"></i> Riesgos</button>
-                    <button onclick="navigateTo('vehiculos')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-car"></i> Placa Transparente</button>
+                    <button onclick="navigateTo('vehiculos')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-car"></i> Transparencia Vehicular</button>
                     <button onclick="navigateTo('audit')" style="padding: 0.6rem 1rem; background: #163250; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-shield-alt"></i> Bitácora de Auditoría</button>
                 </div>
             </div>
@@ -725,7 +725,7 @@ function renderCrudView(module) {
         directorio: 'Directorio de Acceso al Ejecutivo',
         tableros: 'Tu Gobierno en Números (Tableros)',
         riesgo: 'Riesgo en la Mira',
-        vehiculos: 'Placa Transparente',
+        vehiculos: 'Transparencia Vehicular',
         portal: 'Métricas del Portal Principal'
     };
 
@@ -963,7 +963,7 @@ function openCrudModal(record = null) {
                     <input type="text" name="department" value="${record?.department || ''}" placeholder="Ej. Ministerio de Finanzas Públicas" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
                 <div>
-                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Tipo de Entidad</label>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Tipo dependencia</label>
                     <select name="tipoInst" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
                         <option value="Ministerio" ${record?.tipoInst === 'Ministerio' ? 'selected' : ''}>Ministerio</option>
                         <option value="Secretaría" ${record?.tipoInst === 'Secretaría' ? 'selected' : ''}>Secretaría</option>
@@ -1037,6 +1037,112 @@ function openCrudModal(record = null) {
             <div style="margin-bottom: 1rem;">
                 <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Observaciones / Motivo Inactividad</label>
                 <input type="text" name="inactiveReason" value="${record?.inactiveReason || ''}" placeholder="Ej. Vehículo en reparación mayor" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+            </div>
+        `;
+        modal.style.display = 'flex';
+        return;
+    }
+
+    if (currentModule === 'directorio') {
+        const solLinks = Array.isArray(record?.enlaces_solicitud) ? record.enlaces_solicitud : [];
+        const ofiLinks = Array.isArray(record?.enlaces_oficio) ? record.enlaces_oficio : [];
+
+        let solInputsHtml = '';
+        for (let i = 0; i < 5; i++) {
+            solInputsHtml += `
+                <div style="margin-bottom: 0.5rem;">
+                    <input type="url" name="enlace_solicitud_${i+1}" value="${solLinks[i] || ''}" placeholder="Ej. https://institucion.gob.gt/solicitud-${i+1}" style="width: 100%; padding: 0.55rem; border: 1px solid #A8BFCC; border-radius: 6px; font-size: 0.88rem;" />
+                </div>
+            `;
+        }
+
+        let ofiInputsHtml = '';
+        for (let i = 0; i < 5; i++) {
+            ofiInputsHtml += `
+                <div style="margin-bottom: 0.5rem;">
+                    <input type="url" name="enlace_oficio_${i+1}" value="${ofiLinks[i] || ''}" placeholder="Ej. https://institucion.gob.gt/oficio-${i+1}" style="width: 100%; padding: 0.55rem; border: 1px solid #A8BFCC; border-radius: 6px; font-size: 0.88rem;" />
+                </div>
+            `;
+        }
+
+        fieldsContainer.innerHTML = `
+            <h4 style="margin: 0 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">Datos Generales de la Institución</h4>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Nombre de la Institución</label>
+                <input type="text" name="nombre_institucion" value="${record?.nombre_institucion || ''}" placeholder="Ej. Ministerio de Finanzas Públicas" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Siglas</label>
+                    <input type="text" name="siglas" value="${record?.siglas || ''}" placeholder="Ej. MINFIN" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Tipo dependencia / Sector</label>
+                    <input type="text" name="sector" value="${record?.sector || ''}" placeholder="Ej. MINISTERIO, SECRETARÍA" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Correo Electrónico (UIP)</label>
+                    <input type="email" name="correo" value="${record?.correo || ''}" placeholder="Ej. uip@minfin.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Teléfono</label>
+                    <input type="text" name="telefono" value="${record?.telefono || ''}" placeholder="Ej. 2374-3000 ext. 100" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Departamento</label>
+                    <input type="text" name="departamento" value="${record?.departamento || 'Guatemala'}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Sitio Web Institucional</label>
+                    <input type="url" name="sitio_web" value="${record?.sitio_web || ''}" placeholder="https://www.minfin.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Dirección Física</label>
+                <input type="text" name="direccion" value="${record?.direccion || ''}" placeholder="Ej. 8a Avenida 20-87 Zona 1, Ciudad de Guatemala" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Horario de Atención</label>
+                <input type="text" name="horario_atencion" value="${record?.horario_atencion || 'Lunes a viernes de 08:00 a 16:00 hrs.'}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">Acceso a la Información (Hasta 5 enlaces directos)</h4>
+
+            <!-- Solicitud en línea -->
+            <div style="background: #F4F8FA; border: 1px solid #D1E0E8; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <label style="font-weight: 700; color: #0C1F30; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" name="solicitud_en_linea" ${record?.solicitud_en_linea ? 'checked' : ''} style="width: 18px; height: 18px;" />
+                        ¿Posee Solicitud de Información en Línea?
+                    </label>
+                </div>
+                <div style="font-size: 0.82rem; color: #5E7A8E; margin-bottom: 0.6rem;">
+                    <strong>Enlaces directos a Solicitud de Información (Máx. 5 enlaces):</strong>
+                </div>
+                ${solInputsHtml}
+            </div>
+
+            <!-- Información pública de oficio -->
+            <div style="background: #F4F8FA; border: 1px solid #D1E0E8; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <label style="font-weight: 700; color: #0C1F30; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" name="informacion_publica_oficio" ${record?.informacion_publica_oficio ? 'checked' : ''} style="width: 18px; height: 18px;" />
+                        ¿Posee Información Pública de Oficio?
+                    </label>
+                </div>
+                <div style="font-size: 0.82rem; color: #5E7A8E; margin-bottom: 0.6rem;">
+                    <strong>Enlaces directos a Información Pública de Oficio (Máx. 5 enlaces):</strong>
+                </div>
+                ${ofiInputsHtml}
             </div>
         `;
         modal.style.display = 'flex';
@@ -1138,6 +1244,71 @@ async function saveCrudRecord(e) {
             showToast(editingRecordId ? 'Vehículo actualizado y guardado en bitácora' : 'Vehículo registrado y guardado en bitácora', 'success');
             closeCrudModal();
             await fetchAndRenderTable('vehiculos');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+        return;
+    }
+
+    if (currentModule === 'directorio') {
+        const getVal = (name) => form.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+
+        const solLinks = [];
+        for (let i = 1; i <= 5; i++) {
+            const val = getVal(`enlace_solicitud_${i}`);
+            if (val) solLinks.push(val);
+        }
+
+        const ofiLinks = [];
+        for (let i = 1; i <= 5; i++) {
+            const val = getVal(`enlace_oficio_${i}`);
+            if (val) ofiLinks.push(val);
+        }
+
+        const hasSolCheck = form.querySelector('[name="solicitud_en_linea"]')?.checked || false;
+        const hasOfiCheck = form.querySelector('[name="informacion_publica_oficio"]')?.checked || false;
+
+        const recordObj = {
+            nombre_institucion: getVal('nombre_institucion'),
+            siglas: getVal('siglas'),
+            sector: getVal('sector'),
+            departamento: getVal('departamento') || 'Guatemala',
+            correo: getVal('correo'),
+            telefono: getVal('telefono'),
+            direccion: getVal('direccion'),
+            horario_atencion: getVal('horario_atencion'),
+            sitio_web: getVal('sitio_web'),
+            solicitud_en_linea: hasSolCheck || solLinks.length > 0,
+            informacion_publica_oficio: hasOfiCheck || ofiLinks.length > 0,
+            enlaces_solicitud: solLinks,
+            enlaces_oficio: ofiLinks,
+            ultima_actualizacion: new Date().toISOString().split('T')[0]
+        };
+
+        try {
+            let url = `${getApiBase()}/directorio`;
+            let method = 'POST';
+
+            if (editingRecordId) {
+                url += `/${editingRecordId}`;
+                method = 'PUT';
+                recordObj.id = Number(editingRecordId);
+            }
+
+            const res = await fetch(url, {
+                method,
+                headers: getHeaders(),
+                body: JSON.stringify(recordObj)
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error al guardar');
+            }
+
+            showToast(editingRecordId ? 'Institución actualizada y guardada en bitácora' : 'Institución registrada y guardada en bitácora', 'success');
+            closeCrudModal();
+            await fetchAndRenderTable('directorio');
         } catch (err) {
             showToast(err.message, 'error');
         }

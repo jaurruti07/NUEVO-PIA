@@ -23,7 +23,7 @@ const PAGE_DETAILS = {
   'directorio': { label: 'Directorio Ejecutivo de Acceso', route: '/directorio', file: '/directorio/data_acceso.json', icon: 'fa-address-book' },
   'gobierno_en_numeros': { label: 'Tu Gobierno en Números', route: '/gobierno_en_numeros', file: '/gobierno_en_numeros/data_tableros.json', icon: 'fa-chart-bar' },
   'riesgo': { label: 'Riesgo en la Mira', route: '/riesgo', file: '/riesgo/datos.json', icon: 'fa-bullseye' },
-  'vehiculos': { label: 'Placa Transparente', route: '/vehiculos', file: '/vehiculos/vehiculos.json', icon: 'fa-car' },
+  'vehiculos': { label: 'Transparencia Vehicular', route: '/vehiculos', file: '/vehiculos/vehiculos.json', icon: 'fa-car' },
   'index': { label: 'Portal Principal PIA', route: '/', file: '/data_portal.json', icon: 'fa-globe' }
 };
 

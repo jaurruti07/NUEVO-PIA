@@ -10,7 +10,7 @@ export async function initChatbotManager() {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <h1 style="font-family: var(--font-head); font-size: 1.6rem; color: var(--navy); display: flex; align-items: center; gap: 10px; margin: 0;">
-                    <img src="/img/red-fox.svg" alt="Zorro Rojo" style="width: 32px; height: 32px; object-fit: contain;" /> Asistente Virtual IA & Base de Conocimiento
+                    <img src="/img/integra-assistant.svg" alt="Asistente Lupita" style="width: 32px; height: 32px; object-fit: contain;" /> Asistente Virtual Lupita & Base de Conocimiento
                 </h1>
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin: 4px 0 0 0;">
                     Gestión centralizada del Chatbot Inteligente, monitoreo de métricas, entrenamiento de conocimientos y parámetros de Gemini LLM.

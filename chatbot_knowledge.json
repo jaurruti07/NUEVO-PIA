@@ -49,10 +49,10 @@
   },
   {
     "id": "kb-7",
-    "title": "Placa Transparente - Vehículos Oficiales",
+    "title": "Transparencia Vehicular - Vehículos Oficiales",
     "category": "Vehículos",
-    "content": "La herramienta 'Placa Transparente' permite a la ciudadanía verificar si un vehículo con placas oficiales pertenece al Estado, consultar su asignación institucional y reportar usos indebidos fuera de horario de trabajo o fines personales.",
-    "keywords": ["vehiculos", "placas oficiales", "placa transparente", "uso indebido", "carro del gobierno"],
+    "content": "La herramienta 'Transparencia Vehicular' permite a la ciudadanía verificar si un vehículo con placas oficiales pertenece al Estado, consultar su asignación institucional y reportar usos indebidos fuera de horario de trabajo o fines personales.",
+    "keywords": ["vehiculos", "placas oficiales", "transparencia vehicular", "placa transparente", "uso indebido", "carro del gobierno"],
     "link": "/vehiculos/"
   },
   {
