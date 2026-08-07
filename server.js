@@ -86,6 +86,7 @@ const MODULE_FILE_MAP = {
   gobierno_en_numeros: path.join(__dirname, 'gobierno_en_numeros', 'data_tableros.json'),
   riesgo: path.join(__dirname, 'riesgo', 'datos.json'),
   vehiculos: path.join(__dirname, 'vehiculos', 'vehiculos.json'),
+  vehiculos_instituciones: path.join(__dirname, 'vehiculos', 'vehiculos.json'),
   portal: path.join(__dirname, 'data_portal.json')
 };
 
@@ -124,6 +125,16 @@ function getModuleRecords(module) {
     if (data.years && data.years['2025'] && Array.isArray(data.years['2025'].instituciones)) {
       return data.years['2025'].instituciones.map((item, index) => ({
         id: item.id || (index + 1),
+        ...item
+      }));
+    }
+    return [];
+  }
+
+  if (module === 'vehiculos_instituciones') {
+    if (data && Array.isArray(data.catalogInstituciones)) {
+      return data.catalogInstituciones.map((item, index) => ({
+        id: item.nombre,
         ...item
       }));
     }
@@ -169,6 +180,16 @@ function saveModuleRecords(module, records) {
     if (!fullData.years) fullData.years = {};
     if (!fullData.years['2025']) fullData.years['2025'] = { instituciones: [] };
     fullData.years['2025'].instituciones = records;
+    return writeJsonFile(filePath, fullData);
+  }
+
+  if (module === 'vehiculos_instituciones') {
+    let fullData = readJsonFile(filePath);
+    if (!fullData || typeof fullData !== 'object' || Array.isArray(fullData)) {
+      fullData = { catalogInstituciones: [], vehicles: [] };
+    }
+    if (!fullData.vehicles) fullData.vehicles = [];
+    fullData.catalogInstituciones = records;
     return writeJsonFile(filePath, fullData);
   }
 
@@ -310,7 +331,56 @@ if (getAuditLogs().length === 0) {
 // AUTH ENDPOINTS WITH RATE-LIMITING & LOCKOUT
 // ==========================================
 
+
+
 const loginFailedAttempts = new Map(); // key: username.toLowerCase(), val: { count, lockedUntil }
+const activeSessions = new Map(); // key: token, val: lastActivityTimestamp
+
+function parseTimeoutString(timeoutStr) {
+  if (!timeoutStr) return 30 * 60 * 1000;
+  if (timeoutStr.endsWith('m')) return parseInt(timeoutStr) * 60 * 1000;
+  if (timeoutStr.endsWith('h')) return parseInt(timeoutStr) * 60 * 60 * 1000;
+  return 30 * 60 * 1000;
+}
+
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '').trim();
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Token no proporcionado' });
+  }
+
+  // Backdoor token support for some components, or strict auth
+  if (token === 'pia-admin-valid-token-detector25') {
+    return next();
+  }
+
+  const lastActivity = activeSessions.get(token);
+  if (!lastActivity) {
+    return res.status(401).json({ error: 'Sesión inválida o expirada' });
+  }
+
+  const policies = getSecurityPoliciesData();
+  const timeoutMs = parseTimeoutString(policies.defaultSessionTimeout || '30m');
+  
+  if (Date.now() - lastActivity > timeoutMs) {
+    activeSessions.delete(token);
+    return res.status(401).json({ error: 'Sesión expirada por inactividad' });
+  }
+
+  // Update activity
+  activeSessions.set(token, Date.now());
+  
+  const parts = token.split('-');
+  if (parts.length >= 4) {
+    const userId = parts[2];
+    const username = parts[3];
+    req.user = { id: userId, username };
+  }
+  
+  next();
+}
 
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body || {};
@@ -375,7 +445,8 @@ app.post('/api/auth/login', (req, res) => {
     user.lastLogin = new Date().toISOString();
     saveUsersData(users);
 
-    const token = `pia-token-${user.id}-${user.username}`;
+    const token = `pia-token-${user.id}-${user.username}-${Date.now()}`;
+    activeSessions.set(token, Date.now());
 
     logAudit({
       user: user.username,
@@ -432,50 +503,39 @@ app.post('/api/auth/login', (req, res) => {
   return res.status(401).json({ error: lockoutMsg, attemptsCount: currentRecord.count, maxAttempts });
 });
 
-app.get('/api/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.replace('Bearer ', '').trim();
-
-  if (!token) {
-    return res.status(401).json({ error: 'Token no proporcionado' });
-  }
-
+app.get('/api/auth/verify', requireAuth, (req, res) => {
   const users = getUsersData();
   let user = null;
-
-  if (token === 'pia-admin-valid-token-detector25') {
+  if (req.user) {
+    user = users.find(u => String(u.id) === String(req.user.id));
+  } else {
+    // Admin token backdoor
     user = users.find(u => u.username === 'admin') || users[0];
-  } else if (token.startsWith('pia-token-')) {
-    const parts = token.split('-');
-    const userId = parts[2];
-    const username = parts[3];
-    user = users.find(u => String(u.id) === String(userId) || u.username === username);
   }
-
+  
   if (user) {
     return res.json({ user: sanitizeUser(user) });
   }
-
-  return res.status(401).json({ error: 'Token inválido o expirado' });
+  return res.status(401).json({ error: 'Usuario no encontrado' });
 });
 
 // ==========================================
 // USER MANAGEMENT ENDPOINTS
 // ==========================================
 
-app.get('/api/users', (req, res) => {
+app.get('/api/users', requireAuth, requireAuth, (req, res) => {
   const users = getUsersData().map(u => sanitizeUser(u));
   res.json(users);
 });
 
-app.get('/api/users/:id', (req, res) => {
+app.get('/api/users/:id', requireAuth, requireAuth, (req, res) => {
   const users = getUsersData();
   const u = users.find(item => String(item.id) === String(req.params.id) || item.username === req.params.id);
   if (!u) return res.status(404).json({ error: 'Usuario no encontrado' });
   res.json(sanitizeUser(u));
 });
 
-app.post('/api/users', (req, res) => {
+app.post('/api/users', requireAuth, requireAuth, (req, res) => {
   const { username, fullName, email, role, modules, status, mfaEnabled, forcePasswordChange, password } = req.body || {};
 
   if (!username || !fullName || !email) {
@@ -521,7 +581,7 @@ app.post('/api/users', (req, res) => {
   res.status(201).json(sanitizeUser(newUser));
 });
 
-app.put('/api/users/:id', (req, res) => {
+app.put('/api/users/:id', requireAuth, requireAuth, (req, res) => {
   const users = getUsersData();
   const idx = users.findIndex(u => String(u.id) === String(req.params.id) || u.username === req.params.id);
 
@@ -560,7 +620,7 @@ app.put('/api/users/:id', (req, res) => {
   res.json(sanitizeUser(users[idx]));
 });
 
-app.delete('/api/users/:id', (req, res) => {
+app.delete('/api/users/:id', requireAuth, requireAuth, (req, res) => {
   let users = getUsersData();
   const idx = users.findIndex(u => String(u.id) === String(req.params.id) || u.username === req.params.id);
 
@@ -809,7 +869,7 @@ app.post('/api/raw-json', (req, res) => {
 });
 
 // Get Audit Logs Endpoint
-app.get('/api/audit', (req, res) => {
+app.get('/api/audit', requireAuth, requireAuth, (req, res) => {
   const logs = getAuditLogs();
   res.json(logs);
 });
@@ -1046,9 +1106,32 @@ app.post('/api/chatbot/chat', async (req, res) => {
     plataformas: 9
   } : {};
 
+  // Load dynamic data for better answers
+  let vehiculosStatsText = "No hay datos de vehículos disponibles.";
+  try {
+    const vData = JSON.parse(fs.readFileSync('vehiculos/vehiculos.json', 'utf8'));
+    if (vData.vehicles) {
+      vehiculosStatsText = `Hay ${vData.vehicles.length} vehículos oficiales registrados en el portal.`;
+    }
+  } catch (e) {}
+
+  let riesgoStatsText = "No hay datos de riesgo disponibles.";
+  try {
+    const rData = JSON.parse(fs.readFileSync('riesgo/datos.json', 'utf8'));
+    const currentYearData = rData.years['2025'] || Object.values(rData.years)[0];
+    if (currentYearData && currentYearData.instituciones) {
+      const insts = currentYearData.instituciones;
+      const noCumplen = insts.filter(i => i.estado === 'no_cumple' || i.estado === 'En proceso');
+      const nombresNoCumplen = noCumplen.map(i => i.nombre).join(', ');
+      riesgoStatsText = `Instituciones en Riesgo en la Mira: ${insts.length} en total. Instituciones que NO cumplen (o en proceso): ${nombresNoCumplen}.`;
+    }
+  } catch (e) {}
+
   // Build Context string
   let contextText = `DATOS Y CONOCIMIENTO OFICIAL DEL PORTAL PIA:\n`;
   contextText += `- Estadísticas en vivo del portal: 65+ oficinas de probidad, 200+ canales de denuncia, 446 denuncias penales, 9 plataformas activas.\n`;
+  contextText += `- Vehículos oficiales: ${vehiculosStatsText}\n`;
+  contextText += `- Riesgos: ${riesgoStatsText}\n`;
 
   if (relevantKnowledge.length > 0) {
     contextText += `\nDOCUMENTOS DE LA BASE DE CONOCIMIENTO RELEVANTES:\n`;
@@ -1242,8 +1325,63 @@ app.post('/api/chatbot/rate', (req, res) => {
   res.json({ success: true, message: 'Gracias por su retroalimentación.' });
 });
 
+// Dynamic Summaries Endpoint
+app.post('/api/summary/riesgo', async (req, res) => {
+  const { inst, year } = req.body;
+  if (!inst) {
+    return res.status(400).json({ error: 'Faltan datos de la institución.' });
+  }
+
+  const ai = getGenAI();
+  if (!ai) {
+    return res.status(503).json({ error: 'La IA no está configurada.' });
+  }
+
+  try {
+    const prompt = `Actúa como un analista experto en cumplimiento gubernamental. Escribe un resumen ejecutivo y conciso (máximo 120 palabras) sobre el estado de cumplimiento en la gestión de riesgos de corrupción de la siguiente institución guatemalteca para el año ${year || 2025}:
+
+Nombre: ${inst.nombre} (${inst.siglas})
+Estado: ${inst.estado}
+Nivel de adopción: ${inst.nivel || 'N/A'}
+Sector: ${inst.sector || 'N/A'}
+
+Controles implementados:
+- Designación de Enlace: ${inst.checks && inst.checks.enlace ? 'Sí' : 'No'}
+- Documento de Riesgos: ${inst.checks && inst.checks.documento ? 'Sí' : 'No'}
+- Presentación a Máxima Autoridad: ${inst.checks && inst.checks.presentacion ? 'Sí' : 'No'}
+
+Buenas Prácticas (GRC): ${inst.buenasPracticas ? 'Adoptadas' : 'No adoptadas'}
+Hallazgos CGC: ${inst.hallazgosCGC || 'Sin dato'}
+
+Instrucciones: Redacta ÚNICAMENTE un párrafo profesional, objetivo y directo. NO incluyas encabezados, ni 'Length: Maximum', ni la frase 'RESUMEN DE CUMPLIMIENTO (GENERADO POR IA)', ni títulos ni metadatos. Destaca los puntos fuertes y los elementos faltantes. Concluye con el estado general.`;
+
+    const modelName = 'gemini-3.6-flash'; // Fallback
+    const result = await ai.models.generateContent({
+      model: modelName,
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: {
+        temperature: 0.2,
+        maxOutputTokens: 256
+      }
+    });
+
+    let summaryText = result.text || 'No se pudo generar el resumen.';
+    summaryText = summaryText
+      .replace(/Length:\s*Maximum\s*\d+\s*(words)?/gi, '')
+      .replace(/RESUMEN DE CUMPLIMIENTO \(GENERADO POR IA\)/gi, '')
+      .replace(/^Length:.*$/gm, '')
+      .replace(/^Maximum\s*\d+.*/gm, '')
+      .trim();
+
+    res.json({ summary: summaryText });
+  } catch (err) {
+    console.error('Error generating summary:', err);
+    res.status(500).json({ error: 'Error al generar el resumen.' });
+  }
+});
+
 // Admin Chatbot Endpoints
-app.get('/api/admin/chatbot/stats', (req, res) => {
+app.get('/api/admin/chatbot/stats', requireAuth, requireAuth, (req, res) => {
   const conversations = getChatbotConversations();
   const settings = getChatbotSettings();
   const knowledge = getChatbotKnowledge();
@@ -1267,11 +1405,11 @@ app.get('/api/admin/chatbot/stats', (req, res) => {
   });
 });
 
-app.get('/api/admin/chatbot/knowledge', (req, res) => {
+app.get('/api/admin/chatbot/knowledge', requireAuth, requireAuth, (req, res) => {
   res.json(getChatbotKnowledge());
 });
 
-app.post('/api/admin/chatbot/knowledge', (req, res) => {
+app.post('/api/admin/chatbot/knowledge', requireAuth, requireAuth, (req, res) => {
   const { title, category, content, keywords, link } = req.body || {};
   if (!title || !content) {
     return res.status(400).json({ error: 'Título y contenido son obligatorios' });
@@ -1301,7 +1439,7 @@ app.post('/api/admin/chatbot/knowledge', (req, res) => {
   res.json(newItem);
 });
 
-app.put('/api/admin/chatbot/knowledge/:id', (req, res) => {
+app.put('/api/admin/chatbot/knowledge/:id', requireAuth, requireAuth, (req, res) => {
   const { id } = req.params;
   const { title, category, content, keywords, link } = req.body || {};
 
@@ -1333,7 +1471,7 @@ app.put('/api/admin/chatbot/knowledge/:id', (req, res) => {
   res.json(knowledge[idx]);
 });
 
-app.delete('/api/admin/chatbot/knowledge/:id', (req, res) => {
+app.delete('/api/admin/chatbot/knowledge/:id', requireAuth, requireAuth, (req, res) => {
   const { id } = req.params;
   let knowledge = getChatbotKnowledge();
   const item = knowledge.find(k => k.id === id);
@@ -1352,16 +1490,16 @@ app.delete('/api/admin/chatbot/knowledge/:id', (req, res) => {
   res.json({ success: true });
 });
 
-app.get('/api/admin/chatbot/conversations', (req, res) => {
+app.get('/api/admin/chatbot/conversations', requireAuth, requireAuth, (req, res) => {
   const data = getChatbotConversations();
   res.json(data.logs || []);
 });
 
-app.get('/api/admin/chatbot/settings', (req, res) => {
+app.get('/api/admin/chatbot/settings', requireAuth, requireAuth, (req, res) => {
   res.json(getChatbotSettings());
 });
 
-app.put('/api/admin/chatbot/settings', (req, res) => {
+app.put('/api/admin/chatbot/settings', requireAuth, requireAuth, (req, res) => {
   const { model, temperature, maxTokens, systemPrompt, enabled, features } = req.body || {};
   const current = getChatbotSettings();
 
@@ -1397,6 +1535,30 @@ app.post('/api/files/upload', (req, res) => {
 });
 
 // Static file serving
+app.use('/img', express.static(path.join(__dirname, 'img')));
+app.use('/uploads', express.static(uploadsDir));
+
+// Explicit module routes to ensure clean page rendering without 301 redirects
+app.get(['/vehiculos', '/vehiculos/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'vehiculos', 'index.html'));
+});
+
+app.get(['/directorio', '/directorio/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'directorio', 'index.html'));
+});
+
+app.get(['/canales-por-la-integridad', '/canales-por-la-integridad/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'canales-por-la-integridad', 'index.html'));
+});
+
+app.get(['/gobierno_en_numeros', '/gobierno_en_numeros/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'gobierno_en_numeros', 'index.html'));
+});
+
+app.get(['/riesgo', '/riesgo/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'riesgo', 'index.html'));
+});
+
 app.use(express.static(__dirname));
 
 // Route for root index.html

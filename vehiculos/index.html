@@ -177,19 +177,62 @@
             padding: 4.5rem 0 4rem;
             text-align: center;
         }
-        .search-hero-bg {
+        .hero-bg-slider {
             position: absolute; inset: 0; z-index: 0;
-            background-image: url('https://i.postimg.cc/HnJRMrDG/vehiculos-Oficiales.png');
-            background-size: cover; background-position: center;
-            filter: grayscale(30%) brightness(0.30) saturate(0.5);
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center 30%;
+            filter: brightness(0.48) contrast(1.1);
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 7s ease-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+            padding: 5px 12px;
+            background: rgba(5, 17, 31, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 50px;
+        }
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .hero-dot:hover {
+            background: rgba(0, 194, 224, 0.8);
+        }
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 12px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 194, 224, 0.6);
         }
         .search-hero::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
             background:
-                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.40), transparent),
-                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.15), transparent),
-                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.85) 100%);
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.45), transparent),
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.22), transparent),
+                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.90) 100%);
         }
         .search-hero::after {
             content: '';
@@ -363,13 +406,26 @@
             overflow: hidden;
             margin: 2rem auto 0;
             max-width: 820px;
-            animation: fadeSlideUp 0.5s ease;
-            transition: all 0.3s;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
         }
-        .result-card-modern.visible { display: block; }
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
+        .result-card-modern.visible {
+            display: block;
+            animation: fadeSlideDown 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .result-card-modern.visible:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 194, 224, 0.35);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 194, 224, 0.15);
+        }
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-32px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .result-card-header {
@@ -395,32 +451,85 @@
             letter-spacing: 0;
         }
         .result-card-header .status-badge {
-            padding: 0.35rem 1.2rem;
+            padding: 0.4rem 1.3rem;
             border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.75rem;
+            font-weight: 700;
+            font-size: 0.78rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
         }
         .status-badge.cumple {
-            background: rgba(34,197,94,0.2);
+            background: rgba(34, 197, 94, 0.18);
             color: #4ADE80;
-            border: 1px solid rgba(34,197,94,0.3);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            animation: pulseStatusCumple 2.2s infinite ease-in-out;
         }
         .status-badge.parcial {
-            background: rgba(245,166,35,0.2);
+            background: rgba(245, 158, 11, 0.18);
             color: #FBBF24;
-            border: 1px solid rgba(245,166,35,0.3);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            animation: pulseStatusParcial 2.2s infinite ease-in-out;
         }
         .status-badge.proceso {
-            background: rgba(43,130,201,0.2);
+            background: rgba(43, 130, 201, 0.18);
             color: #60A5FA;
-            border: 1px solid rgba(43,130,201,0.3);
+            border: 1px solid rgba(43, 130, 201, 0.4);
+            animation: pulseStatusProceso 2.2s infinite ease-in-out;
         }
         .status-badge.nocumple {
-            background: rgba(239,68,68,0.2);
+            background: rgba(239, 68, 68, 0.18);
             color: #F87171;
-            border: 1px solid rgba(239,68,68,0.3);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            animation: pulseStatusNoCumple 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseStatusCumple {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.35);
+                border-color: rgba(34, 197, 94, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 14px 3px rgba(34, 197, 94, 0.65);
+                border-color: rgba(74, 222, 128, 0.95);
+                transform: scale(1.03);
+            }
+        }
+        @keyframes pulseStatusParcial {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.35);
+                border-color: rgba(245, 158, 11, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 14px 3px rgba(245, 158, 11, 0.65);
+                border-color: rgba(251, 191, 36, 0.95);
+                transform: scale(1.03);
+            }
+        }
+        @keyframes pulseStatusProceso {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(43, 130, 201, 0.35);
+                border-color: rgba(43, 130, 201, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 14px 3px rgba(43, 130, 201, 0.65);
+                border-color: rgba(96, 165, 250, 0.95);
+                transform: scale(1.03);
+            }
+        }
+        @keyframes pulseStatusNoCumple {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+                border-color: rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 14px 3px rgba(239, 68, 68, 0.65);
+                border-color: rgba(248, 113, 113, 0.95);
+                transform: scale(1.03);
+            }
         }
 
         .result-card-body {
@@ -480,6 +589,67 @@
             background: #fef3c7; color: #92400e;
         }
         .badge-multas.sin-multas { background: #d1fae5; color: #065f46; }
+
+        /* Historial de Cumplimiento Vehicular (Line Chart) */
+        .result-card-history {
+            background: #061524;
+            border-top: 1px solid rgba(0, 194, 224, 0.15);
+            border-bottom: 1px solid rgba(0, 194, 224, 0.15);
+            padding: 1.5rem 2rem;
+            margin: 0.5rem 0 1rem 0;
+            position: relative;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .history-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: var(--font-head);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .history-title i {
+            color: var(--cyan);
+            font-size: 1.1rem;
+        }
+        .history-badge {
+            background: rgba(0, 194, 224, 0.12);
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            color: var(--cyan);
+            font-family: var(--font-head);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 50px;
+            letter-spacing: 0.04em;
+        }
+        .history-desc {
+            font-size: 0.84rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        .history-desc strong {
+            color: var(--cyan);
+        }
+        .history-chart-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: rgba(5, 17, 31, 0.65);
+            border: 1px solid rgba(0, 194, 224, 0.2);
+            border-radius: 16px;
+            padding: 0.8rem 1rem 0.5rem;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+        }
 
         .result-card-actions {
             padding: 0 2rem 1.5rem;
@@ -561,8 +731,34 @@
         }
         .semaphore-kpis {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
+        }
+        .btn-repo-detail-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            background: linear-gradient(135deg, var(--blue-bright) 0%, var(--cyan) 100%);
+            color: #ffffff;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 14px rgba(0, 194, 224, 0.3);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .btn-repo-detail-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 194, 224, 0.45);
+            filter: brightness(1.08);
+        }
+        .btn-repo-detail-primary:active {
+            transform: translateY(0);
         }
         .semaphore-kpi {
             background: var(--surface-card);
@@ -1731,7 +1927,662 @@
             .repo-detail-stats { grid-template-columns: 1fr 1fr; }
             .result-card-body .field .value { font-size: 0.85rem; }
         }
-    </style>
+    
+        /* Push notifications mobile */
+        .push-notify-banner { background:#1a365d; border-radius:var(--radius-2xl); padding:1.4rem 1.8rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; box-shadow:0 10px 30px rgba(5,17,31,0.2); color:#fff; }
+        .push-notify-content { display:flex; align-items:center; gap:1.2rem; flex:1 1 300px; }
+        .push-notify-icon { width:52px; height:52px; border-radius:16px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.4); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--cyan); flex-shrink:0; box-shadow:0 0 15px rgba(0,194,224,0.2); }
+        .push-notify-info h4 { font-family:var(--font-head); font-size:1.08rem; font-weight:800; margin-bottom:0.25rem; color:#fff; display:flex; align-items:center; gap:0.6rem; }
+        .push-notify-info p { font-size:0.85rem; color:rgba(255,255,255,0.8); line-height:1.45; margin:0; }
+        .push-notify-actions { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; }
+        .btn-push-subscribe { background:var(--cyan); color:var(--navy); border:none; padding:0.65rem 1.3rem; border-radius:40px; font-weight:700; font-size:0.82rem; display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.25s; font-family:var(--font-head); box-shadow:0 4px 12px rgba(0,194,224,0.3); }
+        .btn-push-subscribe:hover { background:#00ddf7; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,194,224,0.45); }
+        .btn-push-subscribe.active { background:#16a34a; color:#fff; box-shadow:0 4px 12px rgba(22,163,74,0.3); }
+        
+        .push-status-badge { font-size:0.75rem; padding:0.2rem 0.6rem; border-radius:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .push-status-default { background:rgba(255,255,255,0.1); color:#fff; }
+        .push-status-granted { background:rgba(22,163,74,0.2); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+        .push-status-denied { background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(248,113,113,0.3); }
+        
+        #directorio.theme-dark .push-notify-banner, #gobierno-numeros.theme-dark .push-notify-banner { background: #0F1E2E; border:1px solid rgba(255,255,255,0.05); }
+        #directorio.theme-light .push-notify-banner, #gobierno-numeros.theme-light .push-notify-banner { background: #1a365d; }
+    
+
+        /* ============================================================
+           NUEVAS FUNCIONALIDADES TRANSPARENCIA VEHICULAR 2025
+        ============================================================ */
+        .criterios-dashboard-card { transition: all 0.3s ease; }
+        .criterio-card-item {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.8rem;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .criterio-card-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        .criterio-card-header { display: flex; align-items: flex-start; gap: 0.8rem; }
+        .criterio-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(0,194,224,0.12);
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .criterio-card-title {
+            font-family: var(--font-head);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+        .criterio-bar-track {
+            height: 8px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.4rem 0;
+        }
+        .criterio-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        .criterio-badge-critico {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239,68,68,0.25);
+            padding: 0.2rem 0.55rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .criterio-badge-ok {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(34,197,94,0.1);
+            color: var(--green);
+            border: 1px solid rgba(34,197,94,0.25);
+            padding: 0.2rem 0.55rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5,17,31,0.75);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .modal-overlay.active { display: flex !important; }
+        .modal-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+        }
+        .modal-tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.1rem;
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .modal-tab-btn:hover { color: var(--navy); background: rgba(0,0,0,0.04); }
+        .modal-tab-btn.active { color: var(--cyan); background: rgba(0,194,224,0.1); }
+        .criterio-check-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .badge-status-check {
+            padding: 0.35rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-status-check.pass {
+            background: rgba(34,197,94,0.12);
+            color: #16a34a;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+        .badge-status-check.fail {
+            background: rgba(239,68,68,0.12);
+            color: #dc2626;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        .btn-doc-link {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            color: var(--blue-bright);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-doc-link:hover {
+            background: var(--blue-bright);
+            color: #fff;
+            border-color: var(--blue-bright);
+        }
+        .btn-canales-integridad {
+            background: linear-gradient(135deg, #05111F, #1A5C8F) !important;
+            color: #fff !important;
+            padding: 0.8rem 1.5rem !important;
+            border-radius: 30px !important;
+            font-family: var(--font-head);
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 15px rgba(5,17,31,0.25) !important;
+            transition: all 0.25s ease !important;
+            text-decoration: none !important;
+        }
+        .btn-canales-integridad:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,194,224,0.3) !important;
+        }
+        .custom-select-styled {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 0.55rem 1.1rem;
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .custom-select-styled:focus, .custom-select-styled.has-value {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0,194,224,0.15);
+        }
+
+        /* ============================================================
+           SECCIÓN COMPARATIVA INSTITUCIONAL Y SPIDER CHART (RADAR)
+        ============================================================ */
+        .comparison-section {
+            padding: 4.5rem 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            position: relative;
+        }
+
+        .comparison-controls-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .compare-selectors-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            gap: 1.25rem;
+            align-items: center;
+            width: 100%;
+        }
+
+        .compare-select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .compare-select-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .compare-select-label.inst-a { color: var(--blue-bright); }
+        .compare-select-label.inst-b { color: var(--amber); }
+
+        .compare-select {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .compare-select:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0, 194, 224, 0.15);
+        }
+
+        .btn-swap-compare {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--navy);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            align-self: flex-end;
+            margin-bottom: 2px;
+        }
+
+        .btn-swap-compare:hover {
+            transform: rotate(180deg) scale(1.08);
+            background: var(--cyan);
+            color: var(--navy);
+            box-shadow: 0 0 16px rgba(0, 194, 224, 0.4);
+        }
+
+        .compare-preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border);
+            align-items: center;
+        }
+
+        .compare-preset-pill {
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .compare-preset-pill:hover {
+            background: var(--navy);
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .comparison-main-grid {
+            display: grid;
+            grid-template-columns: 290px 1fr 290px;
+            gap: 1.5rem;
+            align-items: stretch;
+            margin-bottom: 2.5rem;
+        }
+
+        .compare-inst-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .compare-inst-card.card-a {
+            border-top: 4px solid var(--blue-bright);
+        }
+
+        .compare-inst-card.card-b {
+            border-top: 4px solid var(--amber);
+        }
+
+        .compare-card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: fit-content;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-a .compare-card-badge {
+            background: rgba(43, 130, 201, 0.12);
+            color: var(--blue-bright);
+        }
+
+        .card-b .compare-card-badge {
+            background: rgba(245, 166, 35, 0.12);
+            color: var(--amber);
+        }
+
+        .compare-inst-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.35;
+            margin-bottom: 0.25rem;
+        }
+
+        .compare-inst-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .compare-kpi-ring {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .compare-kpi-val {
+            font-family: var(--font-head);
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-a .compare-kpi-val { color: var(--blue-bright); }
+        .card-b .compare-kpi-val { color: var(--amber); }
+
+        .compare-kpi-lbl {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .compare-metrics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            font-size: 0.83rem;
+        }
+
+        .compare-metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .compare-metric-item:last-child { border-bottom: none; }
+
+        .compare-spider-container {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            min-height: 380px;
+        }
+
+        .spider-info-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            margin-left: 0.35rem;
+            vertical-align: middle;
+        }
+
+        .spider-info-icon {
+            color: var(--cyan);
+            font-size: 0.92rem;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .spider-info-wrapper:hover .spider-info-icon {
+            color: var(--blue-bright);
+            transform: scale(1.2);
+        }
+
+        .spider-info-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 320px;
+            background: #0c1f30;
+            color: #ffffff;
+            border: 1px solid var(--cyan);
+            border-radius: 14px;
+            padding: 1rem 1.1rem;
+            position: absolute;
+            top: 130%;
+            left: 0;
+            transform: translateY(6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+            z-index: 100;
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+            pointer-events: none;
+            font-size: 0.78rem;
+            line-height: 1.45;
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: normal;
+        }
+
+        .spider-info-tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 12px;
+            border-width: 7px;
+            border-style: solid;
+            border-color: transparent transparent var(--cyan) transparent;
+        }
+
+        .spider-info-wrapper:hover .spider-info-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .spider-tooltip-title {
+            font-family: var(--font-head);
+            font-weight: 800;
+            font-size: 0.84rem;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .spider-tooltip-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.38rem;
+        }
+
+        .spider-tooltip-list li {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.75rem;
+        }
+
+        .spider-tooltip-list li strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .spider-chart-wrap {
+            width: 100%;
+            height: 320px;
+            position: relative;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .comparison-details-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .comparison-table-wrap {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .comparison-table th {
+            background: var(--surface);
+            padding: 0.85rem 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(0, 194, 224, 0.03);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-pill.cumple { background: rgba(34, 197, 94, 0.12); color: #15803d; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-pill.proceso { background: rgba(245, 166, 35, 0.12); color: #b45309; border: 1px solid rgba(245, 166, 35, 0.3); }
+        .status-pill.nocumple { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .diff-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .diff-badge.equal { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
+        .diff-badge.win-a { background: rgba(43, 130, 201, 0.15); color: var(--blue-bright); }
+        .diff-badge.win-b { background: rgba(245, 166, 35, 0.15); color: #d97706; }
+
+        @media (max-width: 992px) {
+            .comparison-main-grid {
+                grid-template-columns: 1fr;
+            }
+            .compare-selectors-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn-swap-compare {
+                align-self: center;
+                margin: 0.5rem 0;
+            }
+        }
+
+</style>
 </head>
 <body>
 
@@ -1740,7 +2591,7 @@
         <nav class="navbar">
             <div class="logo-area">
                 <a href="../" title="Portal Principal">
-                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" class="gov-logo">
+                    <img src="/img/L1.png" alt="Gobierno de Guatemala" class="gov-logo">
                 </a>
             </div>
 
@@ -1753,6 +2604,7 @@
                     <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                        <li><a href="../vehiculos/" class="active"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
                 <li class="menu-group">
@@ -1762,7 +2614,6 @@
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
                         <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
                         <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
-                        <li><a href="../vehiculos/" class="active"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
                 <li class="menu-group">
@@ -1784,7 +2635,20 @@
 </header>
 
 <section class="search-hero">
-    <div class="search-hero-bg"></div>
+    <div class="hero-bg-slider" id="heroBgSlider">
+        <div class="hero-slide active" style="background-image: url('/img/vehiculosOficiales.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/vehiculo1.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/vehiculos2.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/vehiculos3.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/vehiculos4.png');"></div>
+    </div>
+    <div class="hero-slider-dots" id="heroSliderDots">
+        <button class="hero-dot active" aria-label="Diapositiva 1"></button>
+        <button class="hero-dot" aria-label="Diapositiva 2"></button>
+        <button class="hero-dot" aria-label="Diapositiva 3"></button>
+        <button class="hero-dot" aria-label="Diapositiva 4"></button>
+        <button class="hero-dot" aria-label="Diapositiva 5"></button>
+    </div>
     <div class="container search-hero-inner">
         <div class="badge"><span></span> Consulta de Vehículo Oficial</div>
         <h1>Transparencia <em>Vehicular</em></h1>
@@ -1818,8 +2682,24 @@
             </div>
             <div class="result-card-body" id="resultBody"></div>
             <div class="result-card-footer" id="resultFooter"></div>
+
+            <!-- Chart.js Historial de Cumplimiento -->
+            <div class="result-card-history" id="resultHistory" style="display: none;">
+                <div class="history-header">
+                    <div class="history-title">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Historial de Cumplimiento</span>
+                    </div>
+                    <span class="history-badge" id="historyCountBadge">0 evaluaciones</span>
+                </div>
+                <p class="history-desc">Evolución del estado de cumplimiento, multas y solvencia tributaria (ISCV) a lo largo del tiempo para la placa <strong id="historyPlateLabel"></strong>.</p>
+                <div class="history-chart-container">
+                    <canvas id="complianceHistoryChart"></canvas>
+                </div>
+            </div>
+
             <div class="result-card-actions">
-                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener" class="btn-report"><i class="fas fa-flag"></i> Reportar irregularidad</a>
+                <a href="../canales-por-la-integridad/#directorio" class="btn-report"><i class="fas fa-flag"></i> Reportar irregularidad</a>
                 <button class="btn-close-result" id="closeResult"><i class="fas fa-times"></i> Cerrar</button>
             </div>
         </div>
@@ -1837,32 +2717,56 @@
         <div class="semaphore-grid">
             <div>
                 <div class="semaphore-kpis" id="semaphoreKPIs">
-                    <div class="semaphore-kpi"><div class="num green" id="kpiCumple">0</div><div class="label">Cumple</div></div>
-                    <div class="semaphore-kpi"><div class="num blue" id="kpiParcial">0</div><div class="label">Parcial</div></div>
-                    <div class="semaphore-kpi"><div class="num amber" id="kpiProceso">0</div><div class="label">En proceso</div></div>
-                    <div class="semaphore-kpi"><div class="num red" id="kpiNoCumple">0</div><div class="label">No cumple</div></div>
+                    <div class="semaphore-kpi"><div class="num green" id="kpiCumple">0</div><div class="label">Cumple (7/7)</div></div>
+                    <div class="semaphore-kpi"><div class="num amber" id="kpiProceso">0</div><div class="label">En proceso (1-6)</div></div>
+                    <div class="semaphore-kpi"><div class="num red" id="kpiNoCumple">0</div><div class="label">No cumple (0/7)</div></div>
                 </div>
-                <div style="margin-top:0.5rem; font-size:0.9rem; color:var(--text-muted);">
-                    <i class="fas fa-info-circle"></i> Basado en el estado del vehículo, multas e ISCV.
+                <div style="margin-top:0.85rem; font-size:0.88rem; color:var(--text-muted); line-height:1.5;">
+                    <div style="font-weight:700; color:var(--text-main); margin-bottom:0.35rem;">
+                        <i class="fas fa-info-circle" style="color:var(--cyan);"></i> Basado en el cumplimiento de criterios evaluados
+                    </div>
+                    <div style="font-size:0.82rem; display:flex; flex-direction:column; gap:0.25rem;">
+                        <span>🟢 <strong>Cumple:</strong> Dependencias que cumplen con los 7 criterios evaluados (100.00%).</span>
+                        <span>🟡 <strong>En proceso:</strong> Dependencias con más de un criterio cumplido (entre 1 y 6 criterios).</span>
+                        <span>🔴 <strong>No cumple:</strong> Dependencias que no tienen ningún criterio cumplido (0/7).</span>
+                    </div>
                 </div>
             </div>
             <div class="semaphore-bar">
                 <div class="bar-track" id="semaphoreBar">
                     <div class="segment green" style="width:0%;"></div>
-                    <div class="segment blue" style="width:0%;"></div>
                     <div class="segment amber" style="width:0%;"></div>
                     <div class="segment red" style="width:0%;"></div>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-                    <span class="global-pct" id="globalPct">0%</span>
-                    <span style="font-weight:600; color:var(--text-muted);">del parque cumple normativa 2024</span>
+                    <span class="global-pct" id="globalPct">0.00%</span>
+                    <span style="font-weight:600; color:var(--text-muted);">cumplimiento institucional promedio (7 variables)</span>
                 </div>
                 <div class="semaphore-legend">
-                    <span><span class="dot green"></span> Cumple</span>
-                    <span><span class="dot blue"></span> Parcial</span>
-                    <span><span class="dot amber"></span> En proceso</span>
-                    <span><span class="dot red"></span> No cumple</span>
+                    <span><span class="dot green"></span> Cumple (7/7)</span>
+                    <span><span class="dot amber"></span> En proceso (1-6)</span>
+                    <span><span class="dot red"></span> No cumple (0/7)</span>
                 </div>
+            </div>
+        </div>
+
+        
+        <!-- DASHBOARD DE CRITERIOS EVALUADOS DEL LINEAMIENTO TÉCNICO -->
+        <div class="criterios-dashboard-card" style="margin-top:2rem; margin-bottom:2rem; background:var(--surface-card); border:1px solid var(--border); border-radius:20px; padding:1.8rem; box-shadow:var(--shadow-md);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.2rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+                <div>
+                    <div class="tag"><span></span> Lineamiento Técnico 2024</div>
+                    <h3 style="font-family:var(--font-head); font-size:1.35rem; font-weight:800; color:var(--text-main); margin:0.2rem 0;">Criterios Evaluados de Cumplimiento Institucional</h3>
+                    <p style="color:var(--text-muted); font-size:0.88rem; margin:0;">Análisis del nivel de cumplimiento y criterios con mayor nivel de incumplimiento en el Organismo Ejecutivo.</p>
+                </div>
+                <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+                    <button class="btn-sm outline" onclick="exportCriteriosReportPDF()"><i class="fas fa-file-pdf"></i> Reporte Criterios PDF</button>
+                    <button class="btn-sm outline" onclick="exportCriteriosReportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                </div>
+            </div>
+
+            <div class="criterios-stats-grid" id="criteriosStatsGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.2rem;">
+                <!-- Filled dynamically by renderCriteriosDashboard() -->
             </div>
         </div>
 
@@ -1890,52 +2794,54 @@
                     </div>
 
                     <div class="repo-detail-stats" id="detailStats">
-                        <div class="repo-detail-stat"><div class="num" id="detailTotal">0</div><div class="lbl">Placas</div></div>
-                        <div class="repo-detail-stat"><div class="num green" id="detailCumple">0</div><div class="lbl">Cumple</div></div>
-                        <div class="repo-detail-stat"><div class="num amber" id="detailAlertas">0</div><div class="lbl">Con alertas</div></div>
-                        <div class="repo-detail-stat"><div class="num blue" id="detailExcepcional">0</div><div class="lbl">Uso excepcional</div></div>
+                        <div class="repo-detail-stat"><div class="num green" id="detailCumple">7</div><div class="lbl">Cumple</div></div>
+                        <div class="repo-detail-stat"><div class="num amber" id="detailProceso">0</div><div class="lbl">En proceso</div></div>
+                        <div class="repo-detail-stat"><div class="num red" id="detailNoCumple">0</div><div class="lbl">No cumple</div></div>
+                        <div class="repo-detail-stat"><div class="num blue" id="detailTotalPlacas">0</div><div class="lbl">Placas flotilla</div></div>
                     </div>
 
                     <div class="distro-section-detail" id="distroSection">
-                        <h5>Distribución por estado</h5>
+                        <h5 style="margin-bottom:0.8rem; font-family:var(--font-head); font-weight:700;">Estado de los 7 Criterios del Lineamiento Técnico</h5>
                         <div id="distroRows">
                             <div class="distro-row">
                                 <span class="distro-label"><span class="dot green"></span> Cumple</span>
-                                <div class="distro-bar-track"><div class="distro-fill green" id="distroCumple" style="width:0%;"></div></div>
-                                <span class="distro-value" id="distroCumpleVal">0</span>
-                            </div>
-                            <div class="distro-row">
-                                <span class="distro-label"><span class="dot blue"></span> Parcial</span>
-                                <div class="distro-bar-track"><div class="distro-fill blue" id="distroParcial" style="width:0%;"></div></div>
-                                <span class="distro-value" id="distroParcialVal">0</span>
+                                <div class="distro-bar-track"><div class="distro-fill green" id="distroCumple" style="width:100%;"></div></div>
+                                <span class="distro-value" id="distroCumpleVal">7 Criterios</span>
                             </div>
                             <div class="distro-row">
                                 <span class="distro-label"><span class="dot amber"></span> En proceso</span>
                                 <div class="distro-bar-track"><div class="distro-fill amber" id="distroProceso" style="width:0%;"></div></div>
-                                <span class="distro-value" id="distroProcesoVal">0</span>
+                                <span class="distro-value" id="distroProcesoVal">0 Criterios</span>
                             </div>
                             <div class="distro-row">
                                 <span class="distro-label"><span class="dot red"></span> No cumple</span>
                                 <div class="distro-bar-track"><div class="distro-fill red" id="distroNoCumple" style="width:0%;"></div></div>
-                                <span class="distro-value" id="distroNoCumpleVal">0</span>
+                                <span class="distro-value" id="distroNoCumpleVal">0 Criterios</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="composition-bar">
-                        <h5>Composición</h5>
+                    <div class="composition-bar" style="margin-top:1.2rem;">
+                        <h5 style="margin-bottom:0.6rem; font-family:var(--font-head); font-weight:700;">Composición de Criterios (7)</h5>
                         <div class="comp-track" id="compTrack">
-                            <div class="comp-segment green" id="compCumple" style="width:0%;"></div>
-                            <div class="comp-segment blue" id="compParcial" style="width:0%;"></div>
+                            <div class="comp-segment green" id="compCumple" style="width:100%;"></div>
                             <div class="comp-segment amber" id="compProceso" style="width:0%;"></div>
                             <div class="comp-segment red" id="compNoCumple" style="width:0%;"></div>
                         </div>
                         <div class="comp-legend">
                             <span><span class="dot green"></span> Cumple</span>
-                            <span><span class="dot blue"></span> Parcial</span>
                             <span><span class="dot amber"></span> En proceso</span>
                             <span><span class="dot red"></span> No cumple</span>
                         </div>
+                    </div>
+
+                    <!-- Mini lista detallada de los 7 Criterios -->
+                    <div id="repoDetailCriteriosMiniList" style="margin-top:1.2rem; display:flex; flex-direction:column; gap:0.45rem;"></div>
+
+                    <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border); text-align:center;">
+                        <button class="btn-repo-detail-primary" id="btnOpenRepoDetailModal" onclick="openRepoDetailModal()">
+                            <i class="fas fa-id-card"></i> Ver Perfil Institucional Completo (Documentación y Flotilla)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1987,36 +2893,77 @@
         </div>
 
         <div class="catalog-controls">
-            <div class="catalog-controls-top">
-                <div class="left">
-                    <div class="input-with-clear">
+            <div class="catalog-controls-top" style="flex-direction:column; align-items:stretch; gap:1rem;">
+                <div class="filters-grid-7" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.75rem; width:100%;">
+                    <!-- 1. Búsqueda por texto -->
+                    <div class="input-with-clear" style="width:100%;">
                         <i class="fas fa-search search-icon-left"></i>
-                        <input type="text" id="catalogSearch" placeholder="Buscar institución o sigla..." aria-label="Buscar institución en el catálogo" />
-                        <button class="clear-btn" id="catalogSearchClear" title="Limpiar búsqueda" aria-label="Limpiar búsqueda"><i class="fas fa-times"></i></button>
+                        <input type="text" id="catalogSearch" placeholder="🔍 Buscar institución o sigla..." aria-label="Buscar institución" />
+                        <button class="clear-btn" id="catalogSearchClear" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
-                    <select id="catalogFilterSector" class="custom-select-styled" aria-label="Filtrar por tipo de institución">
-                        <option value="">Todos los tipos de dependencia</option>
+
+                    <!-- 2. Tipo de dependencia -->
+                    <select id="catalogFilterSector" class="custom-select-styled" aria-label="Tipo de institución">
+                        <option value="">📌 Todos los tipos de institución</option>
                         <option value="Ministerios">Ministerios</option>
                         <option value="Secretarías">Secretarías</option>
                         <option value="Otras Dependencias">Otras Dependencias</option>
                         <option value="Gobernaciones">Gobernaciones</option>
                     </select>
-                    <select id="catalogFilterStatus" class="custom-select-styled" aria-label="Filtrar por estado de cumplimiento">
-                        <option value="">Todos los niveles de cumplimiento</option>
-                        <option value="cumple">Cumple al 100%</option>
-                        <option value="parcial">Cumplimiento Parcial</option>
-                        <option value="proceso">En Proceso</option>
-                        <option value="nocumple">No Cumple</option>
+
+                    <!-- 3. Selección de institución -->
+                    <select id="catalogFilterInst" class="custom-select-styled" aria-label="Seleccionar institución">
+                        <option value="">🏛️ Todas las instituciones</option>
+                    </select>
+
+                    <!-- 4. Registro de vehículos -->
+                    <select id="catalogFilterRegistro" class="custom-select-styled" aria-label="Registro de vehículos">
+                        <option value="">🚘 Registro: Todos</option>
+                        <option value="publicado">🟢 Registro Publicado</option>
+                        <option value="pendiente">🔴 Registro Pendiente</option>
+                    </select>
+
+                    <!-- 5. Documentos públicos -->
+                    <select id="catalogFilterDocs" class="custom-select-styled" aria-label="Documentos públicos">
+                        <option value="">📄 Documentos: Todos</option>
+                        <option value="con_docs">✅ Con documentos publicados</option>
+                        <option value="sin_docs">❌ Sin documentos publicados</option>
+                    </select>
+
+                    <!-- 6. Nivel de cumplimiento -->
+                    <select id="catalogFilterStatus" class="custom-select-styled" aria-label="Nivel de cumplimiento">
+                        <option value="">🎯 Nivel de cumplimiento</option>
+                        <option value="cumple">🟢 Cumple al 100%</option>
+                        <option value="proceso">🟡 En Proceso</option>
+                        <option value="nocumple">🔴 No Cumple</option>
+                    </select>
+
+                    <!-- 7. Criterio evaluado -->
+                    <select id="catalogFilterCriterio" class="custom-select-styled" aria-label="Criterio evaluado">
+                        <option value="">📋 Criterio Evaluado</option>
+                        <option value="procedimiento_asignacion">1. Procedimiento asignación y uso</option>
+                        <option value="registro_interno">2. Registro interno de vehículos</option>
+                        <option value="publicacion_registro">3. Publicación registro institucional</option>
+                        <option value="canal_auditoria">4. Canal de auditoría social</option>
+                        <option value="identificacion_logotipo">5. Identificación logotipo oficial</option>
+                        <option value="disposicion_excepcional">6. Disposición uso excepcional</option>
+                        <option value="justificacion_seguridad">7. Excepciones por seguridad</option>
                     </select>
                 </div>
-                <div class="right">
-                    <span id="catalogActiveBadge" class="counter-lbl" style="font-weight:700; color:var(--blue-bright); margin-right:0.5rem;"></span>
-                    <button class="btn-sm outline" onclick="exportCatalogPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button class="btn-sm outline" onclick="exportCatalogExcel()"><i class="fas fa-file-excel"></i> Excel</button>
-                    <button class="btn-sm outline" onclick="exportCatalogCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; padding-top:0.6rem; border-top:1px solid var(--border);">
+                    <div>
+                        <span id="catalogActiveBadge" class="counter-lbl" style="font-weight:700; color:var(--blue-bright);"></span>
+                        <button class="btn-clear-filters" onclick="resetAllCatalogFilters()" style="margin-left:0.8rem; background:transparent; border:none; color:var(--cyan); font-size:0.82rem; font-weight:700; cursor:pointer;"><i class="fas fa-undo-alt"></i> Limpiar todos los filtros</button>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button class="btn-sm outline" onclick="exportCatalogPDF()"><i class="fas fa-file-pdf"></i> Reporte PDF</button>
+                        <button class="btn-sm outline" onclick="exportCatalogExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn-sm outline" onclick="exportCatalogCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                    </div>
                 </div>
             </div>
-            <div id="catalogActiveChips" class="active-chips-bar" style="display:none;"></div>
+            <div id="catalogActiveChips" class="active-chips-bar" style="display:none; margin-top:0.8rem;"></div>
         </div>
 
         <div class="table-wrap">
@@ -2025,12 +2972,12 @@
                     <tr>
                         <th data-sort="nombre">Institución <i class="fas fa-sort"></i></th>
                         <th data-sort="siglas">Siglas <i class="fas fa-sort"></i></th>
-                        <th data-sort="sector">Tipo <i class="fas fa-sort"></i></th>
-                        <th data-sort="total" style="text-align:center;">Total <i class="fas fa-sort"></i></th>
-                        <th data-sort="cumple" style="text-align:center;">Cumple <i class="fas fa-sort"></i></th>
-                        <th data-sort="parcial" style="text-align:center;">Parcial <i class="fas fa-sort"></i></th>
-                        <th data-sort="proceso" style="text-align:center;">En proceso <i class="fas fa-sort"></i></th>
-                        <th data-sort="nocumple" style="text-align:center;">No cumple <i class="fas fa-sort"></i></th>
+                        <th data-sort="sector">Tipo Institución <i class="fas fa-sort"></i></th>
+                        <th data-sort="criteriosPassCount" style="text-align:center;">Criterios Cumplidos <i class="fas fa-check-circle" style="color:var(--green);"></i></th>
+                        <th style="text-align:center;">Criterios Pendientes <i class="fas fa-clock" style="color:var(--amber);"></i></th>
+                        <th data-sort="total" style="text-align:center;">VEHÍCULOS <i class="fas fa-car-side"></i></th>
+                        <th style="text-align:center;">Cumplimiento % <i class="fas fa-chart-pie"></i></th>
+                        <th style="text-align:center;">Ficha <i class="fas fa-id-card"></i></th>
                     </tr>
                 </thead>
                 <tbody id="catalogBody"></tbody>
@@ -2038,6 +2985,197 @@
         </div>
 
         <div class="pagination-wrap" id="catalogPagination"></div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECCIÓN DE COMPARATIVA INSTITUCIONAL Y SPIDER CHART
+============================================================ -->
+<section class="comparison-section" id="comparisonSection">
+    <div class="container">
+        <div class="section-header">
+            <div class="tag"><span></span> Comparativa Institucional</div>
+            <h2>Análisis Comparativo de <em>Indicadores Vehiculares</em></h2>
+            <p>Selecciona dos instituciones para contrastar visualmente sus indicadores de transparencia vehicular y cumplimiento normativo mediante un gráfico de telaraña (Spider Chart).</p>
+        </div>
+
+        <!-- Barra de Selección de Instituciones -->
+        <div class="comparison-controls-card">
+            <div class="compare-selectors-grid">
+                <div class="compare-select-group">
+                    <label for="compareInstA" class="compare-select-label inst-a">
+                        <i class="fas fa-building"></i> Institución A (Referencia Principal)
+                    </label>
+                    <select id="compareInstA" class="compare-select" aria-label="Seleccionar Institución A">
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+
+                <div style="text-align:center;">
+                    <button type="button" id="btnSwapCompare" class="btn-swap-compare" title="Intercambiar Instituciones" aria-label="Intercambiar Instituciones">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+
+                <div class="compare-select-group">
+                    <label for="compareInstB" class="compare-select-label inst-b">
+                        <i class="fas fa-building"></i> Institución B (Comparativa)
+                    </label>
+                    <select id="compareInstB" class="compare-select" aria-label="Seleccionar Institución B">
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos de Comparación (Presets) -->
+            <div class="compare-preset-pills">
+                <span style="font-size:0.78rem; font-weight:700; color:var(--text-main); margin-right:0.2rem;">
+                    <i class="fas fa-bolt" style="color:var(--cyan);"></i> Comparativas Sugeridas:
+                </span>
+                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MAGA', 'MINECO')">MAGA vs MINECO</button>
+                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MEM', 'CIV')">MEM vs CIV</button>
+                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MINFIN', 'MSPAS')">MINFIN vs MSPAS</button>
+                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MCD', 'MARN')">MCD vs MARN</button>
+            </div>
+        </div>
+
+        <!-- Cuadrícula Principal de Comparación con Spider Chart -->
+        <div class="comparison-main-grid">
+            <!-- Tarjeta Institución A -->
+            <div class="compare-inst-card card-a" id="compareCardA">
+                <div>
+                    <div class="compare-card-badge"><i class="fas fa-landmark"></i> Institución A</div>
+                    <div class="compare-inst-title" id="cardATitle">Cargando...</div>
+                    <div class="compare-inst-sub" id="cardASub">—</div>
+
+                    <div class="compare-kpi-ring">
+                        <div class="compare-kpi-val" id="cardAPercent">0%</div>
+                        <div class="compare-kpi-lbl">Cumplimiento Normativo</div>
+                    </div>
+
+                    <div class="compare-metrics-list">
+                        <div class="compare-metric-item">
+                            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Criterios Aprobados:</span>
+                            <strong id="cardAPassCount">0/7</strong>
+                        </div>
+                        <div class="compare-metric-item">
+                            <span><i class="fas fa-car" style="color:var(--blue-bright);"></i> Flota Registrada:</span>
+                            <strong id="cardAFleetTotal">0 vehículos</strong>
+                        </div>
+                        <div class="compare-metric-item">
+                            <span><i class="fas fa-shield-alt"></i> Estado General:</span>
+                            <div id="cardAStatusTag" style="display:inline-block;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-sm outline" style="margin-top:1.25rem; width:100%; text-align:center; justify-content:center;" id="btnCardADetail">
+                    <i class="fas fa-id-card"></i> Ver Ficha Completa A
+                </button>
+            </div>
+
+            <!-- Contenedor del Gráfico Radar / Spider Chart -->
+            <div class="compare-spider-container">
+                <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                    <span style="font-size:0.85rem; font-weight:800; color:var(--text-main); text-transform:uppercase; letter-spacing:0.04em; display:inline-flex; align-items:center;">
+                        <i class="fas fa-spider" style="color:var(--cyan); margin-right:0.4rem;"></i> Gráfico Spider de Indicadores
+                        <span class="spider-info-wrapper" tabindex="0" aria-label="Información de las 7 dimensiones">
+                            <i class="fas fa-info-circle spider-info-icon"></i>
+                            <div class="spider-info-tooltip">
+                                <div class="spider-tooltip-title"><i class="fas fa-list-check"></i> 7 Dimensiones Evaluadas</div>
+                                <ul class="spider-tooltip-list">
+                                    <li><strong>1. Asignación:</strong> Manual de uso y normativa interna formalizada</li>
+                                    <li><strong>2. Registro Interno:</strong> Inventario de unidades vehiculares actualizado</li>
+                                    <li><strong>3. Publicación:</strong> Información pública y accesible sobre la flota</li>
+                                    <li><strong>4. Canal Auditoría:</strong> Mecanismos para denuncias o reportes ciudadanos</li>
+                                    <li><strong>5. Logotipo Oficial:</strong> Rotulación clara y visible en unidades autorizadas</li>
+                                    <li><strong>6. Uso Excepcional:</strong> Regulación para uso fuera de jornada o comisiones</li>
+                                    <li><strong>7. Motivos Seguridad:</strong> Justificación documentada para vehículos de seguridad</li>
+                                </ul>
+                            </div>
+                        </span>
+                    </span>
+                    <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">
+                        Escala 0% - 100%
+                    </span>
+                </div>
+                <div class="spider-chart-wrap">
+                    <canvas id="spiderChartCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Tarjeta Institución B -->
+            <div class="compare-inst-card card-b" id="compareCardB">
+                <div>
+                    <div class="compare-card-badge"><i class="fas fa-landmark"></i> Institución B</div>
+                    <div class="compare-inst-title" id="cardBTitle">Cargando...</div>
+                    <div class="compare-inst-sub" id="cardBSub">—</div>
+
+                    <div class="compare-kpi-ring">
+                        <div class="compare-kpi-val" id="cardBPercent">0%</div>
+                        <div class="compare-kpi-lbl">Cumplimiento Normativo</div>
+                    </div>
+
+                    <div class="compare-metrics-list">
+                        <div class="compare-metric-item">
+                            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Criterios Aprobados:</span>
+                            <strong id="cardBPassCount">0/7</strong>
+                        </div>
+                        <div class="compare-metric-item">
+                            <span><i class="fas fa-car" style="color:var(--amber);"></i> Flota Registrada:</span>
+                            <strong id="cardBFleetTotal">0 vehículos</strong>
+                        </div>
+                        <div class="compare-metric-item">
+                            <span><i class="fas fa-shield-alt"></i> Estado General:</span>
+                            <div id="cardBStatusTag" style="display:inline-block;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-sm outline" style="margin-top:1.25rem; width:100%; text-align:center; justify-content:center;" id="btnCardBDetail">
+                    <i class="fas fa-id-card"></i> Ver Ficha Completa B
+                </button>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Resumen Comparativo & Hallazgos Clave -->
+        <div id="compareSummaryCard" style="background:var(--navy-mid); color:#fff; border-radius:18px; padding:1.25rem 1.75rem; margin-bottom:2rem; border:1px solid rgba(0,194,224,0.25); box-shadow:var(--shadow-md);">
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+                <i class="fas fa-lightbulb" style="color:var(--amber); font-size:1.3rem;"></i>
+                <h4 style="margin:0; font-family:var(--font-head); font-size:1.05rem; color:#fff;" id="compareSummaryTitle">Resumen del Análisis Comparativo</h4>
+            </div>
+            <p style="margin:0; font-size:0.88rem; color:rgba(255,255,255,0.88); line-height:1.5;" id="compareSummaryText">
+                Cargando análisis comparativo entre instituciones...
+            </p>
+        </div>
+
+        <!-- Tabla Detallada Criterio por Criterio -->
+        <div class="comparison-details-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+                <h3 style="margin:0; font-size:1.15rem; font-family:var(--font-head); color:var(--text-main);">
+                    Desglose Criterio por Criterio
+                </h3>
+                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">
+                    Evaluación directa de los 7 criterios del catálogo oficial
+                </span>
+            </div>
+
+            <div class="comparison-table-wrap">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40%;">Criterio Normativo Evaluado</th>
+                            <th style="text-align:center; width:22%;" id="thInstAHeader">Institución A</th>
+                            <th style="text-align:center; width:16%;">Comparativa</th>
+                            <th style="text-align:center; width:22%;" id="thInstBHeader">Institución B</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonCriteriaTableBody">
+                        <!-- Filas inyectadas por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -2071,7 +3209,7 @@
             </div>
         </div>
         <div class="audit-cta">
-            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener" class="btn-legal"><i class="fas fa-shield"></i> Ir a Canales por la Integridad</a>
+            <a href="../canales-por-la-integridad/#directorio" class="btn-legal"><i class="fas fa-shield"></i> Ir a Canales por la Integridad</a>
         </div>
     </div>
 </section>
@@ -2176,9 +3314,9 @@
         <div class="footer-grid">
             <div class="footer-brand">
                 <div class="logos-row">
-                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
-                    <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" style="height:52px; width:auto; object-fit:contain; opacity:0.9;">
-                    <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Transparencia Vehicular" style="height:48px; width:auto; object-fit:contain;">
+                    <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                    <img src="/img/logoPIA.png" alt="Portal Integridad Activa" style="height:52px; width:auto; object-fit:contain; opacity:0.9;">
+                    <img src="/img/LogotransparenciaVH.png" alt="Transparencia Vehicular" style="height:48px; width:auto; object-fit:contain;">
                 </div>
                 <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
             </div>
@@ -2194,7 +3332,6 @@
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
-                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
                 </ul>
             </div>
@@ -2202,6 +3339,7 @@
                 <h4>Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
+                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
                 <h4 style="margin-top:1.5rem;">Aprende</h4>
@@ -2226,11 +3364,68 @@
         <div class="footer-bottom">
             <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Logo gobierno" style="height:36px; width:auto; opacity:0.6;">
-                <img src="https://i.postimg.cc/FFWVtV0N/Placatransparentefondo-Blanco.png" alt="Transparencia Vehicular" style="height:36px; width:auto; opacity:0.6;">
+                <img src="/img/L1.png" alt="Logo gobierno" style="height:36px; width:auto; opacity:0.6;">
+                <img src="/img/LogotransparenciaVH.png" alt="Transparencia Vehicular" style="height:36px; width:auto; opacity:0.85;">
             </div>
         </div>
     </div>
+
+<!-- MODAL PERFIL INSTITUCIONAL CUMPLIMIENTO VEHICULAR -->
+<div id="institutionalModal" class="modal-overlay">
+    <div class="institutional-modal-content" style="background:var(--surface-card); border:1px solid var(--border); border-radius:20px; max-width:880px; width:100%; max-height:92vh; overflow-y:auto; box-shadow:var(--shadow-lg); padding:2rem; position:relative;">
+        <button id="closeInstitutionalModal" onclick="closeInstModal()" style="position:absolute; top:1.2rem; right:1.2rem; background:rgba(0,0,0,0.06); border:none; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-muted); transition:all 0.2s;"><i class="fas fa-times"></i></button>
+
+        <div id="instModalHeader" style="border-bottom:1px solid var(--border); padding-bottom:1.2rem; margin-bottom:1.2rem;">
+            <!-- Dynamically populated -->
+        </div>
+
+        <div class="modal-tabs">
+            <button id="tabBtnCriterios" class="modal-tab-btn active" onclick="switchInstModalTab('criterios')"><i class="fas fa-tasks"></i> Criterios Evaluados (7)</button>
+            <button id="tabBtnDocumentos" class="modal-tab-btn" onclick="switchInstModalTab('documentos')"><i class="fas fa-folder-open"></i> Documentación Pública</button>
+            <button id="tabBtnFlotilla" class="modal-tab-btn" onclick="switchInstModalTab('flotilla')"><i class="fas fa-car"></i> Flotilla Registrada</button>
+        </div>
+
+        <!-- TAB 1: CRITERIOS -->
+        <div id="instTabCriterios" class="modal-tab-content" style="margin-top:1.2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h4 style="font-family:var(--font-head); font-size:1.05rem; font-weight:800; color:var(--text-main); margin:0;"><i class="fas fa-clipboard-check" style="color:var(--cyan); margin-right:6px;"></i> Estado de los 7 Criterios del Lineamiento Técnico</h4>
+                <span id="criteriosCountBadge" class="badge-status-check pass">7/7 Criterios</span>
+            </div>
+            <div id="instCriteriosList" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
+        </div>
+
+        <!-- TAB 2: DOCUMENTACION -->
+        <div id="instTabDocumentos" class="modal-tab-content" style="display:none; margin-top:1.2rem;">
+            <h4 style="font-family:var(--font-head); font-size:1.05rem; font-weight:800; color:var(--text-main); margin-bottom:0.5rem;"><i class="fas fa-file-alt" style="color:var(--cyan); margin-right:6px;"></i> Documentos Públicos Oficiales</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Documentación publicada en los portales oficiales de la institución respecto a la asignación y uso de vehículos.</p>
+            <div id="instDocumentosList" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem;"></div>
+        </div>
+
+        <!-- TAB 3: FLOTILLA -->
+        <div id="instTabFlotilla" class="modal-tab-content" style="display:none; margin-top:1.2rem;">
+            <h4 style="font-family:var(--font-head); font-size:1.05rem; font-weight:800; color:var(--text-main); margin-bottom:0.5rem;"><i class="fas fa-car-side" style="color:var(--cyan); margin-right:6px;"></i> Flotilla de Vehículos Registrados</h4>
+            <div id="instFlotillaList" style="margin-top:0.8rem;"></div>
+        </div>
+
+        <!-- DISCLAIMER -->
+        <div style="margin-top:1.5rem; background:rgba(0,194,224,0.06); border:1px solid rgba(0,194,224,0.2); border-radius:12px; padding:1rem 1.2rem; font-size:0.82rem; color:var(--text-muted); line-height:1.5;">
+            <i class="fas fa-info-circle" style="color:var(--cyan); margin-right:6px;"></i>
+            <strong>Nota de Transparencia Pública:</strong> Esta información es de carácter público. En ningún momento se exhibe información remitida internamente como medio de verificación; todos los enlaces direccionan directamente a los portales públicos institucionales donde se encuentra publicada.
+        </div>
+
+        <!-- FOOTER ACTIONS -->
+        <div style="margin-top:1.5rem; padding-top:1.2rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <a href="../canales-por-la-integridad/#directorio" class="btn-canales-integridad">
+                <i class="fas fa-shield-alt"></i> Denunciar uso indebido en Canales por la Integridad
+            </a>
+            <div style="display:flex; gap:0.6rem;">
+                <button id="btnExportModalPDF" class="btn-sm primary" onclick="exportCurrentInstPDF()"><i class="fas fa-file-pdf"></i> Ficha PDF</button>
+                <button id="btnExportModalExcel" class="btn-sm outline" onclick="exportCurrentInstExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </footer>
 
 <script>
@@ -2260,6 +3455,8 @@
     }
 
     function initializeApp() {
+    renderCriteriosDashboard();
+    populateCatalogFilters();
         vehicleToInstitution = vehicles.map(v => {
             const instName = getInstitutionForVehicle(v.department);
             let found = catalogInstituciones.find(i => i.nombre === instName);
@@ -2270,12 +3467,14 @@
             return { ...v, instName: found.nombre, sector: found.sector };
         });
 
-        catalogData = buildCatalogData();
+        catalogData = buildCatalogDataExtended();
 
         updateSemaphore();
         renderRepoList();
         populateCatalogFilters();
+        populateCatalogFiltersExtended();
         renderCatalog();
+        populateComparisonSelects();
 
         setupSearchEvents();
         setupVoiceAndCamera();
@@ -2321,18 +3520,192 @@
         return stats;
     }
 
+    let historyChartInstance = null;
+
     function normalizePlate(plate) {
         return (plate || '').toUpperCase().replace(/\s/g, '').replace(/-/g, '');
     }
 
     function findVehicle(plate) {
         const norm = normalizePlate(plate);
-        return vehicles.find(v => normalizePlate(v.plate) === norm);
+        const matches = vehicles.filter(v => normalizePlate(v.plate) === norm);
+        if (!matches.length) return null;
+        matches.sort((a, b) => new Date(b.lastUpdate || 0) - new Date(a.lastUpdate || 0));
+        return matches[0];
+    }
+
+    function getHistoricalRecords(plate) {
+        if (!plate) return null;
+        const norm = normalizePlate(plate);
+        const matches = vehicles.filter(v => normalizePlate(v.plate) === norm);
+        if (matches.length < 2) return null;
+        return matches.sort((a, b) => new Date(a.lastUpdate || 0) - new Date(b.lastUpdate || 0));
+    }
+
+    function renderComplianceHistoryChart(records, plate) {
+        const historyEl = document.getElementById('resultHistory');
+        if (!historyEl) return;
+
+        if (!records || records.length < 2) {
+            historyEl.style.display = 'none';
+            if (historyChartInstance) {
+                historyChartInstance.destroy();
+                historyChartInstance = null;
+            }
+            return;
+        }
+
+        historyEl.style.display = 'block';
+        document.getElementById('historyCountBadge').innerText = `${records.length} evaluaciones`;
+        document.getElementById('historyPlateLabel').innerText = plate;
+
+        if (historyChartInstance) {
+            historyChartInstance.destroy();
+            historyChartInstance = null;
+        }
+
+        const canvas = document.getElementById('complianceHistoryChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        const labels = records.map(r => {
+            const d = new Date(r.lastUpdate || r.date || Date.now());
+            return d.toLocaleDateString('es-GT', { month: 'short', year: 'numeric' });
+        });
+
+        const statusScoreMap = {
+            cumple: 100,
+            parcial: 60,
+            proceso: 40,
+            nocumple: 10
+        };
+
+        const statusLabelMap = {
+            cumple: 'Cumple',
+            parcial: 'Parcial',
+            proceso: 'En proceso',
+            nocumple: 'No cumple'
+        };
+
+        const dataPoints = records.map(r => {
+            const comp = getCompliance(r);
+            return statusScoreMap[comp] !== undefined ? statusScoreMap[comp] : 50;
+        });
+
+        const pointColors = records.map(r => {
+            const comp = getCompliance(r);
+            if (comp === 'cumple') return '#22C55E';
+            if (comp === 'parcial') return '#F59E0B';
+            if (comp === 'proceso') return '#2B82C9';
+            return '#EF4444';
+        });
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+        gradient.addColorStop(0, 'rgba(0, 194, 224, 0.35)');
+        gradient.addColorStop(1, 'rgba(0, 194, 224, 0.01)');
+
+        historyChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cumplimiento',
+                    data: dataPoints,
+                    borderColor: '#00C2E0',
+                    borderWidth: 3,
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: pointColors,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointHoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 600,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#05111F',
+                        borderColor: '#00C2E0',
+                        borderWidth: 1,
+                        titleColor: '#00C2E0',
+                        bodyColor: '#ffffff',
+                        titleFont: { family: "'Sora', sans-serif", size: 12, weight: 'bold' },
+                        bodyFont: { family: "'DM Sans', sans-serif", size: 12 },
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                const idx = context[0].dataIndex;
+                                const r = records[idx];
+                                const d = new Date(r.lastUpdate || r.date || Date.now());
+                                return d.toLocaleDateString('es-GT', { day: '2-digit', month: 'long', year: 'numeric' });
+                            },
+                            label: function(context) {
+                                const idx = context.dataIndex;
+                                const r = records[idx];
+                                const comp = getCompliance(r);
+                                const label = statusLabelMap[comp] || comp;
+                                const multasVal = r.multas || 0;
+                                const iscvText = r.iscvMoroso ? 'Moroso' : 'Al día';
+                                return [
+                                    `• Estado: ${label}`,
+                                    `• Multas: ${multasVal}`,
+                                    `• ISCV: ${iscvText}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            color: '#8A9FB2',
+                            font: { family: "'DM Sans', sans-serif", size: 10 },
+                            callback: function(value) {
+                                if (value === 100) return 'Cumple';
+                                if (value === 60) return 'Parcial';
+                                if (value === 40) return 'Proceso';
+                                if (value === 10) return 'No cumple';
+                                return '';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(26, 92, 143, 0.15)',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#8A9FB2',
+                            font: { family: "'DM Sans', sans-serif", size: 11 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function renderResult(vehicle) {
         if (!vehicle) { 
             document.getElementById('resultCard').classList.remove('visible'); 
+            renderComplianceHistoryChart(null, '');
             return; 
         }
         const comp = getCompliance(vehicle);
@@ -2373,13 +3746,20 @@
             <span style="font-weight:600; color:var(--cyan);"><i class="fas fa-${st.icon}"></i> Cumplimiento: ${st.label}</span>
         `;
 
-        document.getElementById('resultCard').classList.add('visible');
-        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const historyRecords = getHistoricalRecords(vehicle.plate);
+        renderComplianceHistoryChart(historyRecords, vehicle.plate);
+
+        const cardEl = document.getElementById('resultCard');
+        cardEl.classList.remove('visible');
+        void cardEl.offsetWidth; // Force reflow for smooth slide-down animation reset
+        cardEl.classList.add('visible');
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function performSearch(plate) {
         if (!plate || !plate.trim()) { 
             document.getElementById('resultCard').classList.remove('visible'); 
+            renderComplianceHistoryChart(null, '');
             return; 
         }
         const v = findVehicle(plate);
@@ -2389,16 +3769,29 @@
             const statusEl = document.getElementById('resultStatus');
             statusEl.className = 'status-badge nocumple';
             statusEl.innerHTML = '<i class="fas fa-question-circle"></i> No registrado';
-            document.getElementById('resultBody').innerHTML = `
-                <div class="field field-full" style="text-align:center;padding:1.5rem 0;">
-                    <i class="fas fa-search" style="font-size:2.5rem;color:var(--text-light);margin-bottom:0.5rem;display:block;"></i>
-                    <p style="color:var(--text-muted);">No se encontró un vehículo con la placa <strong>${plate.toUpperCase()}</strong>.</p>
-                    <p style="color:var(--text-light);font-size:0.85rem;">Verifique el formato o intente con otra placa.</p>
+                        document.getElementById('resultBody').innerHTML = `
+                <div class="field field-full" style="padding:1.5rem; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:14px; text-align:left;">
+                    <div style="display:flex; align-items:center; gap:10px; color:#ef4444; font-family:var(--font-head); font-weight:700; font-size:1.05rem; margin-bottom:0.8rem;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:1.3rem;"></i>
+                        <span>Información no localizada para la placa: ${plate.toUpperCase()}</span>
+                    </div>
+                    <p style="color:var(--text-main); font-weight:600; margin-bottom:0.6rem; font-size:0.92rem;">
+                        La placa ingresada no se encuentra en los registros por alguna de las siguientes razones:
+                    </p>
+                    <ul style="margin:0; padding-left:1.4rem; color:var(--text-muted); font-size:0.88rem; line-height:1.65;">
+                        <li style="margin-bottom:0.35rem;">No pertenece a una institución del Organismo Ejecutivo.</li>
+                        <li style="margin-bottom:0.35rem;">Corresponde a un vehículo cuya información no puede hacerse pública por razones de seguridad.</li>
+                        <li>El número de placa fue ingresado incorrectamente.</li>
+                    </ul>
                 </div>
             `;
             document.getElementById('resultFooter').innerHTML = '';
-            document.getElementById('resultCard').classList.add('visible');
-            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            renderComplianceHistoryChart(null, plate);
+            const cardEl = document.getElementById('resultCard');
+            cardEl.classList.remove('visible');
+            void cardEl.offsetWidth; // Force reflow
+            cardEl.classList.add('visible');
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
@@ -2448,7 +3841,10 @@
                 }
             }
         });
-        document.getElementById('closeResult').addEventListener('click', () => document.getElementById('resultCard').classList.remove('visible'));
+        document.getElementById('closeResult').addEventListener('click', () => {
+            document.getElementById('resultCard').classList.remove('visible');
+            renderComplianceHistoryChart(null, '');
+        });
 
         document.querySelectorAll('.sample-plate').forEach(el => {
             el.addEventListener('click', () => { 
@@ -2461,34 +3857,66 @@
     function setupVoiceAndCamera() {
         const voiceBtn = document.getElementById('voiceBtn');
         let recognition = null;
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SR();
             recognition.lang = 'es-ES';
             recognition.continuous = false;
             recognition.interimResults = false;
-            voiceBtn.addEventListener('click', () => {
-                if (recognition) {
-                    recognition.start();
+
+            recognition.onstart = () => {
+                if (voiceBtn) {
                     voiceBtn.style.color = 'var(--cyan)';
-                    voiceBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
-                    setTimeout(() => { voiceBtn.style.color = '';
-                        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; }, 5000);
-                } else { alert('Tu navegador no soporta reconocimiento de voz.'); }
-            });
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                    voiceBtn.classList.add('listening');
+                }
+            };
+
             recognition.onresult = (e) => {
-                const transcript = e.results[0][0].transcript.trim();
-                document.getElementById('plateInput').value = transcript;
-                performSearch(transcript);
-                voiceBtn.style.color = '';
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                if (e.results && e.results[0] && e.results[0][0]) {
+                    const transcript = e.results[0][0].transcript.trim();
+                    const plateInput = document.getElementById('plateInput');
+                    if (plateInput) plateInput.value = transcript;
+                    performSearch(transcript);
+                }
+                if (voiceBtn) {
+                    voiceBtn.style.color = '';
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceBtn.classList.remove('listening');
+                }
             };
+
+            recognition.onend = () => {
+                if (voiceBtn) {
+                    voiceBtn.style.color = '';
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceBtn.classList.remove('listening');
+                }
+                const plateInput = document.getElementById('plateInput');
+                if (plateInput && plateInput.value && plateInput.value.trim()) {
+                    performSearch(plateInput.value.trim());
+                }
+            };
+
             recognition.onerror = () => {
-                voiceBtn.style.color = '';
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                if (voiceBtn) {
+                    voiceBtn.style.color = '';
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    voiceBtn.classList.remove('listening');
+                }
             };
+
+            if (voiceBtn) {
+                voiceBtn.addEventListener('click', () => {
+                    if (voiceBtn.classList.contains('listening')) {
+                        try { recognition.stop(); } catch(e) {}
+                    } else {
+                        try { recognition.start(); } catch(e) {}
+                    }
+                });
+            }
         } else {
-            voiceBtn.addEventListener('click', () => alert('Tu navegador no soporta reconocimiento de voz.'));
+            if (voiceBtn) voiceBtn.addEventListener('click', () => alert('Tu navegador no soporta reconocimiento de voz.'));
         }
 
         const cameraBtn = document.getElementById('cameraBtn');
@@ -2552,33 +3980,57 @@
         }
     }
 
-    function computeComplianceStats() {
-        const stats = { cumple: 0, parcial: 0, proceso: 0, nocumple: 0 };
-        vehicles.forEach(v => {
-            const c = getCompliance(v);
-            stats[c] = (stats[c] || 0) + 1;
-        });
-        return stats;
-    }
-
     function updateSemaphore() {
-        const stats = computeComplianceStats();
-        const total = vehicles.length;
-        document.getElementById('kpiCumple').textContent = stats.cumple || 0;
-        document.getElementById('kpiParcial').textContent = stats.parcial || 0;
-        document.getElementById('kpiProceso').textContent = stats.proceso || 0;
-        document.getElementById('kpiNoCumple').textContent = stats.nocumple || 0;
+        let cumpleCount = 0;
+        let procesoCount = 0;
+        let noCumpleCount = 0;
+        let totalPassesSum = 0;
+        const totalInsts = catalogInstituciones.length;
 
-        const pct = total > 0 ? Math.round((stats.cumple / total) * 100) : 0;
-        document.getElementById('globalPct').textContent = pct + '%';
+        catalogInstituciones.forEach(inst => {
+            let passCount = 0;
+            if (inst.criterios) {
+                Object.values(inst.criterios).forEach(c => {
+                    if (c && (c.cumple === true || c.estado === 'cumple')) passCount++;
+                });
+            } else {
+                passCount = 7;
+            }
+
+            totalPassesSum += passCount;
+
+            if (passCount === 7) {
+                cumpleCount++;
+            } else if (passCount > 0) {
+                procesoCount++;
+            } else {
+                noCumpleCount++;
+            }
+        });
+
+        const kpiCumple = document.getElementById('kpiCumple');
+        if (kpiCumple) kpiCumple.textContent = cumpleCount;
+        const kpiProceso = document.getElementById('kpiProceso');
+        if (kpiProceso) kpiProceso.textContent = procesoCount;
+        const kpiNoCumple = document.getElementById('kpiNoCumple');
+        if (kpiNoCumple) kpiNoCumple.textContent = noCumpleCount;
+
+        const globalPctVal = totalInsts > 0 ? ((totalPassesSum / (totalInsts * 7)) * 100).toFixed(2) : '0.00';
+        const globalPctEl = document.getElementById('globalPct');
+        if (globalPctEl) globalPctEl.textContent = globalPctVal + '%';
 
         const bar = document.getElementById('semaphoreBar');
-        bar.innerHTML = `
-            <div class="segment green" style="width:${total > 0 ? (stats.cumple/total)*100 : 0}%;"></div>
-            <div class="segment blue" style="width:${total > 0 ? (stats.parcial/total)*100 : 0}%;"></div>
-            <div class="segment amber" style="width:${total > 0 ? (stats.proceso/total)*100 : 0}%;"></div>
-            <div class="segment red" style="width:${total > 0 ? (stats.nocumple/total)*100 : 0}%;"></div>
-        `;
+        if (bar) {
+            const pctCumple = totalInsts > 0 ? (cumpleCount / totalInsts) * 100 : 0;
+            const pctProceso = totalInsts > 0 ? (procesoCount / totalInsts) * 100 : 0;
+            const pctNoCumple = totalInsts > 0 ? (noCumpleCount / totalInsts) * 100 : 0;
+
+            bar.innerHTML = `
+                <div class="segment green" style="width:${pctCumple}%;" title="Cumple: ${cumpleCount} instituciones"></div>
+                <div class="segment amber" style="width:${pctProceso}%;" title="En proceso: ${procesoCount} instituciones"></div>
+                <div class="segment red" style="width:${pctNoCumple}%;" title="No cumple: ${noCumpleCount} instituciones"></div>
+            `;
+        }
     }
 
     function renderRepoList(filter = '') {
@@ -2605,37 +4057,102 @@
 
     window.selectInstitution = function(instName) {
         const stats = getInstitutionCompliance(instName);
-        const total = stats.total;
         const inst = catalogInstituciones.find(i => i.nombre === instName);
 
+        // Compute 7 criteria status breakdown for this institution
+        let criteriaStats = { cumple: 0, proceso: 0, nocumple: 0 };
+        const criteriosKeys = [
+            { key: 'procedimiento_asignacion', label: '1. Procedimiento de asignación' },
+            { key: 'registro_interno', label: '2. Registro interno' },
+            { key: 'publicacion_registro', label: '3. Publicación del registro' },
+            { key: 'canal_auditoria', label: '4. Canal de auditoría social' },
+            { key: 'identificacion_logotipo', label: '5. Identificación con logotipo' },
+            { key: 'disposicion_excepcional', label: '6. Disposición de uso excepcional' },
+            { key: 'justificacion_seguridad', label: '7. Justificación por seguridad' }
+        ];
+
+        let miniListHTML = '';
+        if (inst && inst.criterios) {
+            criteriosKeys.forEach(c => {
+                const crit = inst.criterios[c.key];
+                let estado = 'nocumple';
+                let stateLabel = 'No cumple';
+                let stateClass = 'fail';
+                let stateIcon = 'fa-times-circle';
+
+                if (crit) {
+                    if (crit.estado === 'proceso' || crit.estado === 'parcial' || crit.proceso || crit.en_proceso) {
+                        estado = 'proceso';
+                        stateLabel = 'En proceso';
+                        stateClass = 'proceso';
+                        stateIcon = 'fa-clock';
+                    } else if (crit.cumple === true || crit.estado === 'cumple') {
+                        estado = 'cumple';
+                        stateLabel = 'Cumple';
+                        stateClass = 'pass';
+                        stateIcon = 'fa-check-circle';
+                    }
+                }
+
+                criteriaStats[estado]++;
+
+                miniListHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); padding:0.45rem 0.75rem; border-radius:8px; border:1px solid var(--border); font-size:0.78rem;">
+                        <span style="color:var(--text-main); font-weight:500; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:70%;">${c.label}</span>
+                        <span class="badge-status-check ${stateClass}" style="font-size:0.72rem; padding:0.2rem 0.55rem; gap:4px;">
+                            <i class="fas ${stateIcon}"></i> ${stateLabel}
+                        </span>
+                    </div>
+                `;
+            });
+        } else {
+            criteriaStats.cumple = 7;
+        }
+
+        const totalCriteria = 7;
+        const cumplePct = ((criteriaStats.cumple / totalCriteria) * 100).toFixed(2);
+
         document.getElementById('detailName').textContent = inst ? inst.nombre : instName;
-        document.getElementById('detailPct').innerHTML = `${stats.cumplePct}% <small>cumplimiento</small>`;
+        document.getElementById('detailPct').innerHTML = `${cumplePct}% <small>cumplimiento criterios</small>`;
 
-        document.getElementById('detailTotal').textContent = total;
-        document.getElementById('detailCumple').textContent = stats.cumple || 0;
-        document.getElementById('detailAlertas').textContent = (stats.parcial || 0) + (stats.nocumple || 0);
-        document.getElementById('detailExcepcional').textContent = stats.proceso || 0;
+        const detailTotalPlacas = document.getElementById('detailTotalPlacas');
+        if (detailTotalPlacas) detailTotalPlacas.textContent = stats.total || 0;
 
-        const maxVal = total || 1;
+        document.getElementById('detailCumple').textContent = criteriaStats.cumple;
+        const detailProceso = document.getElementById('detailProceso');
+        if (detailProceso) detailProceso.textContent = criteriaStats.proceso;
+        document.getElementById('detailNoCumple').textContent = criteriaStats.nocumple;
+
         const pcts = {
-            cumple: (stats.cumple / maxVal) * 100,
-            parcial: (stats.parcial / maxVal) * 100,
-            proceso: (stats.proceso / maxVal) * 100,
-            nocumple: (stats.nocumple / maxVal) * 100
+            cumple: (criteriaStats.cumple / totalCriteria) * 100,
+            proceso: (criteriaStats.proceso / totalCriteria) * 100,
+            nocumple: (criteriaStats.nocumple / totalCriteria) * 100
         };
-        document.getElementById('distroCumple').style.width = pcts.cumple + '%';
-        document.getElementById('distroCumpleVal').textContent = stats.cumple || 0;
-        document.getElementById('distroParcial').style.width = pcts.parcial + '%';
-        document.getElementById('distroParcialVal').textContent = stats.parcial || 0;
-        document.getElementById('distroProceso').style.width = pcts.proceso + '%';
-        document.getElementById('distroProcesoVal').textContent = stats.proceso || 0;
-        document.getElementById('distroNoCumple').style.width = pcts.nocumple + '%';
-        document.getElementById('distroNoCumpleVal').textContent = stats.nocumple || 0;
 
-        document.getElementById('compCumple').style.width = pcts.cumple + '%';
-        document.getElementById('compParcial').style.width = pcts.parcial + '%';
-        document.getElementById('compProceso').style.width = pcts.proceso + '%';
-        document.getElementById('compNoCumple').style.width = pcts.nocumple + '%';
+        const distroCumple = document.getElementById('distroCumple');
+        if (distroCumple) distroCumple.style.width = pcts.cumple + '%';
+        const distroCumpleVal = document.getElementById('distroCumpleVal');
+        if (distroCumpleVal) distroCumpleVal.textContent = `${criteriaStats.cumple} Criterios (${Math.round(pcts.cumple)}%)`;
+
+        const distroProceso = document.getElementById('distroProceso');
+        if (distroProceso) distroProceso.style.width = pcts.proceso + '%';
+        const distroProcesoVal = document.getElementById('distroProcesoVal');
+        if (distroProcesoVal) distroProcesoVal.textContent = `${criteriaStats.proceso} Criterios (${Math.round(pcts.proceso)}%)`;
+
+        const distroNoCumple = document.getElementById('distroNoCumple');
+        if (distroNoCumple) distroNoCumple.style.width = pcts.nocumple + '%';
+        const distroNoCumpleVal = document.getElementById('distroNoCumpleVal');
+        if (distroNoCumpleVal) distroNoCumpleVal.textContent = `${criteriaStats.nocumple} Criterios (${Math.round(pcts.nocumple)}%)`;
+
+        const compCumple = document.getElementById('compCumple');
+        if (compCumple) compCumple.style.width = pcts.cumple + '%';
+        const compProceso = document.getElementById('compProceso');
+        if (compProceso) compProceso.style.width = pcts.proceso + '%';
+        const compNoCumple = document.getElementById('compNoCumple');
+        if (compNoCumple) compNoCumple.style.width = pcts.nocumple + '%';
+
+        const miniListContainer = document.getElementById('repoDetailCriteriosMiniList');
+        if (miniListContainer) miniListContainer.innerHTML = miniListHTML;
 
         document.querySelectorAll('.repo-item').forEach(el => el.classList.remove('active'));
         const activeItem = document.querySelector(`.repo-item[data-inst="${instName}"]`);
@@ -2662,124 +4179,7 @@
     }
 
     function renderCatalog() {
-        const searchInput = document.getElementById('catalogSearch');
-        const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const sectorFilter = document.getElementById('catalogFilterSector').value;
-        const statusFilter = document.getElementById('catalogFilterStatus').value;
-
-        // Toggle clear button on search input
-        const clearBtn = document.getElementById('catalogSearchClear');
-        if (clearBtn) {
-            clearBtn.style.display = search ? 'flex' : 'none';
-        }
-        if (searchInput) {
-            if (search) searchInput.classList.add('has-value');
-            else searchInput.classList.remove('has-value');
-        }
-
-        // Toggle has-value on selects
-        const sectorSelect = document.getElementById('catalogFilterSector');
-        if (sectorSelect) {
-            if (sectorFilter) sectorSelect.classList.add('has-value');
-            else sectorSelect.classList.remove('has-value');
-        }
-
-        const statusSelect = document.getElementById('catalogFilterStatus');
-        if (statusSelect) {
-            if (statusFilter) statusSelect.classList.add('has-value');
-            else statusSelect.classList.remove('has-value');
-        }
-
-        let data = catalogData.filter(item => {
-            const matchNombre = item.nombre.toLowerCase().includes(search) || (item.siglas && item.siglas.toLowerCase().includes(search));
-            const matchSector = sectorFilter === '' || item.sector === sectorFilter;
-            let matchStatus = true;
-            if (statusFilter === 'cumple') matchStatus = item.cumple > 0 && item.nocumple === 0 && item.parcial === 0;
-            else if (statusFilter === 'parcial') matchStatus = item.parcial > 0;
-            else if (statusFilter === 'proceso') matchStatus = item.proceso > 0;
-            else if (statusFilter === 'nocumple') matchStatus = item.nocumple > 0;
-
-            return matchNombre && matchSector && matchStatus;
-        });
-
-        // Update active badge count
-        const badge = document.getElementById('catalogActiveBadge');
-        if (badge) {
-            badge.textContent = `${data.length} de ${catalogData.length} entidades`;
-        }
-
-        // Render Active Chips
-        const chipsContainer = document.getElementById('catalogActiveChips');
-        if (chipsContainer) {
-            let chipsHtml = '';
-            let activeCount = 0;
-            if (search) {
-                activeCount++;
-                chipsHtml += `<span class="active-chip"><i class="fas fa-search"></i> "${search}" <button onclick="clearCatalogSearch()"><i class="fas fa-times"></i></button></span>`;
-            }
-            if (sectorFilter) {
-                activeCount++;
-                chipsHtml += `<span class="active-chip"><i class="fas fa-sitemap"></i> ${sectorFilter} <button onclick="clearCatalogSector()"><i class="fas fa-times"></i></button></span>`;
-            }
-            if (statusFilter) {
-                activeCount++;
-                const statusLabels = { cumple: 'Cumple 100%', parcial: 'Parcial', proceso: 'En Proceso', nocumple: 'No Cumple' };
-                chipsHtml += `<span class="active-chip"><i class="fas fa-check-circle"></i> ${statusLabels[statusFilter] || statusFilter} <button onclick="clearCatalogStatus()"><i class="fas fa-times"></i></button></span>`;
-            }
-
-            if (activeCount > 0) {
-                chipsHtml += `<button class="btn-reset-chips" onclick="resetAllCatalogFilters()"><i class="fas fa-undo-alt"></i> Limpiar todos</button>`;
-                chipsContainer.innerHTML = chipsHtml;
-                chipsContainer.style.display = 'flex';
-            } else {
-                chipsContainer.innerHTML = '';
-                chipsContainer.style.display = 'none';
-            }
-        }
-
-        const key = catalogSort.key;
-        const dir = catalogSort.dir === 'asc' ? 1 : -1;
-        data.sort((a, b) => {
-            const va = a[key] || '';
-            const vb = b[key] || '';
-            if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
-            return va.toString().localeCompare(vb.toString()) * dir;
-        });
-
-        const totalPages = Math.ceil(data.length / catalogPageSize);
-        if (catalogPage > totalPages) catalogPage = Math.max(1, totalPages);
-        const start = (catalogPage - 1) * catalogPageSize;
-        const pageData = data.slice(start, start + catalogPageSize);
-
-        const tbody = document.getElementById('catalogBody');
-        if (pageData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--text-muted);"><i class="fas fa-search" style="font-size:2rem;margin-bottom:0.5rem;display:block;opacity:0.5;"></i>No se encontraron instituciones con los filtros seleccionados.</td></tr>`;
-        } else {
-            tbody.innerHTML = pageData.map(item => `
-                <tr>
-                    <td><strong>${item.nombre}</strong></td>
-                    <td><span class="badge" style="background:var(--surface);color:var(--text-muted);">${item.siglas}</span></td>
-                    <td>${item.sector}</td>
-                    <td style="text-align:center;font-weight:700;">${item.total}</td>
-                    <td style="text-align:center;color:var(--green);font-weight:600;">${item.cumple}</td>
-                    <td style="text-align:center;color:var(--blue-bright);">${item.parcial}</td>
-                    <td style="text-align:center;color:var(--amber);">${item.proceso}</td>
-                    <td style="text-align:center;color:var(--danger);">${item.nocumple}</td>
-                </tr>
-            `).join('');
-        }
-
-        const pag = document.getElementById('catalogPagination');
-        pag.innerHTML = '';
-        if (totalPages > 1) {
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                if (i === catalogPage) btn.classList.add('active');
-                btn.addEventListener('click', () => { catalogPage = i; renderCatalog(); });
-                pag.appendChild(btn);
-            }
-        }
+        renderCatalogExtended();
     }
 
     window.clearCatalogSearch = function() {
@@ -2811,7 +4211,7 @@
     function populateCatalogFilters() {
         const sel = document.getElementById('catalogFilterSector');
         const sectores = [...new Set(catalogInstituciones.map(i => i.sector))].sort();
-        sel.innerHTML = '<option value="">Todos los tipos de dependencia</option>';
+        sel.innerHTML = '<option value="">Todos los tipos de institución</option>';
         sectores.forEach(s => {
             const opt = document.createElement('option');
             opt.value = s;
@@ -2947,9 +4347,1240 @@
         });
     }
 
+    /* ============================================================
+       HERO BANNER BACKGROUND SLIDER
+    ============================================================ */
+    function initHeroBgSlider() {
+        const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+        const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            let nextIndex = (currentIndex + 1) % slides.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoplay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
+        initHeroBgSlider();
     });
+
+/* ============================================================
+   LOGICA CUMPLIMIENTO INSTITUCIONAL & CRITERIOS 2025
+============================================================ */
+let currentSelectedInstName = '';
+
+function computeCriteriaStats() {
+    const criteriosKeys = [
+        { key: 'procedimiento_asignacion', label: '1. Procedimiento para asignación y uso de vehículos', icon: 'fa-file-signature' },
+        { key: 'registro_interno', label: '2. Registro interno de vehículos', icon: 'fa-list-ol' },
+        { key: 'publicacion_registro', label: '3. Publicación del registro institucional', icon: 'fa-globe' },
+        { key: 'canal_auditoria', label: '4. Canal de auditoría social', icon: 'fa-bullhorn' },
+        { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', icon: 'fa-shield-alt' },
+        { key: 'disposicion_excepcional', label: '6. Disposición para uso excepcional autorizado', icon: 'fa-user-check' },
+        { key: 'justificacion_seguridad', label: '7. Justificación de excepciones por seguridad', icon: 'fa-lock' }
+    ];
+
+    const totalInst = catalogInstituciones.length || 1;
+    return criteriosKeys.map(item => {
+        let passCount = 0;
+        catalogInstituciones.forEach(inst => {
+            if (inst.criterios && inst.criterios[item.key] && inst.criterios[item.key].cumple) {
+                passCount++;
+            }
+        });
+        const failCount = totalInst - passCount;
+        const passPct = Math.round((passCount / totalInst) * 100);
+        const failPct = 100 - passPct;
+        return {
+            ...item,
+            passCount,
+            failCount,
+            passPct,
+            failPct,
+            isCritical: passPct < 85
+        };
+    });
+}
+
+function renderCriteriosDashboard() {
+    const container = document.getElementById('criteriosStatsGrid');
+    if (!container) return;
+
+    // Redefinir estilos para contenedor
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '1rem';
+
+    const criteriosKeys = [
+        'procedimiento_asignacion',
+        'registro_interno',
+        'publicacion_registro',
+        'canal_auditoria',
+        'identificacion_logotipo',
+        'disposicion_excepcional',
+        'justificacion_seguridad'
+    ];
+
+    const instStats = catalogInstituciones.map(inst => {
+        let cumple = 0;
+        let proceso = 0;
+        let nocumple = 0;
+
+        if (inst.criterios) {
+            criteriosKeys.forEach(key => {
+                const c = inst.criterios[key];
+                if (!c) {
+                    nocumple++;
+                } else if (c.estado === 'proceso' || c.estado === 'parcial' || c.en_proceso || c.proceso) {
+                    proceso++;
+                } else if (c.cumple === true) {
+                    cumple++;
+                } else {
+                    nocumple++;
+                }
+            });
+        } else {
+            cumple = 7;
+        }
+
+        return {
+            nombre: inst.nombre,
+            siglas: inst.siglas,
+            cumple,
+            proceso,
+            nocumple,
+            total: 7
+        };
+    });
+
+    instStats.sort((a, b) => {
+        if (b.cumple !== a.cumple) return b.cumple - a.cumple;
+        if (a.nocumple !== b.nocumple) return a.nocumple - b.nocumple;
+        return a.nombre.localeCompare(b.nombre);
+    });
+
+    let html = `
+        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-bottom:1rem; font-size:0.85rem; font-weight:600;">
+            <span style="display:flex; align-items:center; gap:0.4rem;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--green);"></span> Cumple</span>
+            <span style="display:flex; align-items:center; gap:0.4rem;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--amber);"></span> En Proceso</span>
+            <span style="display:flex; align-items:center; gap:0.4rem;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--danger);"></span> No Cumple</span>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.8rem;">
+    `;
+
+    html += instStats.map(stat => {
+        const pCumple = (stat.cumple / stat.total) * 100;
+        const pProceso = (stat.proceso / stat.total) * 100;
+        const pNocumple = (stat.nocumple / stat.total) * 100;
+        
+        return `
+            <div style="background:var(--surface); padding:1rem; border:1px solid var(--border); border-radius:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-weight:700; color:var(--text-main); font-size:0.95rem;">${stat.siglas ? stat.siglas + ' - ' : ''}${stat.nombre}</div>
+                    <div style="font-weight:600; font-size:0.85rem; color:var(--text-muted);">${stat.cumple}/7 Criterios</div>
+                </div>
+                <div style="display:flex; height:16px; border-radius:8px; overflow:hidden; background:var(--bg-main);">
+                    ${stat.cumple > 0 ? `<div style="width:${pCumple}%; background:var(--green);" title="Cumple: ${stat.cumple}"></div>` : ''}
+                    ${stat.proceso > 0 ? `<div style="width:${pProceso}%; background:var(--amber);" title="En Proceso: ${stat.proceso}"></div>` : ''}
+                    ${stat.nocumple > 0 ? `<div style="width:${pNocumple}%; background:var(--danger);" title="No Cumple: ${stat.nocumple}"></div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    html += `</div>`;
+
+    container.innerHTML = html;
+}
+
+window.filterCatalogByCriterion = function(critKey) {
+    const sel = document.getElementById('catalogFilterCriterio');
+    if (sel) {
+        sel.value = critKey;
+        catalogPage = 1;
+        renderCatalog();
+        document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+function populateCatalogFiltersExtended() {
+    const selSector = document.getElementById('catalogFilterSector');
+    const selInst = document.getElementById('catalogFilterInst');
+    
+    if (selInst && catalogInstituciones.length > 0) {
+        selInst.innerHTML = '<option value="">🏛️ Todas las instituciones (' + catalogInstituciones.length + ')</option>';
+        const sorted = [...catalogInstituciones].sort((a,b) => a.nombre.localeCompare(b.nombre));
+        sorted.forEach(i => {
+            const opt = document.createElement('option');
+            opt.value = i.nombre;
+            opt.textContent = i.nombre + (i.siglas ? ' (' + i.siglas + ')' : '');
+            selInst.appendChild(opt);
+        });
+    }
+
+    const filterIds = ['catalogFilterSector', 'catalogFilterInst', 'catalogFilterRegistro', 'catalogFilterDocs', 'catalogFilterStatus', 'catalogFilterCriterio'];
+    filterIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => { catalogPage = 1; renderCatalog(); });
+        }
+    });
+
+    const searchInp = document.getElementById('catalogSearch');
+    if (searchInp) {
+        searchInp.addEventListener('input', () => { catalogPage = 1; renderCatalog(); });
+    }
+}
+
+function buildCatalogDataExtended() {
+    return catalogInstituciones.map(inst => {
+        const stats = getInstitutionCompliance(inst.nombre);
+        
+        let passCount = 0;
+        if (inst.criterios) {
+            Object.values(inst.criterios).forEach(c => {
+                if (c && c.cumple) passCount++;
+            });
+        } else {
+            passCount = 7;
+        }
+
+        return {
+            nombre: inst.nombre,
+            siglas: inst.siglas || '—',
+            sector: inst.sector,
+            total: stats.total,
+            cumple: stats.cumple || 0,
+            parcial: stats.parcial || 0,
+            proceso: stats.proceso || 0,
+            nocumple: stats.nocumple || 0,
+            criteriosPassCount: passCount,
+            criterios: inst.criterios || {},
+            documentosPublicos: inst.documentosPublicos || []
+        };
+    });
+}
+
+function renderCatalogExtended() {
+    const searchInput = document.getElementById('catalogSearch');
+    const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const sectorFilter = document.getElementById('catalogFilterSector') ? document.getElementById('catalogFilterSector').value : '';
+    const instFilter = document.getElementById('catalogFilterInst') ? document.getElementById('catalogFilterInst').value : '';
+    const registroFilter = document.getElementById('catalogFilterRegistro') ? document.getElementById('catalogFilterRegistro').value : '';
+    const docsFilter = document.getElementById('catalogFilterDocs') ? document.getElementById('catalogFilterDocs').value : '';
+    const statusFilter = document.getElementById('catalogFilterStatus') ? document.getElementById('catalogFilterStatus').value : '';
+    const criterioFilter = document.getElementById('catalogFilterCriterio') ? document.getElementById('catalogFilterCriterio').value : '';
+
+    let data = catalogData.filter(item => {
+        const matchNombre = !search || item.nombre.toLowerCase().includes(search) || (item.siglas && item.siglas.toLowerCase().includes(search));
+        const matchSector = !sectorFilter || item.sector === sectorFilter;
+        const matchInst = !instFilter || item.nombre === instFilter;
+        
+        let matchRegistro = true;
+        if (registroFilter === 'publicado') matchRegistro = item.total > 0 && item.cumple > 0;
+        else if (registroFilter === 'pendiente') matchRegistro = item.nocumple > 0 || item.total === 0;
+
+        let matchDocs = true;
+        if (docsFilter === 'con_docs') matchDocs = item.documentosPublicos && item.documentosPublicos.length > 0;
+        else if (docsFilter === 'sin_docs') matchDocs = !item.documentosPublicos || item.documentosPublicos.length === 0;
+
+        let matchStatus = true;
+        if (statusFilter === 'cumple') matchStatus = item.criteriosPassCount === 7;
+        else if (statusFilter === 'proceso') matchStatus = item.criteriosPassCount > 0 && item.criteriosPassCount < 7;
+        else if (statusFilter === 'nocumple') matchStatus = item.criteriosPassCount === 0;
+
+        let matchCriterio = true;
+        if (criterioFilter) {
+            matchCriterio = item.criterios && item.criterios[criterioFilter] && item.criterios[criterioFilter].cumple;
+        }
+
+        return matchNombre && matchSector && matchInst && matchRegistro && matchDocs && matchStatus && matchCriterio;
+    });
+
+    const badge = document.getElementById('catalogActiveBadge');
+    if (badge) {
+        badge.textContent = data.length + ' de ' + catalogData.length + ' entidades';
+    }
+
+    const key = catalogSort.key;
+    const dir = catalogSort.dir === 'asc' ? 1 : -1;
+    data.sort((a, b) => {
+        const va = a[key] || '';
+        const vb = b[key] || '';
+        if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+        return va.toString().localeCompare(vb.toString()) * dir;
+    });
+
+    const totalPages = Math.ceil(data.length / catalogPageSize) || 1;
+    if (catalogPage > totalPages) catalogPage = Math.max(1, totalPages);
+    const start = (catalogPage - 1) * catalogPageSize;
+    const pageData = data.slice(start, start + catalogPageSize);
+
+    const tbody = document.getElementById('catalogBody');
+    if (!tbody) return;
+
+    if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--text-muted);"><i class="fas fa-search" style="font-size:2rem;margin-bottom:0.5rem;display:block;opacity:0.5;"></i>No se encontraron instituciones con los filtros seleccionados.</td></tr>`;
+    } else {
+        tbody.innerHTML = pageData.map(item => {
+            const pass = item.criteriosPassCount !== undefined ? item.criteriosPassCount : 7;
+            const pend = 7 - pass;
+            const pctVal = ((pass / 7) * 100).toFixed(2);
+
+            let badgeEstado = '';
+            if (pass === 7) {
+                badgeEstado = `<span class="badge" style="background:rgba(34,197,94,0.15); color:#16a34a; font-weight:700;"><i class="fas fa-check-circle"></i> 100.00% Cumple</span>`;
+            } else if (pass > 0) {
+                badgeEstado = `<span class="badge" style="background:rgba(245,166,35,0.15); color:#d97706; font-weight:700;"><i class="fas fa-clock"></i> ${pctVal}% En proceso</span>`;
+            } else {
+                badgeEstado = `<span class="badge" style="background:rgba(239,68,68,0.15); color:#dc2626; font-weight:700;"><i class="fas fa-times-circle"></i> 0.00% No cumple</span>`;
+            }
+
+            return `
+                <tr>
+                    <td><strong>${item.nombre}</strong></td>
+                    <td><span class="badge" style="background:var(--surface);color:var(--text-muted);">${item.siglas}</span></td>
+                    <td>${item.sector}</td>
+                    <td style="text-align:center;">
+                        <span class="badge" style="background:${pass === 7 ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.10)'}; color:#16a34a; font-weight:700;">
+                            ${pass} / 7
+                        </span>
+                    </td>
+                    <td style="text-align:center;">
+                        <span class="badge" style="background:${pend === 0 ? 'rgba(34,197,94,0.15)' : 'rgba(245,166,35,0.15)'}; color:${pend === 0 ? '#16a34a' : '#d97706'}; font-weight:700;">
+                            ${pend} / 7
+                        </span>
+                    </td>
+                    <td style="text-align:center; font-weight:700;">${item.total}</td>
+                    <td style="text-align:center;">${badgeEstado}</td>
+                    <td style="text-align:center;">
+                        <button class="btn-sm primary" onclick="openInstitutionalProfile('${item.nombre}')" style="font-size:0.78rem; padding:0.35rem 0.85rem; border-radius:20px; cursor:pointer;">
+                            <i class="fas fa-id-card"></i> Ver Ficha
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    const pag = document.getElementById('catalogPagination');
+    if (pag) {
+        pag.innerHTML = '';
+        if (totalPages > 1) {
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                if (i === catalogPage) btn.classList.add('active');
+                btn.addEventListener('click', () => { catalogPage = i; renderCatalog(); });
+                pag.appendChild(btn);
+            }
+        }
+    }
+}
+
+window.resetAllCatalogFilters = function() {
+    const ids = ['catalogSearch', 'catalogFilterSector', 'catalogFilterInst', 'catalogFilterRegistro', 'catalogFilterDocs', 'catalogFilterStatus', 'catalogFilterCriterio'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    catalogPage = 1;
+    renderCatalog();
+};
+
+window.openInstitutionalProfile = function(instName) {
+    const inst = catalogInstituciones.find(i => i.nombre === instName) || { nombre: instName, siglas: 'GOBC', sector: 'Organismo Ejecutivo' };
+    currentSelectedInstName = inst.nombre;
+
+    const criteriosKeys = [
+        { key: 'procedimiento_asignacion', label: '1. Procedimiento para la asignación y uso de vehículos', desc: 'Reglamento o normativo interno aprobado y publicado oficialmente.' },
+        { key: 'registro_interno', label: '2. Registro interno de vehículos', desc: 'Inventario completo y actualizado de la flotilla institucional.' },
+        { key: 'publicacion_registro', label: '3. Publicación del registro institucional', desc: 'Disponibilidad pública del inventario vehicular en el portal de información.' },
+        { key: 'canal_auditoria', label: '4. Canal de auditoría social', desc: 'Módulo o mecanismo habilitado para la fiscalización ciudadana.' },
+        { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', desc: 'Vehículos con rotulación oficial visible según el manual institucional.' },
+        { key: 'disposicion_excepcional', label: '6. Disposición para el uso excepcional autorizado', desc: 'Normativa administrativa para autorizaciones fuera de jornada ordinaria.' },
+        { key: 'justificacion_seguridad', label: '7. Disposición para justificar excepciones por motivos de seguridad', desc: 'Matriz formal de justificación para vehículos exceptuados por seguridad.' }
+    ];
+
+    let passCount = 0;
+    criteriosKeys.forEach(c => {
+        let meets = true;
+        if (inst.criterios && inst.criterios[c.key] !== undefined) {
+            const crit = inst.criterios[c.key];
+            meets = !!(crit && (crit.cumple === true || crit.estado === 'cumple'));
+        }
+        if (meets) passCount++;
+    });
+
+    const instCumplePct = ((passCount / 7) * 100).toFixed(2);
+    let pctColor = 'var(--green)';
+    if (passCount < 7 && passCount > 0) pctColor = 'var(--amber)';
+    else if (passCount === 0) pctColor = 'var(--danger)';
+
+    const headerEl = document.getElementById('instModalHeader');
+    if (headerEl) {
+        headerEl.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                <div>
+                    <span class="badge" style="background:var(--surface); color:var(--text-muted); margin-bottom:0.4rem; display:inline-block;">${inst.sector || 'Organismo Ejecutivo'}</span>
+                    <h2 style="font-family:var(--font-head); font-size:1.5rem; font-weight:800; color:var(--text-main); margin:0.2rem 0;">${inst.nombre}</h2>
+                    <span style="font-weight:700; color:var(--cyan); font-size:0.95rem;">SIGLAS: ${inst.siglas || '—'}</span>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-family:var(--font-head); font-size:1.8rem; font-weight:800; color:${pctColor};">${instCumplePct}%</div>
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Cumplimiento Criterios (${passCount}/7)</span>
+                </div>
+            </div>
+        `;
+    }
+
+    const listEl = document.getElementById('instCriteriosList');
+    if (listEl) {
+        listEl.innerHTML = criteriosKeys.map(c => {
+            const critData = inst.criterios && inst.criterios[c.key] ? inst.criterios[c.key] : { cumple: true, docUrl: '#' };
+            const meets = !!(critData.cumple === true || critData.estado === 'cumple');
+            return `
+                <div class="criterio-check-row">
+                    <div style="flex:1;">
+                        <div style="font-family:var(--font-head); font-weight:700; font-size:0.92rem; color:var(--text-main); margin-bottom:0.2rem;">${c.label}</div>
+                        <div style="font-size:0.82rem; color:var(--text-muted);">${c.desc}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+                        <span class="badge-status-check ${meets ? 'pass' : 'fail'}">
+                            <i class="fas ${meets ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${meets ? 'Cumple' : 'No cumple'}
+                        </span>
+                        ${critData.docUrl ? `<a href="${critData.docUrl}" target="_blank" rel="noopener" class="btn-doc-link"><i class="fas fa-external-link-alt"></i> Consultar documento</a>` : '<span style="font-size:0.78rem; color:var(--text-muted);">Sin doc</span>'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const countBadge = document.getElementById('criteriosCountBadge');
+        if (countBadge) {
+            countBadge.className = passCount === 7 ? 'badge-status-check pass' : 'badge-status-check fail';
+            countBadge.innerHTML = passCount + '/7 Criterios Cumplidos';
+        }
+    }
+
+    const docsEl = document.getElementById('instDocumentosList');
+    if (docsEl) {
+        const docs = inst.documentosPublicos || [];
+        if (docs.length === 0) {
+            docsEl.innerHTML = '<p style="color:var(--text-muted); font-size:0.88rem;">No hay enlaces de documentos registrados para esta institución.</p>';
+        } else {
+            docsEl.innerHTML = docs.map(d => `
+                <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem; display:flex; flex-direction:column; justify-content:space-between; gap:0.8rem;">
+                    <div>
+                        <span class="badge" style="background:var(--surface-card); color:var(--cyan); margin-bottom:0.4rem; display:inline-block; font-weight:700;">${d.tipo}</span>
+                        <div style="font-family:var(--font-head); font-weight:700; font-size:0.9rem; color:var(--text-main); margin-bottom:0.3rem;">${d.titulo}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);"><i class="fas fa-university"></i> Portal de Información Pública</div>
+                    </div>
+                    <a href="${d.url}" target="_blank" rel="noopener" class="btn-doc-link" style="justify-content:center; padding:0.5rem 1rem;">
+                        <i class="fas fa-external-link-alt"></i> Abrir en Portal Oficial
+                    </a>
+                </div>
+            `).join('');
+        }
+    }
+
+    const flotillaEl = document.getElementById('instFlotillaList');
+    if (flotillaEl) {
+        const instVehicles = vehicles.filter(v => v.department === inst.nombre || v.instName === inst.nombre || (v.department && inst.nombre && v.department.toLowerCase() === inst.nombre.toLowerCase()));
+        if (instVehicles.length === 0) {
+            flotillaEl.innerHTML = '<p style="color:var(--text-main); font-weight:600; font-size:0.88rem; padding:1.2rem; background:rgba(0,194,224,0.05); border-radius:12px; border:1px solid var(--border);"><i class="fas fa-info-circle" style="color:var(--cyan); margin-right:6px;"></i> No hay registro de placas individuales asociadas directamente a esta entidad.</p>';
+        } else {
+            flotillaEl.innerHTML = `
+                <div style="font-size:0.88rem; color:#0f172a; font-weight:700; margin-bottom:0.8rem;">
+                    <i class="fas fa-car" style="color:var(--cyan); margin-right:6px;"></i> Mostrando <strong>${instVehicles.length}</strong> vehículos registrados en la flotilla oficial:
+                </div>
+                <div style="max-height:320px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:12px; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.85rem; color:#0f172a; background:#ffffff;">
+                        <thead style="background:#f1f5f9; text-align:left; color:#0f172a; position:sticky; top:0; z-index:10; border-bottom:2px solid #cbd5e1;">
+                            <tr>
+                                <th style="padding:0.75rem 0.9rem; color:#0f172a; font-weight:800; font-family:var(--font-head); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em;">Placa</th>
+                                <th style="padding:0.75rem 0.9rem; color:#0f172a; font-weight:800; font-family:var(--font-head); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em;">Uso Autorizado</th>
+                                <th style="padding:0.75rem 0.9rem; color:#0f172a; font-weight:800; font-family:var(--font-head); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em;">Marca / Año</th>
+                                <th style="padding:0.75rem 0.9rem; text-align:center; color:#0f172a; font-weight:800; font-family:var(--font-head); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em;">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${instVehicles.map((v, idx) => `
+                                <tr style="border-bottom:1px solid #e2e8f0; background:${idx % 2 === 0 ? '#ffffff' : '#f8fafc'}; color:#0f172a;">
+                                    <td style="padding:0.65rem 0.9rem; font-weight:800; color:#0f172a; font-family:var(--font-head); font-size:0.88rem;">${v.plate || '—'}</td>
+                                    <td style="padding:0.65rem 0.9rem; color:#1e293b; font-weight:600; font-size:0.85rem;">${v.authorizedUse || 'Uso institucional oficial'}</td>
+                                    <td style="padding:0.65rem 0.9rem; color:#334155; font-weight:600; font-size:0.85rem;">${v.brand || ''} ${v.year || ''}</td>
+                                    <td style="padding:0.65rem 0.9rem; text-align:center;">
+                                        <span class="badge" style="background:${(v.status === 'activo' || !v.status) ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)'}; color:${(v.status === 'activo' || !v.status) ? '#15803d' : '#b91c1c'}; font-weight:800; padding:0.3rem 0.75rem; border-radius:20px; font-size:0.78rem; display:inline-block;">
+                                            ${(v.status || 'Activo').toUpperCase()}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+    }
+
+    switchInstModalTab('criterios');
+    const modalEl = document.getElementById('institutionalModal');
+    if (modalEl) modalEl.classList.add('active');
+};
+
+window.closeInstModal = function() {
+    const modalEl = document.getElementById('institutionalModal');
+    if (modalEl) modalEl.classList.remove('active');
+};
+
+window.openRepoDetailModal = function() {
+    const nameEl = document.getElementById('detailName');
+    if (nameEl && nameEl.textContent) {
+        openInstitutionalProfile(nameEl.textContent);
+    }
+};
+
+window.switchInstModalTab = function(tabName) {
+    const tabs = ['criterios', 'documentos', 'flotilla'];
+    tabs.forEach(t => {
+        const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        const content = document.getElementById('instTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) {
+            if (t === tabName) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+        if (content) {
+            if (t === tabName) content.style.display = 'block';
+            else content.style.display = 'none';
+        }
+    });
+};
+
+window.exportCurrentInstPDF = function() {
+    if (!currentSelectedInstName) return;
+    const inst = catalogInstituciones.find(i => i.nombre === currentSelectedInstName) || { nombre: currentSelectedInstName };
+    const instVehicles = vehicles.filter(v => v.department === inst.nombre || v.instName === inst.nombre);
+
+    const criteriosKeys = [
+        { key: 'procedimiento_asignacion', num: '1', label: 'Procedimiento para asignación y uso de vehículos', desc: 'Reglamento o normativo interno aprobado y publicado oficialmente.' },
+        { key: 'registro_interno', num: '2', label: 'Registro interno de vehículos', desc: 'Inventario completo y actualizado de la flotilla institucional.' },
+        { key: 'publicacion_registro', num: '3', label: 'Publicación del registro institucional', desc: 'Disponibilidad pública del inventario vehicular en el portal de información.' },
+        { key: 'canal_auditoria', num: '4', label: 'Canal de auditoría social', desc: 'Módulo o mecanismo habilitado para la fiscalización ciudadana.' },
+        { key: 'identificacion_logotipo', num: '5', label: 'Identificación mediante logotipo oficial', desc: 'Vehículos con rotulación oficial visible según manual institucional.' },
+        { key: 'disposicion_excepcional', num: '6', label: 'Disposición para uso excepcional autorizado', desc: 'Normativa administrativa para autorizaciones fuera de jornada ordinaria.' },
+        { key: 'justificacion_seguridad', num: '7', label: 'Excepciones por motivos de seguridad', desc: 'Matriz formal de justificación para vehículos exceptuados por seguridad.' }
+    ];
+
+    let passCount = 0;
+    const criteriosRows = criteriosKeys.map(c => {
+        let meets = true;
+        if (inst.criterios && inst.criterios[c.key] !== undefined) {
+            meets = !!(inst.criterios[c.key].cumple || inst.criterios[c.key].estado === 'cumple');
+        }
+        if (meets) passCount++;
+        return [c.num, c.label, c.desc, meets ? 'CUMPLE' : 'NO CUMPLE'];
+    });
+
+    const cumplePctVal = ((passCount / 7) * 100).toFixed(2);
+    let estadoGeneral = 'CUMPLE 100%';
+    if (passCount < 7 && passCount > 0) estadoGeneral = 'EN PROCESO';
+    else if (passCount === 0) estadoGeneral = 'NO CUMPLE';
+
+    if (window.jspdf && window.jspdf.jsPDF) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Top Header Banner
+        doc.setFillColor(5, 17, 31);
+        doc.rect(0, 0, pageWidth, 30, 'F');
+
+        // Cyan Accent Line
+        doc.setFillColor(0, 194, 224);
+        doc.rect(0, 28, pageWidth, 2, 'F');
+
+        // Header Text
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.text('FICHA TÉCNICA DE CUMPLIMIENTO INSTITUCIONAL', 14, 13);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(180, 210, 230);
+        doc.text('Transparencia Vehicular · Lineamiento de Gestión y Control 2024 · Organismo Ejecutivo', 14, 20);
+
+        const fechaStr = new Date().toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        doc.setFontSize(8);
+        doc.text(`Fecha de emisión: ${fechaStr}`, pageWidth - 14, 20, { align: 'right' });
+
+        // Institution Summary Card Box
+        let currentY = 38;
+
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(220, 226, 235);
+        doc.roundedRect(14, currentY, pageWidth - 28, 38, 3, 3, 'FD');
+
+        // Institution Title
+        doc.setTextColor(15, 23, 42);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11.5);
+        const titleText = inst.nombre.length > 62 ? inst.nombre.substring(0, 60) + '...' : inst.nombre;
+        doc.text(titleText, 18, currentY + 8);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(70, 80, 95);
+
+        // Summary details
+        doc.text(`Siglas: ${inst.siglas || '—'}`, 18, currentY + 16);
+        doc.text(`Sector: ${inst.sector || 'Organismo Ejecutivo'}`, 75, currentY + 16);
+        doc.text(`Vehículos Registrados: ${instVehicles.length || inst.total || 0}`, 145, currentY + 16);
+
+        doc.text(`Criterios Cumplidos: ${passCount} de 7`, 18, currentY + 24);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text(`Cumplimiento Global: `, 75, currentY + 24);
+
+        if (passCount === 7) doc.setTextColor(22, 163, 74);
+        else if (passCount > 0) doc.setTextColor(217, 119, 6);
+        else doc.setTextColor(220, 38, 38);
+        doc.text(`${cumplePctVal}% (${estadoGeneral})`, 112, currentY + 24);
+
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Evaluación oficial basada en los 7 criterios del Lineamiento Vehicular 2024.`, 18, currentY + 32);
+
+        currentY += 44;
+
+        // Section 1: Criterios Table
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10.5);
+        doc.setTextColor(5, 17, 31);
+        doc.text('1. EVALUACIÓN DETALLADA DE CRITERIOS', 14, currentY);
+
+        doc.autoTable({
+            head: [['#', 'Criterio Evaluado', 'Descripción / Fundamento', 'Estado']],
+            body: criteriosRows,
+            startY: currentY + 4,
+            margin: { left: 14, right: 14 },
+            theme: 'grid',
+            headStyles: {
+                fillColor: [5, 17, 31],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 8.5,
+                halign: 'left'
+            },
+            columnStyles: {
+                0: { cellWidth: 8, halign: 'center', fontStyle: 'bold' },
+                1: { cellWidth: 55, fontStyle: 'bold', fontSize: 8 },
+                2: { fontStyle: 'normal', fontSize: 7.8, textColor: [70, 80, 95] },
+                3: { cellWidth: 26, halign: 'center', fontStyle: 'bold', fontSize: 8 }
+            },
+            didParseCell: function(data) {
+                if (data.section === 'body' && data.column.index === 3) {
+                    if (data.cell.raw === 'CUMPLE') {
+                        data.cell.styles.fillColor = [220, 252, 231];
+                        data.cell.styles.textColor = [22, 163, 74];
+                    } else {
+                        data.cell.styles.fillColor = [254, 226, 226];
+                        data.cell.styles.textColor = [220, 38, 38];
+                    }
+                }
+            }
+        });
+
+        currentY = doc.lastAutoTable.finalY + 9;
+
+        // Section 2: Documentos Públicos
+        if (currentY > pageHeight - 45) {
+            doc.addPage();
+            currentY = 20;
+        }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10.5);
+        doc.setTextColor(5, 17, 31);
+        doc.text('2. DOCUMENTACIÓN PÚBLICA REGISTRADA', 14, currentY);
+
+        const docs = inst.documentosPublicos || [];
+        if (docs.length > 0) {
+            const docsRows = docs.map((d, idx) => [
+                (idx + 1).toString(),
+                d.tipo || 'Normativo',
+                d.titulo || 'Documento de soporte oficial',
+                'Disponible'
+            ]);
+
+            doc.autoTable({
+                head: [['#', 'Tipo de Documento', 'Título / Descripción', 'Disponibilidad']],
+                body: docsRows,
+                startY: currentY + 4,
+                margin: { left: 14, right: 14 },
+                theme: 'striped',
+                headStyles: {
+                    fillColor: [30, 41, 59],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 8.5
+                },
+                columnStyles: {
+                    0: { cellWidth: 8, halign: 'center' },
+                    1: { cellWidth: 40, fontStyle: 'bold', fontSize: 8 },
+                    2: { fontSize: 8 },
+                    3: { cellWidth: 30, halign: 'center', fontSize: 8, textColor: [16, 185, 129] }
+                }
+            });
+            currentY = doc.lastAutoTable.finalY + 9;
+        } else {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.2);
+            doc.setTextColor(100, 116, 139);
+            doc.text('No se registraron enlaces o documentos adicionales en el expediente público.', 14, currentY + 6);
+            currentY += 12;
+        }
+
+        // Section 3: Flotilla Vehicular Summary
+        if (currentY > pageHeight - 45) {
+            doc.addPage();
+            currentY = 20;
+        }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10.5);
+        doc.setTextColor(5, 17, 31);
+        doc.text('3. FLOTILLA VEHICULAR REGISTRADA', 14, currentY);
+
+        if (instVehicles.length > 0) {
+            const maxShow = 20;
+            const displayedVehicles = instVehicles.slice(0, maxShow);
+            const vehRows = displayedVehicles.map(v => [
+                v.plate || '—',
+                v.authorizedUse || 'Uso institucional oficial',
+                `${v.brand || ''} ${v.year || ''}`.trim() || 'No especificado',
+                (v.status || 'Activo').toUpperCase()
+            ]);
+
+            doc.autoTable({
+                head: [['Placa', 'Uso Autorizado', 'Marca / Año', 'Estado']],
+                body: vehRows,
+                startY: currentY + 4,
+                margin: { left: 14, right: 14 },
+                theme: 'striped',
+                headStyles: {
+                    fillColor: [30, 41, 59],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 8.5
+                },
+                columnStyles: {
+                    0: { cellWidth: 30, fontStyle: 'bold', fontSize: 8 },
+                    1: { fontSize: 8 },
+                    2: { cellWidth: 45, fontSize: 8 },
+                    3: { cellWidth: 25, halign: 'center', fontSize: 8, fontStyle: 'bold' }
+                },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index === 3) {
+                        if (data.cell.raw === 'ACTIVO') {
+                            data.cell.styles.textColor = [22, 163, 74];
+                        } else {
+                            data.cell.styles.textColor = [220, 38, 38];
+                        }
+                    }
+                }
+            });
+
+            currentY = doc.lastAutoTable.finalY + 3;
+            if (instVehicles.length > maxShow) {
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(7.8);
+                doc.setTextColor(100, 116, 139);
+                doc.text(`* Mostrando ${maxShow} de ${instVehicles.length} vehículos registrados. Consulte el portal para la totalidad de registros.`, 14, currentY + 4);
+            }
+        } else {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.2);
+            doc.setTextColor(100, 116, 139);
+            doc.text('No hay registros de vehículos o placas individuales asociadas directamente a esta dependencia.', 14, currentY + 6);
+        }
+
+        // Add page numbers and footer on all pages
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setDrawColor(226, 232, 240);
+            doc.line(14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.5);
+            doc.setTextColor(148, 163, 184);
+            doc.text('Plataforma de Transparencia Vehicular · Gobierno de Guatemala', 14, pageHeight - 7);
+            doc.text(`Página ${i} de ${pageCount}`, pageWidth - 14, pageHeight - 7, { align: 'right' });
+        }
+
+        doc.save(`ficha_cumplimiento_${(inst.siglas || 'inst').toLowerCase()}_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+};
+
+window.exportCurrentInstExcel = function() {
+    if (!currentSelectedInstName) return;
+    const inst = catalogInstituciones.find(i => i.nombre === currentSelectedInstName) || { nombre: currentSelectedInstName };
+    const stats = getInstitutionCompliance(currentSelectedInstName);
+
+    if (window.XLSX) {
+        const wb = XLSX.utils.book_new();
+        const exportData = [
+            { 'Institución': inst.nombre, 'Siglas': inst.siglas, 'Sector': inst.sector, 'Cumplimiento %': stats.cumplePct },
+            {},
+            { 'Criterio': '1. Procedimiento de asignación y uso', 'Estado': inst.criterios?.procedimiento_asignacion?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '2. Registro interno de vehículos', 'Estado': inst.criterios?.registro_interno?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '3. Publicación del registro institucional', 'Estado': inst.criterios?.publicacion_registro?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '4. Canal de auditoría social', 'Estado': inst.criterios?.canal_auditoria?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '5. Identificación mediante logotipo oficial', 'Estado': inst.criterios?.identificacion_logotipo?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '6. Disposición para uso excepcional autorizado', 'Estado': inst.criterios?.disposicion_excepcional?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '7. Excepciones por motivos de seguridad', 'Estado': inst.criterios?.justificacion_seguridad?.cumple ? 'Cumple' : 'No cumple' }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Cumplimiento');
+        XLSX.writeFile(wb, `ficha_cumplimiento_${(inst.siglas || 'inst').toLowerCase()}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+};
+
+window.exportCriteriosReportPDF = function() {
+    const stats = computeCriteriaStats();
+    if (window.jspdf && window.jspdf.jsPDF) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        doc.setFillColor(5, 17, 31);
+        doc.rect(0, 0, 210, 28, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('REPORTE CONSOLIDADO CRITERIOS LINEAMIENTO 2024', 14, 15);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Evaluación Técnica de Cumplimiento · Organismo Ejecutivo', 14, 22);
+
+        const rows = stats.map(s => [s.label, `${s.passCount} / ${catalogInstituciones.length}`, `${s.passPct}%`, s.isCritical ? 'Alto Incumplimiento' : 'Adecuado']);
+
+        doc.autoTable({
+            head: [['Criterio Evaluado', 'Entidades que Cumplen', '% Cumplimiento', 'Evaluación']],
+            body: rows,
+            startY: 35,
+            theme: 'striped',
+            headStyles: { fillColor: [5, 17, 31], textColor: 255 }
+        });
+
+        doc.save(`reporte_criterios_cumplimiento_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+};
+
+window.exportCriteriosReportExcel = function() {
+    const stats = computeCriteriaStats();
+    if (window.XLSX) {
+        const wb = XLSX.utils.book_new();
+        const data = stats.map(s => ({
+            'Criterio': s.label,
+            'Entidades Cumplen': s.passCount,
+            'Total Entidades': catalogInstituciones.length,
+            '% Cumplimiento': s.passPct + '%',
+            'Estado': s.isCritical ? 'Alto Incumplimiento' : 'Adecuado'
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, 'Criterios');
+        XLSX.writeFile(wb, `reporte_criterios_cumplimiento_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+};
+
+/* ============================================================
+   LÓGICA DE COMPARATIVA INSTITUCIONAL Y SPIDER CHART (RADAR)
+============================================================ */
+
+const CRITERIA_KEYS_COMPARISON = [
+    { key: 'procedimiento_asignacion', label: '1. Procedimiento para asignación y uso de vehículos', short: 'Asignación', desc: 'Existencia de manual de uso y normativa interna formalizada' },
+    { key: 'registro_interno', label: '2. Registro interno de vehículos', short: 'Registro Interno', desc: 'Inventario de unidades vehiculares debidamente actualizado' },
+    { key: 'publicacion_registro', label: '3. Publicación del registro institucional', short: 'Publicación', desc: 'Información pública accesible sobre la flota' },
+    { key: 'canal_auditoria', label: '4. Canal o vía de auditoría social', short: 'Canal Auditoría', desc: 'Mecanismos para denuncias o reportes ciudadanos' },
+    { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', short: 'Logotipo Oficial', desc: 'Rotulación clara y visible en unidades autorizadas' },
+    { key: 'disposicion_excepcional', label: '6. Disposición para uso excepcional autorizado', short: 'Uso Excepcional', desc: 'Regulación para uso fuera de jornada o comisiones' },
+    { key: 'justificacion_seguridad', label: '7. Excepciones por motivos de seguridad', short: 'Motivos Seguridad', desc: 'Justificación documentada para vehículos de seguridad' }
+];
+
+let spiderChartInstance = null;
+
+function populateComparisonSelects() {
+    const selectA = document.getElementById('compareInstA');
+    const selectB = document.getElementById('compareInstB');
+    if (!selectA || !selectB) return;
+
+    if (!catalogData || !catalogData.length) return;
+
+    selectA.innerHTML = '';
+    selectB.innerHTML = '';
+
+    catalogData.forEach(inst => {
+        const optionA = document.createElement('option');
+        optionA.value = inst.nombre;
+        optionA.textContent = `${inst.nombre} (${inst.siglas || '—'})`;
+
+        const optionB = document.createElement('option');
+        optionB.value = inst.nombre;
+        optionB.textContent = `${inst.nombre} (${inst.siglas || '—'})`;
+
+        selectA.appendChild(optionA);
+        selectB.appendChild(optionB);
+    });
+
+    if (catalogData.length > 0) {
+        const magaIndex = catalogData.findIndex(i => (i.siglas && i.siglas.toUpperCase() === 'MAGA') || i.nombre.toLowerCase().includes('agricultura'));
+        const minecoIndex = catalogData.findIndex(i => (i.siglas && i.siglas.toUpperCase() === 'MINECO') || i.nombre.toLowerCase().includes('economía'));
+
+        selectA.selectedIndex = magaIndex >= 0 ? magaIndex : 0;
+        selectB.selectedIndex = minecoIndex >= 0 ? minecoIndex : (catalogData.length > 1 ? 1 : 0);
+    }
+
+    selectA.addEventListener('change', updateComparisonView);
+    selectB.addEventListener('change', updateComparisonView);
+
+    const btnSwap = document.getElementById('btnSwapCompare');
+    if (btnSwap) {
+        btnSwap.addEventListener('click', () => {
+            const tempVal = selectA.value;
+            selectA.value = selectB.value;
+            selectB.value = tempVal;
+            updateComparisonView();
+        });
+    }
+
+    updateComparisonView();
+}
+
+window.setComparisonPreset = function(siglaA, siglaB) {
+    const selectA = document.getElementById('compareInstA');
+    const selectB = document.getElementById('compareInstB');
+    if (!selectA || !selectB || !catalogData) return;
+
+    const instA = catalogData.find(i => (i.siglas && i.siglas.toUpperCase() === siglaA.toUpperCase()) || i.nombre.toUpperCase().includes(siglaA.toUpperCase()));
+    const instB = catalogData.find(i => (i.siglas && i.siglas.toUpperCase() === siglaB.toUpperCase()) || i.nombre.toUpperCase().includes(siglaB.toUpperCase()));
+
+    if (instA) selectA.value = instA.nombre;
+    if (instB) selectB.value = instB.nombre;
+
+    updateComparisonView();
+
+    const compSection = document.getElementById('comparisonSection');
+    if (compSection) {
+        compSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+function updateComparisonView() {
+    const selectA = document.getElementById('compareInstA');
+    const selectB = document.getElementById('compareInstB');
+    if (!selectA || !selectB || !catalogData || !catalogData.length) return;
+
+    const nameA = selectA.value;
+    const nameB = selectB.value;
+
+    const instA = catalogData.find(i => i.nombre === nameA) || catalogData[0];
+    const instB = catalogData.find(i => i.nombre === nameB) || (catalogData[1] || catalogData[0]);
+
+    updateInstCard('A', instA);
+    updateInstCard('B', instB);
+
+    renderSpiderChart(instA, instB);
+    renderComparisonTable(instA, instB);
+    renderComparisonSummary(instA, instB);
+}
+
+function updateInstCard(type, inst) {
+    const titleEl = document.getElementById(`card${type}Title`);
+    const subEl = document.getElementById(`card${type}Sub`);
+    const percentEl = document.getElementById(`card${type}Percent`);
+    const passCountEl = document.getElementById(`card${type}PassCount`);
+    const fleetEl = document.getElementById(`card${type}FleetTotal`);
+    const statusEl = document.getElementById(`card${type}StatusTag`);
+    const btnDetail = document.getElementById(`btnCard${type}Detail`);
+    const thHeader = document.getElementById(`thInst${type}Header`);
+
+    const passCount = inst.criteriosPassCount || 0;
+    const percent = Math.round((passCount / 7) * 100);
+
+    if (titleEl) titleEl.textContent = inst.nombre;
+    if (subEl) subEl.textContent = `Siglas: ${inst.siglas || '—'} | Sector: ${inst.sector || 'Público'}`;
+    if (percentEl) percentEl.textContent = `${percent}%`;
+    if (passCountEl) passCountEl.textContent = `${passCount}/7 Cumplidos`;
+    if (fleetEl) fleetEl.textContent = `${inst.total || 0} vehículos`;
+    if (thHeader) thHeader.textContent = inst.siglas && inst.siglas !== '—' ? inst.siglas : inst.nombre.substring(0, 20);
+
+    let statusText = '🔴 No Cumple';
+    let statusClass = 'nocumple';
+    if (passCount === 7) {
+        statusText = '🟢 Cumple (100%)';
+        statusClass = 'cumple';
+    } else if (passCount > 0) {
+        statusText = '🟡 En Proceso';
+        statusClass = 'proceso';
+    }
+
+    if (statusEl) {
+        statusEl.innerHTML = `<span class="status-pill ${statusClass}">${statusText}</span>`;
+    }
+
+    if (btnDetail) {
+        btnDetail.onclick = () => {
+            if (typeof openInstitutionalProfile === 'function') {
+                openInstitutionalProfile(inst.nombre);
+            }
+        };
+    }
+}
+
+function renderSpiderChart(instA, instB) {
+    const canvas = document.getElementById('spiderChartCanvas');
+    if (!canvas) return;
+
+    if (spiderChartInstance) {
+        spiderChartInstance.destroy();
+    }
+
+    const labels = CRITERIA_KEYS_COMPARISON.map(c => c.short);
+    const scoresA = CRITERIA_KEYS_COMPARISON.map(c => getCriterionScore(instA, c.key));
+    const scoresB = CRITERIA_KEYS_COMPARISON.map(c => getCriterionScore(instB, c.key));
+
+    const labelA = instA.siglas && instA.siglas !== '—' ? instA.siglas : instA.nombre.substring(0, 18);
+    const labelB = instB.siglas && instB.siglas !== '—' ? instB.siglas : instB.nombre.substring(0, 18);
+
+    spiderChartInstance = new Chart(canvas, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: labelA,
+                    data: scoresA,
+                    fill: true,
+                    backgroundColor: 'rgba(0, 194, 224, 0.25)',
+                    borderColor: '#00C2E0',
+                    pointBackgroundColor: '#00C2E0',
+                    pointBorderColor: '#ffffff',
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderColor: '#00C2E0',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderWidth: 2.8
+                },
+                {
+                    label: labelB,
+                    data: scoresB,
+                    fill: true,
+                    backgroundColor: 'rgba(245, 166, 35, 0.25)',
+                    borderColor: '#F5A623',
+                    pointBackgroundColor: '#F5A623',
+                    pointBorderColor: '#ffffff',
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderColor: '#F5A623',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderWidth: 2.8
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: { family: 'DM Sans', size: 12, weight: 'bold' },
+                        color: '#0C1F30',
+                        usePointStyle: true,
+                        padding: 16
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#05111F',
+                    titleFont: { family: 'Sora', size: 13, weight: 'bold' },
+                    bodyFont: { family: 'DM Sans', size: 12 },
+                    padding: 10,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            const val = context.raw;
+                            let text = '🔴 No cumple (0%)';
+                            if (val === 100) text = '🟢 Cumple (100%)';
+                            else if (val === 50) text = '🟡 En Proceso (50%)';
+                            return ` ${context.dataset.label}: ${text}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    min: 0,
+                    max: 100,
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 25,
+                        display: true,
+                        backdropColor: 'transparent',
+                        color: '#5E7A8E',
+                        font: { size: 10, weight: '600' },
+                        callback: function(val) { return val + '%'; }
+                    },
+                    angleLines: {
+                        color: 'rgba(26, 92, 143, 0.2)',
+                        lineWidth: 1
+                    },
+                    grid: {
+                        color: 'rgba(26, 92, 143, 0.18)',
+                        circular: true
+                    },
+                    pointLabels: {
+                        font: { family: 'Sora', size: 11, weight: '700' },
+                        color: '#0C1F30'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function getCriterionScore(instData, key) {
+    if (!instData || !instData.criterios) return 0;
+    const c = instData.criterios[key];
+    if (!c) return 0;
+    if (c.cumple === true || c.estado === 'cumple') return 100;
+    if (c.estado === 'proceso' || c.estado === 'parcial' || c.proceso || c.en_proceso) return 50;
+    return 0;
+}
+
+function getCriterionBadge(score) {
+    if (score === 100) return '<span class="status-pill cumple"><i class="fas fa-check-circle"></i> Cumple</span>';
+    if (score === 50) return '<span class="status-pill proceso"><i class="fas fa-clock"></i> En proceso</span>';
+    return '<span class="status-pill nocumple"><i class="fas fa-times-circle"></i> No cumple</span>';
+}
+
+function renderComparisonTable(instA, instB) {
+    const tbody = document.getElementById('comparisonCriteriaTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    CRITERIA_KEYS_COMPARISON.forEach(c => {
+        const scoreA = getCriterionScore(instA, c.key);
+        const scoreB = getCriterionScore(instB, c.key);
+
+        let diffHtml = '';
+        if (scoreA === scoreB) {
+            diffHtml = '<span class="diff-badge equal"><i class="fas fa-equals"></i> Paridad</span>';
+        } else if (scoreA > scoreB) {
+            diffHtml = `<span class="diff-badge win-a"><i class="fas fa-arrow-left"></i> Superior A</span>`;
+        } else {
+            diffHtml = `<span class="diff-badge win-b">Superior B <i class="fas fa-arrow-right"></i></span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <div style="font-weight:700; color:var(--text-main); font-size:0.9rem;">
+                    ${c.label}
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-muted); font-weight:normal;">
+                    ${c.desc}
+                </div>
+            </td>
+            <td style="text-align:center;">
+                ${getCriterionBadge(scoreA)}
+            </td>
+            <td style="text-align:center;">
+                ${diffHtml}
+            </td>
+            <td style="text-align:center;">
+                ${getCriterionBadge(scoreB)}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderComparisonSummary(instA, instB) {
+    const titleEl = document.getElementById('compareSummaryTitle');
+    const textEl = document.getElementById('compareSummaryText');
+    if (!titleEl || !textEl) return;
+
+    const passA = instA.criteriosPassCount || 0;
+    const passB = instB.criteriosPassCount || 0;
+    const percentA = Math.round((passA / 7) * 100);
+    const percentB = Math.round((passB / 7) * 100);
+
+    const sigA = instA.siglas && instA.siglas !== '—' ? instA.siglas : instA.nombre;
+    const sigB = instB.siglas && instB.siglas !== '—' ? instB.siglas : instB.nombre;
+
+    if (instA.nombre === instB.nombre) {
+        titleEl.textContent = `Selección idéntica: ${sigA}`;
+        textEl.textContent = `Has seleccionado la misma institución en ambos paneles. Selecciona dos instituciones distintas para evaluar las brechas de cumplimiento.`;
+        return;
+    }
+
+    let summary = '';
+    if (passA === passB) {
+        titleEl.textContent = `Paridad de Cumplimiento (${percentA}%) entre ${sigA} y ${sigB}`;
+        summary = `Ambas instituciones registran exactamente el mismo nivel de cumplimiento de los criterios evaluados (<strong>${passA} de 7 criterios aprobados</strong>). Su cobertura de transparencia vehicular es idéntica en este ciclo.`;
+    } else if (passA > passB) {
+        const gap = percentA - percentB;
+        titleEl.textContent = `${sigA} supera a ${sigB} por una brecha de +${gap.toFixed(0)}%`;
+        summary = `<strong>${sigA}</strong> registra un <strong>${percentA}%</strong> de cumplimiento (${passA}/7 criterios) frente a un <strong>${percentB}%</strong> de <strong>${sigB}</strong> (${passB}/7 criterios). La mayor diferencia radica en los criterios donde ${sigA} mantiene normativa documentada mientras ${sigB} se encuentra en proceso o sin publicación formal.`;
+    } else {
+        const gap = percentB - percentA;
+        titleEl.textContent = `${sigB} supera a ${sigA} por una brecha de +${gap.toFixed(0)}%`;
+        summary = `<strong>${sigB}</strong> registra un <strong>${percentB}%</strong> de cumplimiento (${passB}/7 criterios) frente a un <strong>${percentA}%</strong> de <strong>${sigA}</strong> (${passA}/7 criterios). La mayor diferencia radica en los criterios donde ${sigB} mantiene normativa documentada mientras ${sigA} se encuentra en proceso o sin publicación formal.`;
+    }
+
+    textEl.innerHTML = summary;
+}
+
 </script>
+<script src="/js/pia-chatbot.js" defer></script>
+<script src="/js/sw-register.js"></script>
 </body>
 </html>

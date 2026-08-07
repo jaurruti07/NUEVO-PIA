@@ -186,19 +186,62 @@
             padding: 6rem 0 5rem;
             text-align: center;
         }
-        .hero-bg {
+        .hero-bg-slider {
             position: absolute; inset: 0; z-index: 0;
-            background-image: url('https://i.postimg.cc/K8NqSqHQ/wallpaper-directorio-acceso-ejecutivo.png');
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute; inset: 0;
             background-size: cover; background-position: center 30%;
-            filter: grayscale(30%) brightness(0.35) saturate(0.6);
+            filter: brightness(0.48) contrast(1.1);
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 7s ease-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+            padding: 5px 12px;
+            background: rgba(5, 17, 31, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 50px;
+        }
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .hero-dot:hover {
+            background: rgba(0, 194, 224, 0.8);
+        }
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 12px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 194, 224, 0.6);
         }
         .hero::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
             background:
                 radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.45), transparent),
-                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.18), transparent),
-                linear-gradient(180deg, rgba(5,17,31,0.55) 0%, rgba(5,17,31,0.82) 100%);
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.22), transparent),
+                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.90) 100%);
         }
         .hero::after {
             content: '';
@@ -1710,7 +1753,27 @@
             .modal-channels-grid { grid-template-columns: 1fr; }
             .glosario-grid { grid-template-columns: 1fr; }
         }
-    </style>
+    
+        /* Push notifications mobile */
+        .push-notify-banner { display: none !important;  background:#1a365d; border-radius:var(--radius-2xl); padding:1.4rem 1.8rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; box-shadow:0 10px 30px rgba(5,17,31,0.2); color:#fff; }
+        .push-notify-content { display:flex; align-items:center; gap:1.2rem; flex:1 1 300px; }
+        .push-notify-icon { width:52px; height:52px; border-radius:16px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.4); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--cyan); flex-shrink:0; box-shadow:0 0 15px rgba(0,194,224,0.2); }
+        .push-notify-info h4 { font-family:var(--font-head); font-size:1.08rem; font-weight:800; margin-bottom:0.25rem; color:#fff; display:flex; align-items:center; gap:0.6rem; }
+        .push-notify-info p { font-size:0.85rem; color:rgba(255,255,255,0.8); line-height:1.45; margin:0; }
+        .push-notify-actions { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; }
+        .btn-push-subscribe { background:var(--cyan); color:var(--navy); border:none; padding:0.65rem 1.3rem; border-radius:40px; font-weight:700; font-size:0.82rem; display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.25s; font-family:var(--font-head); box-shadow:0 4px 12px rgba(0,194,224,0.3); }
+        .btn-push-subscribe:hover { background:#00ddf7; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,194,224,0.45); }
+        .btn-push-subscribe.active { background:#16a34a; color:#fff; box-shadow:0 4px 12px rgba(22,163,74,0.3); }
+        
+        .push-status-badge { font-size:0.75rem; padding:0.2rem 0.6rem; border-radius:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .push-status-default { background:rgba(255,255,255,0.1); color:#fff; }
+        .push-status-granted { background:rgba(22,163,74,0.2); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+        .push-status-denied { background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(248,113,113,0.3); }
+        
+        #directorio.theme-dark .push-notify-banner, #gobierno-numeros.theme-dark .push-notify-banner { display: none !important;  background: #0F1E2E; border:1px solid rgba(255,255,255,0.05); }
+        #directorio.theme-light .push-notify-banner, #gobierno-numeros.theme-light .push-notify-banner { display: none !important;  background: #1a365d; }
+    
+</style>
 </head>
 <body>
 
@@ -1722,7 +1785,7 @@
         <nav class="navbar">
             <div class="logo-area">
                 <a href="../" title="Portal Principal">
-                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" class="gov-logo">
+                    <img src="/img/L1.png" alt="Gobierno de Guatemala" class="gov-logo">
                 </a>
             </div>
 
@@ -1735,6 +1798,7 @@
                     <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -1745,7 +1809,6 @@
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
                         <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
                         <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
-                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -1771,7 +1834,19 @@
      HERO
 ============================================================ -->
 <section class="hero">
-    <div class="hero-bg"></div>
+    <div class="hero-bg-slider" id="heroBgSlider">
+        <div class="hero-slide active" style="background-image: url('/img/directoriov2.2.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/wallpaperdirectorio.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/wallpaper_directorio_acceso_ejecutivo.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/wallpaperportal3.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/logodirectorio2.png');"></div>
+    </div>
+    <div class="hero-slider-dots" id="heroSliderDots">
+        <button class="hero-dot active" aria-label="Diapositiva 1"></button>
+        <button class="hero-dot" aria-label="Diapositiva 2"></button>
+        <button class="hero-dot" aria-label="Diapositiva 3"></button>
+        <button class="hero-dot" aria-label="Diapositiva 4"></button>
+    </div>
     <div class="container hero-inner">
         <div class="hero-eyebrow"><span></span>Transparencia y Acceso a la Información</div>
         <h1>Directorio:<br><em>Acceso al Ejecutivo</em></h1>
@@ -1829,7 +1904,7 @@
                 </div>
             </div>
             <div class="info-band-img">
-                <img src="https://i.postimg.cc/jjr1pN2s/logo-directorio-acceso-al-ejecutivo2.png" alt="Directorio de Acceso al Ejecutivo">
+                <img src="/img/logodirectorio2.png" alt="Directorio de Acceso al Ejecutivo">
             </div>
         </div>
     </section>
@@ -1915,7 +1990,10 @@
         </div>
 
         <!-- FILTROS DE BÚSQUEDA -->
-        <div class="filter-bar">
+        
+            
+    
+<div class="filter-bar">
             <div class="filter-bar-header">
                 <div class="filter-bar-title">
                     <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
@@ -2100,8 +2178,8 @@
     <div class="container">
         <div class="footer-grid">
             <div class="footer-brand">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
-                <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
+                <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
                 <p>Directorio de Acceso al Ejecutivo — Herramienta oficial para localizar los canales de acceso a la información pública del Organismo Ejecutivo.</p>
             </div>
 
@@ -2118,7 +2196,6 @@
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
-                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
                 </ul>
             </div>
@@ -2126,8 +2203,9 @@
             <div class="footer-col">
                 <h4>Accede a la información</h4>
                 <ul class="footer-links">
-                    <li><a href="directorio/">Directorio acceso al ejecutivo</a></li>
-                    <li><a href="gobierno_en_numeros/">Tu Gobierno en números</a></li>
+                    <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
+                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
+                    <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
                 <h4 style="margin-top:1.5rem;">Aprende</h4>
                 <ul class="footer-links">
@@ -2153,8 +2231,8 @@
         <div class="footer-bottom">
             <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
-                <img src="https://i.postimg.cc/jjr1pN2s/logo-directorio-acceso-al-ejecutivo2.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
+                <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                <img src="/img/logodirectorio2.png" alt="Directorio de Acceso al Ejecutivo" style="height:36px; width:auto; opacity:0.6;">
             </div>
         </div>
     </div>
@@ -2189,6 +2267,53 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script>
 /* ============================================================
+   HERO BANNER BACKGROUND SLIDER
+============================================================ */
+(function initHeroBgSlider() {
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+        const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            let nextIndex = (currentIndex + 1) % slides.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoplay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    });
+})();
+
+/* ============================================================
    DATA CARGA DESDE JSON EXTERNO
 ============================================================ */
 let instituciones = [];
@@ -2206,6 +2331,9 @@ let currentFilters = {
 };
 let currentTheme = localStorage.getItem('dir_theme') || 'light';
 let currentView = localStorage.getItem('dir_view') || 'cards';
+let currentCardsPage = 1;
+let currentListPage = 1;
+const ITEMS_PER_PAGE = 15;
 let recognition = null;
 
 /* ============================================================
@@ -2350,13 +2478,20 @@ function sumTelefono(list) { return list.filter(i => i.telefono && i.telefono.tr
 /* ============================================================
    RENDER TARJETAS
 ============================================================ */
-function renderCards(list) {
+function renderCards(list, append = false) {
+    if (!append) {
+        $cards.innerHTML = '';
+        currentCardsPage = 1;
+    }
+    const start = (currentCardsPage - 1) * ITEMS_PER_PAGE;
+    const pageList = list.slice(start, start + ITEMS_PER_PAGE);
+
     $cards.innerHTML = '';
 
     if (!list.length) {
         $cards.innerHTML = `<div class="swiper-slide"><div style="background:#fff;border-radius:var(--radius-xl);padding:3rem;text-align:center;color:var(--text-muted);width:100%;">No se encontraron instituciones.</div></div>`;
     } else {
-        list.forEach(inst => {
+        pageList.forEach(inst => {
             const phone = cleanPhone(inst.telefono);
             const addr  = encodeURIComponent(inst.direccion || '');
             const safe  = inst.nombre_institucion.replace(/'/g,"\\'");
@@ -2580,6 +2715,7 @@ window._openModal = function(nombre) {
         </div></div>
         <div class="modal-actions-row">
             <button class="modal-action-btn whatsapp" onclick="window._shareCard('${safe}')"><i class="fab fa-whatsapp"></i> Compartir</button>
+            <button class="modal-action-btn" style="background:#0F1E2E; color:white;" onclick="window._exportFichaPdf('${safe}')"><i class="fas fa-file-pdf"></i> PDF</button>
         </div>
     `;
 
@@ -2634,17 +2770,22 @@ document.querySelectorAll('.modal-tab').forEach(tab => {
 /* ============================================================
    RENDER VISTA DE LISTA
 ============================================================ */
-function renderList(list) {
+function renderList(list, append = false) {
     const $list = document.getElementById('listContainer');
     if (!$list) return;
-    $list.innerHTML = '';
+    if (!append) {
+        $list.innerHTML = '';
+        currentListPage = 1;
+    }
+    const start = (currentListPage - 1) * ITEMS_PER_PAGE;
+    const pageList = list.slice(start, start + ITEMS_PER_PAGE);
 
     if (!list.length) {
         $list.innerHTML = `<div style="background:#fff; border-radius:var(--radius-xl); padding:3rem; text-align:center; color:var(--text-muted); width:100%; border:1px solid var(--border);">No se encontraron instituciones.</div>`;
         return;
     }
 
-    list.forEach(inst => {
+    pageList.forEach(inst => {
         const phone = cleanPhone(inst.telefono);
         const safe  = inst.nombre_institucion.replace(/'/g,"\\'");
         const tieneSolicitud = inst.solicitud_en_linea === true;
@@ -2676,11 +2817,60 @@ function renderList(list) {
         `;
         $list.appendChild(row);
     });
+
+    if (start + ITEMS_PER_PAGE < list.length) {
+        const trigger = document.createElement('div');
+        trigger.className = 'load-more-trigger';
+        trigger.style = 'width:100%;text-align:center;padding:1rem;color:var(--text-muted);font-weight:bold;';
+        trigger.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando más...';
+        $list.appendChild(trigger);
+        
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                observer.disconnect();
+                trigger.remove();
+                currentListPage++;
+                renderList(list, true);
+            }
+        });
+        observer.observe(trigger);
+    }
 }
 
 /* ============================================================
    CAMBIO DE VISTA (TARJETAS / LISTA)
 ============================================================ */
+
+window._exportFichaPdf = async function() {
+    const { jsPDF } = window.jspdf;
+    const nombre = document.getElementById('modalInstName').textContent;
+    if (!nombre) { alert('No hay datos para exportar.'); return; }
+    const doc = new jsPDF({ orientation:'p', unit:'mm', format:'letter' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text('Ficha de Institución - Directorio', pageWidth/2, 20, { align:'center' });
+    
+    doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text(nombre, 20, 35);
+    
+    // We can extract data from the DOM or find the inst again
+    const inst = instituciones.find(i => (i.nombre_institucion + (i.siglas ? ' ('+i.siglas+')' : '')) === nombre);
+    if (!inst) return;
+    
+    doc.setFontSize(10); doc.setFont('helvetica','normal');
+    doc.text(`Sector: ${inst.sector || 'N/A'}`, 20, 45);
+    doc.text(`Departamento: ${inst.departamento || 'N/A'}`, 20, 52);
+    doc.text(`Correo: ${inst.correo || 'N/A'}`, 20, 59);
+    doc.text(`Teléfono: ${inst.telefono || 'N/A'}`, 20, 66);
+    doc.text(`Horario: ${inst.horario_atencion || 'N/A'}`, 20, 73);
+    
+    const addr = doc.splitTextToSize(`Dirección: ${inst.direccion || 'N/A'}`, pageWidth - 40);
+    doc.text(addr, 20, 80);
+    
+    doc.save(`Ficha_${inst.nombre_institucion}.pdf`);
+};
+
 function switchView(view) {
     currentView = view;
     localStorage.setItem('dir_view', currentView);
@@ -2831,7 +3021,7 @@ async function exportToPdf() {
     const doc = new jsPDF({ orientation:'l', unit:'mm', format:'legal' });
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 10;
-    const logoUrl = 'https://i.postimg.cc/k54W9fFW/gobierno-de-guatemala-2025-logo-png-seeklogo-622007.png';
+    const logoUrl = '/img/logo-gobierno-pdf.png';
     const loadImg = url => new Promise((res) => {
         const img = new Image(); img.crossOrigin = 'Anonymous';
         img.onload = () => res(img); img.onerror = () => res(null);
@@ -2928,15 +3118,52 @@ function exportToExcel() {
 /* ============================================================
    BÚSQUEDA POR VOZ
 ============================================================ */
-if ('webkitSpeechRecognition' in window) {
-    recognition = new webkitSpeechRecognition();
+if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognitionClass();
     recognition.lang = 'es-ES';
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.onstart = () => { $voiceBtn.classList.add('listening'); $voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>'; };
-    recognition.onend   = () => { $voiceBtn.classList.remove('listening'); $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; };
-    recognition.onresult = e => { $searchInput.value = e.results[0][0].transcript; $searchInput.dispatchEvent(new Event('input')); };
-    $voiceBtn.addEventListener('click', () => { try { recognition.start(); } catch(e) {} });
+
+    recognition.onstart = () => {
+        $voiceBtn.classList.add('listening');
+        $voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        if (typeof showToast === 'function') showToast('🎙️ Escuchando... habla ahora');
+    };
+
+    recognition.onresult = e => {
+        if (e.results && e.results[0] && e.results[0][0]) {
+            const transcript = e.results[0][0].transcript.trim();
+            $searchInput.value = transcript;
+            $searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            readFilters();
+            if (typeof showToast === 'function') showToast(`🎙️ Buscando por voz: "${transcript}"`);
+        }
+    };
+
+    recognition.onend = () => {
+        $voiceBtn.classList.remove('listening');
+        $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        if ($searchInput.value && $searchInput.value.trim() !== '') {
+            readFilters();
+        }
+    };
+
+    recognition.onerror = (err) => {
+        $voiceBtn.classList.remove('listening');
+        $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        if (err.error !== 'no-speech' && typeof showToast === 'function') {
+            showToast('⚠️ No se detectó audio de voz. Intenta de nuevo.');
+        }
+    };
+
+    $voiceBtn.addEventListener('click', () => {
+        if ($voiceBtn.classList.contains('listening')) {
+            try { recognition.stop(); } catch(e) {}
+        } else {
+            try { recognition.start(); } catch(e) {}
+        }
+    });
 } else {
     $voiceBtn.style.display = 'none';
 }
@@ -3040,7 +3267,103 @@ async function cargarDatosYIniciar() {
     }
 }
 cargarDatosYIniciar();
+
+/* ============================================================
+   SISTEMA DE NOTIFICACIONES PUSH
+============================================================ */
+function updatePushStatusUI() {
+    const bannerBadge = document.getElementById('pushStatusBadgeBanner');
+    const subscribeBtn = document.getElementById('btnSubscribePush');
+    
+    if(!bannerBadge || !subscribeBtn) return;
+
+    const perm = ("Notification" in window) ? Notification.permission : 'unsupported';
+    let badgeClass = 'push-status-default';
+    let badgeText = 'Pendiente';
+    let btnHtml = '<i class="fas fa-bell"></i> Activar Notificaciones';
+    let btnActiveClass = false;
+
+    if (perm === 'granted') {
+        badgeClass = 'push-status-granted';
+        badgeText = 'Activo';
+        btnHtml = '<i class="fas fa-check-circle"></i> Notificaciones Activas';
+        btnActiveClass = true;
+    } else if (perm === 'denied') {
+        badgeClass = 'push-status-denied';
+        badgeText = 'Bloqueado';
+        btnHtml = '<i class="fas fa-exclamation-circle"></i> Permiso Denegado';
+    } else if (perm === 'unsupported') {
+        badgeClass = 'push-status-default';
+        badgeText = 'In-App';
+        btnHtml = '<i class="fas fa-bell"></i> Alertas In-App';
+    }
+
+    bannerBadge.className = `push-status-badge ${badgeClass}`;
+    bannerBadge.innerText = badgeText;
+    
+    subscribeBtn.innerHTML = btnHtml;
+    if (btnActiveClass) subscribeBtn.classList.add('active');
+    else subscribeBtn.classList.remove('active');
+}
+
+async function requestPushPermission() {
+    if (!("Notification" in window)) {
+        if (typeof showToast === 'function') showToast("🔔 Notificaciones In-App Activadas");
+        updatePushStatusUI();
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        sendPushNotification("🔔 Notificaciones Push Activas", "Las alertas push están habilitadas para esta sección.");
+        return;
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        updatePushStatusUI();
+        if (permission === 'granted') {
+            sendPushNotification("🎉 ¡Notificaciones Activadas!", "Recibirás alertas en tiempo real sobre nuevas actualizaciones institucionales.");
+        } else {
+            if (typeof showToast === 'function') showToast("⚠️ Permiso de Notificaciones denegado");
+        }
+    } catch(e) {
+        console.error("Error al solicitar permiso", e);
+    }
+}
+
+function sendPushNotification(title, body) {
+    if (typeof showToast === 'function') showToast(title);
+    if ("Notification" in window && Notification.permission === 'granted') {
+        try {
+            const notif = new Notification(title, {
+                body: body,
+                icon: '/img/logo-gobierno.png'
+            });
+            notif.onclick = function() { window.focus(); notif.close(); };
+        } catch(e) { console.error("Error Notification API", e); }
+    }
+}
+
+function simularCambioEstadoPush() {
+    if (!instituciones || instituciones.length === 0) return;
+    const item = instituciones[Math.floor(Math.random() * instituciones.length)];
+    sendPushNotification("✅ Actualización en Institución", `${item.nombre_institucion} ha reportado nueva información pública.`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        updatePushStatusUI();
+        const subBtn = document.getElementById('btnSubscribePush');
+        const testBtn = document.getElementById('btnTestPush');
+        if(subBtn) subBtn.addEventListener('click', requestPushPermission);
+        if(testBtn) testBtn.addEventListener('click', simularCambioEstadoPush);
+    }, 1000);
+});
+
 </script>
 
+<script src="/js/pia-chatbot.js" defer></script>
+<script src="/js/sw-register.js">
+</script>
 </body>
 </html>

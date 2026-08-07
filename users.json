@@ -2,7 +2,7 @@
   {
     "id": "usr_1",
     "username": "admin",
-    "password": "pbkdf2:1be7a8063c2f154eda23eacdda8f921d:2e5c17ca318cbdd4b31304e18c79ce5484b20040c2ddaab9431ebf4fde498e6eebbe717a406295a671e683d1f6c7dea2eaed79147d80738c2487e2656596804b",
+    "password": "pbkdf2:504618868247e680d22c551d6c96f719:647fd07d2c53bde211256f880db438835b3de038e94313db7563d4132f6635467daba0a0324f4724e9e2b5b9655dcbcd5650136e6c22a2562330ddb5e0a6b9bf",
     "fullName": "Administrador General PIA",
     "email": "admin@pia.gob.gt",
     "role": "superadmin",
@@ -19,12 +19,12 @@
     "sessionTimeout": "30m",
     "allowedIp": "*",
     "forcePasswordChange": false,
-    "lastLogin": "2026-07-28T19:46:48.419Z"
+    "lastLogin": "2026-08-06T23:46:18.621Z"
   },
   {
     "id": "usr_jaurruti",
     "username": "jaurruti",
-    "password": "pbkdf2:57c0712e87a7d1e86fa6393aa9cf8fd0:19ffbfd6d2d592819918b5611bdb3de55fac68ee0f9386e29db121d6aea1da86c7e99a971f72359ec76a329284aaf1314494ae3c119653f7b5d1c444dcc96f2c",
+    "password": "pbkdf2:f55fab1c0ed1d91f4a18dbb921038466:5c1d480bdb355ad3f777db25b91386799bb19c106bf8ef0e635aaf020d7a5c92697d1b3e10be2be3650e1ef54bf1d38753c9bb6735a076bfd97faac0c1fd5b62",
     "fullName": "Josué Urrutia",
     "email": "josueurrutia@gmail.com",
     "role": "superadmin",
@@ -41,7 +41,7 @@
     "sessionTimeout": "60m",
     "allowedIp": "*",
     "forcePasswordChange": false,
-    "lastLogin": "2026-07-28T20:06:37.195Z"
+    "lastLogin": "2026-08-06T22:20:47.037Z"
   },
   {
     "id": "usr_2",

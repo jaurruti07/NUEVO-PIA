@@ -245,10 +245,9 @@ export const DB_TYPES = {
   }
 };
 
+import { validateDbEngineConfig } from './schema-validator.js';
+
 // Validar configuración
 export function validateDbConfig(dbConfig) {
-  const errors = [];
-  if (!dbConfig.name) errors.push('El nombre es requerido');
-  if (!dbConfig.filePath) errors.push('La ruta o endpoint de datos JSON es requerida');
-  return errors;
+  return validateDbEngineConfig(dbConfig);
 }

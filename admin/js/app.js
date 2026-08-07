@@ -2,6 +2,7 @@
 import { initDatabaseManager } from './database-manager.js';
 import { initUserManager } from './user-manager.js';
 import { initChatbotManager } from './chatbot-manager.js';
+import { validateModuleRecord } from './schema-validator.js';
 
 // Session Inactivity Timer Configuration (30 minutos)
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
@@ -336,6 +337,7 @@ function renderDashboardView() {
                     <button onclick="navigateTo('tableros')" style="padding: 0.6rem 1rem; background: #22C55E; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-bar"></i> Tableros</button>
                     <button onclick="navigateTo('riesgo')" style="padding: 0.6rem 1rem; background: #F97316; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-bullseye"></i> Riesgos</button>
                     <button onclick="navigateTo('vehiculos')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-car"></i> Transparencia Vehicular</button>
+                    <button onclick="navigateTo('vehiculos_instituciones')" style="padding: 0.6rem 1rem; background: #5a189a; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-building"></i> Criterios Vehiculares</button>
                     <button onclick="navigateTo('audit')" style="padding: 0.6rem 1rem; background: #163250; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-shield-alt"></i> Bitácora de Auditoría</button>
                 </div>
             </div>
@@ -726,6 +728,7 @@ function renderCrudView(module) {
         tableros: 'Tu Gobierno en Números (Tableros)',
         riesgo: 'Riesgo en la Mira',
         vehiculos: 'Transparencia Vehicular',
+        vehiculos_instituciones: 'Criterios Evaluados (Instituciones)',
         portal: 'Métricas del Portal Principal'
     };
 
@@ -812,6 +815,36 @@ function renderTableRows(data) {
             <thead><tr><th style="padding: 1rem;">Módulo</th></tr></thead>
             <tbody><tr><td style="padding: 2rem; text-align: center; color: #5E7A8E;">No hay registros en este módulo. Haz clic en "Nuevo Registro" para agregar uno.</td></tr></tbody>
         `;
+        return;
+    }
+
+    if (currentModule === 'vehiculos_instituciones') {
+        let headerHtml = `<tr style="background: #F0F5FB; border-bottom: 2px solid rgba(26,92,143,0.14);">
+            <th style="padding: 0.85rem 1rem;">Institución</th>
+            <th style="padding: 0.85rem 1rem;">Sector / Siglas</th>
+            <th style="padding: 0.85rem 1rem;">Cumplimiento</th>
+            <th style="padding: 0.85rem 1rem; text-align: right;">Acciones</th>
+        </tr>`;
+        let bodyHtml = data.map(row => {
+            let passCount = 0;
+            if (row.criterios) {
+                Object.values(row.criterios).forEach(c => {
+                    if (c && c.cumple) passCount++;
+                });
+            } else {
+                passCount = 7;
+            }
+            return `<tr style="border-bottom: 1px solid #E8EEF7;">
+                <td style="padding: 0.85rem 1rem; font-weight: 700; color: #1A5C8F;">${row.nombre || ''}</td>
+                <td style="padding: 0.85rem 1rem;">${row.sector || ''} <br><small style="color:#5E7A8E;">${row.siglas || ''}</small></td>
+                <td style="padding: 0.85rem 1rem;">${passCount}/7 Criterios Cumplidos</td>
+                <td style="padding: 0.85rem 1rem; text-align: right;">
+                    <button onclick="window.editRecord('${row.nombre}')" style="padding: 0.4rem 0.75rem; background: #00C2E0; color: #05111F; border-radius: 6px; font-weight: 600; margin-right: 0.3rem;"><i class="fas fa-edit"></i></button>
+                    <button onclick="window.deleteRecord('${row.nombre}')" style="padding: 0.4rem 0.75rem; background: #EF4444; color: #fff; border-radius: 6px; font-weight: 600;"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+        table.innerHTML = `<thead>${headerHtml}</thead><tbody>${bodyHtml}</tbody>`;
         return;
     }
 
@@ -1043,6 +1076,64 @@ function openCrudModal(record = null) {
         return;
     }
 
+    if (currentModule === 'vehiculos_instituciones') {
+        const c = record?.criterios || {};
+        
+        fieldsContainer.innerHTML = `
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Institución</label>
+                <input type="text" name="nombre" value="${record?.nombre || ''}" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" ${record ? 'readonly' : ''} />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Siglas</label>
+                    <input type="text" name="siglas" value="${record?.siglas || ''}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Sector</label>
+                    <select name="sector" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                        <option value="Ministerios" ${record?.sector === 'Ministerios' ? 'selected' : ''}>Ministerios</option>
+                        <option value="Secretarías" ${record?.sector === 'Secretarías' ? 'selected' : ''}>Secretarías</option>
+                        <option value="Gobernaciones" ${record?.sector === 'Gobernaciones' ? 'selected' : ''}>Gobernaciones</option>
+                        <option value="Presidencia" ${record?.sector === 'Presidencia' ? 'selected' : ''}>Presidencia</option>
+                        <option value="Otras dependencias" ${record?.sector === 'Otras dependencias' ? 'selected' : ''}>Otras dependencias</option>
+                        <option value="Entidades descentralizadas" ${record?.sector === 'Entidades descentralizadas' ? 'selected' : ''}>Entidades descentralizadas</option>
+                    </select>
+                </div>
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.6rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">Criterios de Cumplimiento</h4>
+            ${['procedimiento_asignacion', 'registro_interno', 'publicacion_registro', 'canal_auditoria', 'identificacion_logotipo', 'disposicion_excepcional', 'justificacion_seguridad'].map(critKey => {
+                const critData = c[critKey] || { cumple: true, estado: 'cumple' };
+                return `
+                <div style="margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #E8EEF7; border-radius: 6px;">
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem; text-transform: capitalize;">${critKey.replace(/_/g, ' ')}</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <select name="crit_${critKey}_cumple" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                                <option value="true" ${critData.cumple === true ? 'selected' : ''}>Sí cumple (o aplica)</option>
+                                <option value="false" ${critData.cumple === false ? 'selected' : ''}>No cumple / En proceso</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select name="crit_${critKey}_estado" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                                <option value="cumple" ${critData.estado === 'cumple' || critData.cumple === true ? 'selected' : ''}>Cumple</option>
+                                <option value="proceso" ${critData.estado === 'proceso' ? 'selected' : ''}>En Proceso</option>
+                                <option value="nocumple" ${critData.estado === 'nocumple' || (critData.cumple === false && critData.estado !== 'proceso') ? 'selected' : ''}>No Cumple</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <input type="text" name="crit_${critKey}_docUrl" value="${critData.docUrl || ''}" placeholder="URL del Documento de Respaldo" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    </div>
+                </div>
+                `;
+            }).join('')}
+        `;
+        modal.style.display = 'flex';
+        return;
+    }
+
     if (currentModule === 'directorio') {
         const solLinks = Array.isArray(record?.enlaces_solicitud) ? record.enlaces_solicitud : [];
         const ofiLinks = Array.isArray(record?.enlaces_oficio) ? record.enlaces_oficio : [];
@@ -1199,6 +1290,62 @@ async function saveCrudRecord(e) {
     const form = document.getElementById('crudForm');
     if (!form) return;
 
+    if (currentModule === 'vehiculos_instituciones') {
+        const getVal = (name) => form.querySelector(`[name="${name}"]`)?.value || '';
+        
+        const recordObj = {
+            nombre: getVal('nombre'),
+            siglas: getVal('siglas'),
+            sector: getVal('sector'),
+            criterios: {}
+        };
+
+        const validation = validateModuleRecord('vehiculos_instituciones', recordObj);
+        if (!validation.isValid) {
+            showToast(`Validación del Esquema: ${validation.errors.join(' | ')}`, 'error');
+            return;
+        }
+
+        ['procedimiento_asignacion', 'registro_interno', 'publicacion_registro', 'canal_auditoria', 'identificacion_logotipo', 'disposicion_excepcional', 'justificacion_seguridad'].forEach(critKey => {
+            const cumpleVal = getVal(`crit_${critKey}_cumple`) === 'true';
+            const estadoVal = getVal(`crit_${critKey}_estado`);
+            recordObj.criterios[critKey] = {
+                label: critKey.replace(/_/g, ' '),
+                cumple: cumpleVal,
+                estado: estadoVal,
+                docUrl: getVal(`crit_${critKey}_docUrl`) || null
+            };
+        });
+
+        try {
+            let url = `${getApiBase()}/vehiculos_instituciones`;
+            let method = 'POST';
+
+            if (editingRecordId) {
+                url += `/${encodeURIComponent(editingRecordId)}`;
+                method = 'PUT';
+            }
+
+            const res = await fetch(url, {
+                method,
+                headers: getHeaders(),
+                body: JSON.stringify(recordObj)
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error al guardar');
+            }
+
+            showToast('Criterios institucionales actualizados', 'success');
+            closeCrudModal();
+            await fetchAndRenderTable('vehiculos_instituciones');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+        return;
+    }
+
     if (currentModule === 'vehiculos') {
         const getVal = (name) => form.querySelector(`[name="${name}"]`)?.value || '';
 
@@ -1219,6 +1366,12 @@ async function saveCrudRecord(e) {
             iscvMoroso: getVal('iscvMoroso') === 'true',
             multas: Number(getVal('multas') || 0)
         };
+
+        const validation = validateModuleRecord('vehiculos', recordObj);
+        if (!validation.isValid) {
+            showToast(`Error de Validación: ${validation.errors.join(' | ')}`, 'error');
+            return;
+        }
 
         try {
             let url = `${getApiBase()}/vehiculos`;
@@ -1285,6 +1438,12 @@ async function saveCrudRecord(e) {
             ultima_actualizacion: new Date().toISOString().split('T')[0]
         };
 
+        const validation = validateModuleRecord('directorio', recordObj);
+        if (!validation.isValid) {
+            showToast(`Error de Validación: ${validation.errors.join(' | ')}`, 'error');
+            return;
+        }
+
         try {
             let url = `${getApiBase()}/directorio`;
             let method = 'POST';
@@ -1315,7 +1474,6 @@ async function saveCrudRecord(e) {
         return;
     }
 
-    const formData = new FormData(form);
     const bodyObj = {};
 
     form.querySelectorAll('[name]').forEach(input => {
@@ -1333,6 +1491,12 @@ async function saveCrudRecord(e) {
             bodyObj[name] = !isNaN(val) && val.trim() !== '' ? Number(val) : val;
         }
     });
+
+    const validation = validateModuleRecord(currentModule, bodyObj);
+    if (!validation.isValid) {
+        showToast(`Error de Validación: ${validation.errors.join(' | ')}`, 'error');
+        return;
+    }
 
     try {
         let url = `${getApiBase()}/${currentModule}`;

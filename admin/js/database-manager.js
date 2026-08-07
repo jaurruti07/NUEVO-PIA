@@ -6,6 +6,9 @@ import {
   removePageAssignment, setDefaultDatabase, exportDbConfig, 
   importDbConfig, DB_TYPES, validateDbConfig
 } from './database-config.js';
+import { 
+  validateJsonSyntax, validateJsonSchema, validateDbEngineConfig 
+} from './schema-validator.js';
 
 // Páginas disponibles en el portal PIA
 const AVAILABLE_PAGES = [
@@ -421,10 +424,12 @@ function openDbModal(dbId = null) {
   const db = dbId ? databases.find(d => d.id === dbId) : null;
   
   const formHtml = `
+    <div id="dbModalAlert" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 10px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #b91c1c; font-size: 0.83rem;"></div>
     <form id="dbForm">
       <div class="form-group">
         <label for="dbName">Nombre del Almacén JSON *</label>
         <input type="text" class="form-control" id="dbName" value="${db ? db.name : ''}" required placeholder="Ej. Fichero JSON - Canales x Integridad" />
+        <small class="text-muted">Mínimo 3 caracteres para identificación única en el catálogo.</small>
       </div>
       
       <div class="form-group">
@@ -437,6 +442,7 @@ function openDbModal(dbId = null) {
       <div class="form-group">
         <label for="dbFilePath">Ruta del Fichero o Endpoint JSON *</label>
         <input type="text" class="form-control" id="dbFilePath" value="${db ? db.filePath : ''}" required placeholder="/directorio/data_acceso.json" />
+        <small class="text-muted">Debe iniciar con '/' y finalizar con extensión '.json' o referenciar un endpoint '/api/'.</small>
       </div>
 
       <div class="form-group">
@@ -453,26 +459,37 @@ function openDbModal(dbId = null) {
 
 function saveDbHandler() {
   const dbData = {
-    name: document.getElementById('dbName').value,
-    type: document.getElementById('dbType').value,
-    filePath: document.getElementById('dbFilePath').value,
-    description: document.getElementById('dbDescription').value,
+    name: document.getElementById('dbName')?.value || '',
+    type: document.getElementById('dbType')?.value || '',
+    filePath: document.getElementById('dbFilePath')?.value || '',
+    description: document.getElementById('dbDescription')?.value || '',
     syncMode: 'Sincronización Atómica JSON'
   };
   
-  const errors = validateDbConfig(dbData);
+  const errors = validateDbEngineConfig(dbData);
+  const alertBox = document.getElementById('dbModalAlert');
+
   if (errors.length > 0) {
-    showToast(errors.join(', '), 'error');
+    if (alertBox) {
+      alertBox.style.display = 'block';
+      alertBox.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 4px;"><i class="fas fa-exclamation-triangle"></i> Requisitos no cumplidos (${errors.length}):</div>
+        <ul style="margin: 0; padding-left: 1.25rem;">${errors.map(e => `<li>${e}</li>`).join('')}</ul>
+      `;
+    }
+    showToast('Corrija la configuración del almacén JSON antes de guardar.', 'error');
     return;
   }
   
+  if (alertBox) alertBox.style.display = 'none';
+
   try {
     if (currentDbId) {
       updateDatabase(currentDbId, dbData);
-      showToast('Almacén actualizado correctamente', 'success');
+      showToast('Almacén de datos JSON actualizado correctamente', 'success');
     } else {
       addDatabase(dbData);
-      showToast('Almacén registrado en el catálogo', 'success');
+      showToast('Nuevo almacén de datos JSON registrado', 'success');
     }
     closeModal();
     renderDatabaseManager();
@@ -531,7 +548,7 @@ function closeModal() {
   currentDbId = null;
 }
 
-// EDITOR JSON DIRECTO
+// EDITOR JSON DIRECTO CON VALIDACIÓN EN TIEMPO REAL
 
 async function openJsonEditor(path) {
   currentJsonPath = path;
@@ -547,30 +564,145 @@ async function openJsonEditor(path) {
     console.error('Error al cargar JSON:', err);
   }
 
+  const initialJsonStr = JSON.stringify(currentData, null, 2);
+
   const html = `
     <div class="json-editor">
-      <div class="form-group">
-        <label style="color: var(--navy); font-weight: 700;">Archivo: <strong>${f.name}</strong> (${f.label})</label>
-        <textarea id="jsonEditorTextarea" class="form-control" rows="18" style="font-family: monospace; white-space: pre; font-size: 0.85rem; padding: 0.75rem;">${JSON.stringify(currentData, null, 2)}</textarea>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <label style="color: var(--navy); font-weight: 700; margin: 0; font-size: 0.95rem;">
+            Archivo: <strong>${f.name}</strong> (${f.label})
+          </label>
+          <span style="display: block; font-size: 0.78rem; color: var(--text-muted);">
+            Validador de Esquema en Tiempo Real Activado
+          </span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" class="btn btn-secondary" id="btnFormatJson" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+            <i class="fas fa-magic"></i> Formatear JSON
+          </button>
+          <button type="button" class="btn btn-info" id="btnValidateJson" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--cyan); color: #fff; border: none; border-radius: 6px; font-weight: 600;">
+            <i class="fas fa-check-double"></i> Validar Esquema
+          </button>
+        </div>
       </div>
-      <p class="text-muted" style="font-size: 0.8rem;"><i class="fas fa-info-circle"></i> Al guardar, se actualizará directamente el fichero en el servidor con registro en auditoría.</p>
+
+      <!-- Panel de Alerta de Validación del Esquema -->
+      <div id="jsonValidationAlert" style="margin-bottom: 0.85rem; border-radius: 10px; font-size: 0.83rem; transition: all 0.2s ease;"></div>
+
+      <div class="form-group" style="margin-bottom: 0.5rem;">
+        <textarea id="jsonEditorTextarea" class="form-control" rows="18" style="font-family: monospace; white-space: pre; font-size: 0.85rem; padding: 0.75rem; border-radius: 8px; transition: border-color 0.2s ease;">${initialJsonStr}</textarea>
+      </div>
+      <p class="text-muted" style="font-size: 0.78rem; margin: 0;"><i class="fas fa-info-circle"></i> Los cambios solo se guardarán en el servidor si la sintaxis y el esquema cumplen con los requisitos mínimos del módulo.</p>
     </div>
   `;
   
-  document.getElementById('jsonModalTitle').textContent = 'Editar ' + f.name;
+  document.getElementById('jsonModalTitle').textContent = 'Editar y Validar ' + f.name;
   document.getElementById('jsonEditorContainer').innerHTML = html;
   document.getElementById('jsonEditorModal').style.display = 'flex';
+
+  const textarea = document.getElementById('jsonEditorTextarea');
+  const btnFormat = document.getElementById('btnFormatJson');
+  const btnValidate = document.getElementById('btnValidateJson');
+
+  const runLiveValidation = () => {
+    const text = textarea.value;
+    const syntaxResult = validateJsonSyntax(text);
+    const alertBox = document.getElementById('jsonValidationAlert');
+    if (!alertBox) return false;
+
+    if (!syntaxResult.isValid) {
+      textarea.style.borderColor = '#ef4444';
+      alertBox.style.cssText = 'background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #b91c1c; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.85rem; font-size: 0.83rem;';
+      alertBox.innerHTML = `
+        <div style="font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-times-circle" style="color: #ef4444; font-size: 1.1rem;"></i>
+          Sintaxis JSON Inválida (Línea ${syntaxResult.line})
+        </div>
+        <div style="margin-top: 4px; font-family: monospace;">${syntaxResult.error}</div>
+      `;
+      return false;
+    }
+
+    const schemaResult = validateJsonSchema(path, syntaxResult.data);
+    if (!schemaResult.isValid) {
+      textarea.style.borderColor = '#f59e0b';
+      alertBox.style.cssText = 'background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #b45309; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.85rem; font-size: 0.83rem;';
+      const errorItems = schemaResult.errors.map(err => `<li>${err}</li>`).join('');
+      alertBox.innerHTML = `
+        <div style="font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 1.1rem;"></i>
+          Errores de Validación de Esquema (${schemaResult.errors.length}):
+        </div>
+        <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.4;">${errorItems}</ul>
+      `;
+      return false;
+    }
+
+    textarea.style.borderColor = '#10b981';
+    alertBox.style.cssText = 'background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #047857; padding: 0.65rem 1rem; border-radius: 10px; margin-bottom: 0.85rem; font-size: 0.83rem;';
+    alertBox.innerHTML = `
+      <div style="font-weight: 700; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.1rem;"></i>
+        Sintaxis y Esquema JSON Válidos para ${f.name}. Listo para guardar.
+      </div>
+    `;
+    return true;
+  };
+
+  let timer = null;
+  textarea.addEventListener('input', () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(runLiveValidation, 300);
+  });
+
+  if (btnFormat) {
+    btnFormat.addEventListener('click', () => {
+      const syntaxResult = validateJsonSyntax(textarea.value);
+      if (syntaxResult.isValid) {
+        textarea.value = JSON.stringify(syntaxResult.data, null, 2);
+        runLiveValidation();
+        showToast('JSON auto-formateado con sangría limpia', 'info');
+      } else {
+        showToast('No se puede formatear: repare la sintaxis JSON primero.', 'error');
+      }
+    });
+  }
+
+  if (btnValidate) {
+    btnValidate.addEventListener('click', () => {
+      const isValid = runLiveValidation();
+      if (isValid) {
+        showToast('¡Validación exitosa! El archivo cumple todos los requisitos.', 'success');
+      } else {
+        showToast('Se detectaron errores en el archivo JSON. Revisa el panel superior.', 'error');
+      }
+    });
+  }
+
+  runLiveValidation();
 }
 
 async function saveJsonEditor() {
   const textarea = document.getElementById('jsonEditorTextarea');
   if (!textarea || !currentJsonPath) return;
 
-  let parsedData = null;
-  try {
-    parsedData = JSON.parse(textarea.value);
-  } catch (e) {
-    showToast('Error: JSON con formato inválido. Revisa la sintaxis.', 'error');
+  const rawText = textarea.value;
+
+  const syntaxResult = validateJsonSyntax(rawText);
+  if (!syntaxResult.isValid) {
+    showToast(`Error de Sintaxis JSON: ${syntaxResult.error}`, 'error');
+    textarea.focus();
+    return;
+  }
+
+  const schemaResult = validateJsonSchema(currentJsonPath, syntaxResult.data);
+  if (!schemaResult.isValid) {
+    showToast(`Error de Esquema JSON: Hay ${schemaResult.errors.length} error(es) en los datos. Corríjalos para continuar.`, 'error');
+    const alertBox = document.getElementById('jsonValidationAlert');
+    if (alertBox) {
+      alertBox.scrollIntoView({ behavior: 'smooth' });
+    }
     return;
   }
 
@@ -580,7 +712,7 @@ async function saveJsonEditor() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         path: currentJsonPath,
-        data: parsedData
+        data: syntaxResult.data
       })
     });
 
@@ -589,7 +721,7 @@ async function saveJsonEditor() {
       throw new Error(err.error || 'Error al guardar el archivo');
     }
 
-    showToast('Fichero JSON actualizado correctamente en el servidor', 'success');
+    showToast('Fichero JSON validado y actualizado correctamente en el servidor', 'success');
     closeJsonModal();
     await renderMockFiles();
   } catch (err) {

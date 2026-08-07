@@ -1,5 +1,277 @@
 [
   {
+    "id": 26,
+    "userId": "1",
+    "user": "admin",
+    "action": "CREACIÓN",
+    "module": "vehiculos_instituciones",
+    "target": "vehiculos.json",
+    "recordId": 1,
+    "details": "Creación de nuevo registro con ID 1 en el módulo 'vehiculos_instituciones'",
+    "previousValue": null,
+    "newValue": {
+      "id": 1,
+      "nombre": "Nueva Institucion",
+      "siglas": "NI"
+    },
+    "timestamp": "2026-08-06T23:46:56.249Z",
+    "ip": "127.0.0.1"
+  },
+  {
+    "id": 25,
+    "userId": "1",
+    "user": "admin",
+    "action": "ACTUALIZACIÓN",
+    "module": "vehiculos_instituciones",
+    "target": "vehiculos.json",
+    "recordId": "Presidencia de la República",
+    "details": "Actualización de registro ID Presidencia de la República en el módulo 'vehiculos_instituciones'",
+    "previousValue": {
+      "id": "Presidencia de la República",
+      "nombre": "Presidencia de la República",
+      "siglas": "PRES",
+      "sector": "Otras Dependencias",
+      "criterios": {
+        "procedimiento_asignacion": {
+          "label": "Procedimiento para la asignación y uso de vehículos",
+          "cumple": true,
+          "docUrl": "https://informacionpublica.pres.gob.gt/vehiculos/procedimiento_asignacion.pdf",
+          "docNombre": "Procedimiento para la asignación y uso de vehículos - PRES"
+        },
+        "registro_interno": {
+          "label": "Registro interno de vehículos",
+          "cumple": true,
+          "docUrl": "https://informacionpublica.pres.gob.gt/vehiculos/registro_interno.pdf",
+          "docNombre": "Registro interno de vehículos - PRES"
+        },
+        "publicacion_registro": {
+          "label": "Publicación del registro institucional",
+          "cumple": true,
+          "docUrl": "https://informacionpublica.pres.gob.gt/vehiculos/publicacion_registro.pdf",
+          "docNombre": "Publicación del registro institucional - PRES"
+        },
+        "canal_auditoria": {
+          "label": "Canal de auditoría social",
+          "cumple": true,
+          "docUrl": "https://informacionpublica.pres.gob.gt/vehiculos/canal_auditoria.pdf",
+          "docNombre": "Canal de auditoría social - PRES"
+        },
+        "identificacion_logotipo": {
+          "label": "Identificación mediante logotipo oficial",
+          "cumple": true,
+          "docUrl": "https://informacionpublica.pres.gob.gt/vehiculos/identificacion_logotipo.pdf",
+          "docNombre": "Identificación mediante logotipo oficial - PRES"
+        },
+        "disposicion_excepcional": {
+          "label": "Disposición para el uso excepcional autorizado",
+          "cumple": true,
+          "docUrl": "https://informacionpublica.pres.gob.gt/vehiculos/disposicion_excepcional.pdf",
+          "docNombre": "Disposición para el uso excepcional autorizado - PRES"
+        },
+        "justificacion_seguridad": {
+          "label": "Disposición para justificar excepciones por motivos de seguridad",
+          "cumple": false,
+          "docUrl": null,
+          "docNombre": "Disposición para justificar excepciones por motivos de seguridad - PRES"
+        }
+      },
+      "documentosPublicos": [
+        {
+          "tipo": "Procedimiento de asignación y uso",
+          "titulo": "Normativo de asignación y uso de vehículos de PRES",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/procedimiento_asignacion.pdf"
+        },
+        {
+          "tipo": "Registro institucional de vehículos",
+          "titulo": "Inventario público del parque vehicular - PRES",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/registro_interno.pdf"
+        },
+        {
+          "tipo": "Disposiciones administrativas",
+          "titulo": "Acuerdo institucional sobre flotilla vehicular",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/disposiciones_administrativas.pdf"
+        },
+        {
+          "tipo": "Justificaciones de excepción",
+          "titulo": "Matriz de justificación de excepciones de seguridad",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/justificaciones_excepcion.pdf"
+        },
+        {
+          "tipo": "Publicaciones oficiales",
+          "titulo": "Publicación en el Portal de Información Pública de PRES",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/publicacion_registro.pdf"
+        }
+      ]
+    },
+    "newValue": {
+      "id": "Presidencia de la República",
+      "nombre": "Presidencia de la República",
+      "siglas": "PRES",
+      "sector": "Otras Dependencias",
+      "criterios": {
+        "procedimiento_asignacion": {
+          "cumple": true,
+          "docUrl": "x"
+        }
+      },
+      "documentosPublicos": [
+        {
+          "tipo": "Procedimiento de asignación y uso",
+          "titulo": "Normativo de asignación y uso de vehículos de PRES",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/procedimiento_asignacion.pdf"
+        },
+        {
+          "tipo": "Registro institucional de vehículos",
+          "titulo": "Inventario público del parque vehicular - PRES",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/registro_interno.pdf"
+        },
+        {
+          "tipo": "Disposiciones administrativas",
+          "titulo": "Acuerdo institucional sobre flotilla vehicular",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/disposiciones_administrativas.pdf"
+        },
+        {
+          "tipo": "Justificaciones de excepción",
+          "titulo": "Matriz de justificación de excepciones de seguridad",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/justificaciones_excepcion.pdf"
+        },
+        {
+          "tipo": "Publicaciones oficiales",
+          "titulo": "Publicación en el Portal de Información Pública de PRES",
+          "url": "https://informacionpublica.pres.gob.gt/vehiculos/publicacion_registro.pdf"
+        }
+      ]
+    },
+    "timestamp": "2026-08-06T23:46:41.485Z",
+    "ip": "127.0.0.1"
+  },
+  {
+    "id": 24,
+    "userId": "usr_1",
+    "user": "admin",
+    "action": "INICIO DE SESIÓN",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Inicio de sesión exitoso como superadmin (Administrador General PIA)",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T23:46:18.622Z",
+    "ip": "127.0.0.1"
+  },
+  {
+    "id": 23,
+    "userId": "usr_1",
+    "user": "admin",
+    "action": "INICIO DE SESIÓN",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Inicio de sesión exitoso como superadmin (Administrador General PIA)",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T23:14:48.084Z",
+    "ip": "2803:c800:41b7:1440:18c9:46a5:82f8:b556, 169.254.169.126"
+  },
+  {
+    "id": 22,
+    "userId": "0",
+    "user": "admin",
+    "action": "INTENTO FALLIDO",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Intento fallido de inicio de sesión (2/5) para 'admin'",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T23:13:54.433Z",
+    "ip": "2803:c800:41b7:1440:18c9:46a5:82f8:b556, 169.254.169.126"
+  },
+  {
+    "id": 21,
+    "userId": "0",
+    "user": "admin",
+    "action": "INTENTO FALLIDO",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Intento fallido de inicio de sesión (1/5) para 'admin'",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T23:13:16.349Z",
+    "ip": "2803:c800:41b7:1440:18c9:46a5:82f8:b556, 169.254.169.126"
+  },
+  {
+    "id": 20,
+    "userId": "usr_jaurruti",
+    "user": "jaurruti",
+    "action": "INICIO DE SESIÓN",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Inicio de sesión exitoso como superadmin (Josué Urrutia)",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T22:20:47.038Z",
+    "ip": "190.56.116.58, 169.254.169.126"
+  },
+  {
+    "id": 19,
+    "userId": "usr_jaurruti",
+    "user": "jaurruti",
+    "action": "INICIO DE SESIÓN",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Inicio de sesión exitoso como superadmin (Josué Urrutia)",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T22:19:40.289Z",
+    "ip": "127.0.0.1"
+  },
+  {
+    "id": 18,
+    "userId": "usr_1",
+    "user": "admin",
+    "action": "INICIO DE SESIÓN",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Inicio de sesión exitoso como superadmin (Administrador General PIA)",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T22:19:37.908Z",
+    "ip": "127.0.0.1"
+  },
+  {
+    "id": 17,
+    "userId": "0",
+    "user": "admin",
+    "action": "INTENTO FALLIDO",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Intento fallido de inicio de sesión (2/5) para 'admin'",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T22:18:21.311Z",
+    "ip": "190.56.116.58, 169.254.169.126"
+  },
+  {
+    "id": 16,
+    "userId": "0",
+    "user": "admin",
+    "action": "INTENTO FALLIDO",
+    "module": "auth",
+    "target": "autenticacion",
+    "recordId": null,
+    "details": "Intento fallido de inicio de sesión (1/5) para 'admin'",
+    "previousValue": null,
+    "newValue": null,
+    "timestamp": "2026-08-06T22:18:00.748Z",
+    "ip": "190.56.116.58, 169.254.169.126"
+  },
+  {
     "id": 15,
     "userId": "0",
     "user": "jaurruti",

@@ -1,168 +1,99 @@
-url: https://raw.githubusercontent.com/jaurruti07/PIA/main/admin/js/data-service-worker.js
+// data-service-worker.js - Service Worker para offline-first y carga rapida
 
-// data-service-worker.js - Service Worker para interceptar solicitudes a JSON
-// y redirigirlas al Data Service sin modificar el código frontend
+const STATIC_CACHE = 'pia-static-v6';
+const DYNAMIC_CACHE = 'pia-dynamic-v6';
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/directorio/',
+  '/directorio/index.html',
+  '/vehiculos/',
+  '/vehiculos/index.html',
+  '/canales-por-la-integridad/',
+  '/canales-por-la-integridad/index.html',
+  '/gobierno_en_numeros/',
+  '/gobierno_en_numeros/index.html',
+  '/riesgo/',
+  '/riesgo/index.html',
+  '/css/pia-chatbot.css',
+  '/js/pia-chatbot.js',
+  '/js/sw-register.js',
+  '/data_portal.json',
+  '/canales-por-la-integridad/data_directorio.json',
+  '/directorio/data_acceso.json',
+  '/gobierno_en_numeros/data_tableros.json',
+  '/vehiculos/vehiculos.json',
+  '/riesgo/datos.json',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap'
+];
 
-const CACHE_NAME = 'pia-data-cache-v1';
-const JSON_PATTERN = //(data_\w+|data\.json|\w+\/data_\w+)\.json$/i;
-
-// Datos mock basados en los JSON actuales (se pueden actualizar desde el módulo admin)
-const MOCK_DATA = {
-  'data_portal.json': {
-    oficinasProbidad: 65,
-    canalesDenuncia: 200,
-    denunciasPenales: 446,
-    plataformasActivas: 8
-  },
-  'canales-por-la-integridad/data_directorio.json': null,
-  'directorio/data_acceso.json': null,
-  'gobierno_en_numeros/data_tableros.json': null
-};
-
-// Cargar datos mock desde localStorage si existen
-function loadMockData() {
-  const stored = localStorage.getItem('pia_mock_data');
-  if (stored) {
-    try {
-      const data = JSON.parse(stored);
-      Object.assign(MOCK_DATA, data);
-    } catch (e) {
-      console.error('Error loading mock data:', e);
-    }
-  }
-}
-
-// Guardar datos mock
-function saveMockData() {
-  localStorage.setItem('pia_mock_data', JSON.stringify(MOCK_DATA));
-}
-
-// Obtener configuración de BD para una página
-function getDbConfigForPath(path) {
-  const stored = localStorage.getItem('pia_db_configurations');
-  if (!stored) return null;
-  
-  try {
-    const config = JSON.parse(stored);
-    // Extraer el nombre de la página del path
-    const pathParts = path.split('/');
-    const pageName = pathParts[1] || 'portal';
-    
-    const dbId = config.pageDatabaseMap[pageName];
-    if (!dbId) return null;
-    
-    return config.databases.find(db => db.id === dbId);
-  } catch (e) {
-    return null;
-  }
-}
-
-// Obtener datos para un path
-async function getDataForPath(path) {
-  // 1. Verificar si hay configuración de BD
-  const dbConfig = getDbConfigForPath(path);
-  
-  if (dbConfig) {
-    // TODO: Cuando tengas backend, consultar la BD aquí
-    // Por ahora, usamos mock data o el JSON original
-    
-    // 2. Verificar si hay datos mock configurados
-    if (MOCK_DATA[path])
- {
-      return MOCK_DATA[path];
-    }
-  }
-  
-  // 3. Fallback: cargar del JSON original (sin cambios para el usuario)
-  try {
-    const response = await fetch(path);
-    if (response.ok) {
-      const data = await response.json();
-      MOCK_DATA[path] = data;
-      saveMockData();
-      return data;
-    }
-  } catch (e) {
-    console.error('Error fetching original JSON:', e);
-  }
-  
-  // 4. Si todo falla, devolver datos por defecto
-  return MOCK_DATA[path] || {};
-}
-
-// Evento install
 self.addEventListener('install', (event) => {
-  console.log('Data Service Worker installed');
+  console.log('[SW] Instalando...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        '/data_portal.json',
-        '/canales-por-la-integridad/data_directorio.json',
-        '/directorio/data_acceso.json',
-        '/gobierno_en_numeros/data_tableros.json'
-      ]).catch(err => {
-        console.log('Cache fallback:', err);
-      });
+    caches.open(STATIC_CACHE).then((cache) => {
+      console.log('[SW] Cacheando assets estaticos');
+      return cache.addAll(STATIC_ASSETS);
     })
   );
+  self.skipWaiting();
 });
 
-// Evento activate
 self.addEventListener('activate', (event) => {
-  console.log('Data Service Worker activated');
+  console.log('[SW] Activando...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
+          if (name !== STATIC_CACHE && name !== DYNAMIC_CACHE) {
+            console.log('[SW] Borrando cache antigua:', name);
             return caches.delete(name);
           }
         })
       );
     })
   );
+  self.clients.claim();
 });
 
-// Evento fetch - INTERCEPTAR SOLICITUDES A JSON
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  const path = url.pathname;
+  // Ignorar peticiones a APIs externas si no queremos cachearlas (ej: gemini) o admin
+  if (event.request.url.includes('/api/') || event.request.url.includes('/admin/')) {
+    return;
+  }
   
-  if (event.request.method === 'GET' && JSON_PATTERN.test(path)) {
-    event.respondWith(
-      (async () => {
-        const data = await getDataForPath(path);
-        const response = new Response(JSON.stringify(data), {
-          headers: { 
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache'
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        // Retornamos del cache inmediatamente
+        // y actualizamos el cache en background (Stale-While-Revalidate)
+        event.waitUntil(
+          fetch(event.request).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200 && !networkResponse.redirected) {
+              caches.open(STATIC_CACHE).then((cache) => {
+                cache.put(event.request, networkResponse.clone());
+              });
+            }
+          }).catch(() => {})
+        );
+        return cachedResponse;
+      }
+      
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic' || networkResponse.redirected) {
+            return networkResponse;
           }
-        });
-        return response;
-      })()
-    );
-  }
-});
-
-// Mensajes desde el frontend para actualizar mock data
-self.addEventListener('message', (event) => {
-  if (event
-.data && event.data.type === 'UPDATE_MOCK_DATA') {
-    Object.assign(MOCK_DATA, event.data.payload);
-    saveMockData();
-    
-    event.waitUntil(
-      self.clients.matchAll().then((clients) => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'MOCK_DATA_UPDATED',
-            payload: MOCK_DATA
+          // Guardamos en cache dinamico para usos futuros
+          const responseToCache = networkResponse.clone();
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(event.request, responseToCache);
           });
+          return networkResponse;
+        })
+        .catch(() => {
+          // Fallback en modo offline
         });
-      })
-    );
-  }
+    })
+  );
 });
-
-// Cargar datos mock al inicio
-loadMockData();

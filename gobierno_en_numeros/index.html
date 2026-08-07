@@ -179,19 +179,62 @@
             padding: 6rem 0 5rem;
             text-align: center;
         }
-        .hero-bg {
+        .hero-bg-slider {
             position: absolute; inset: 0; z-index: 0;
-            background-image: url('https://images.pexels.com/photos/7693758/pexels-photo-7693758.jpeg');
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute; inset: 0;
             background-size: cover; background-position: center 30%;
-            filter: grayscale(30%) brightness(0.35) saturate(0.6);
+            filter: brightness(0.48) contrast(1.1);
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 7s ease-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+            padding: 5px 12px;
+            background: rgba(5, 17, 31, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 50px;
+        }
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .hero-dot:hover {
+            background: rgba(0, 194, 224, 0.8);
+        }
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 12px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 194, 224, 0.6);
         }
         .hero::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
             background:
                 radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.45), transparent),
-                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.18), transparent),
-                linear-gradient(180deg, rgba(5,17,31,0.55) 0%, rgba(5,17,31,0.82) 100%);
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.22), transparent),
+                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.90) 100%);
         }
         .hero::after {
             content: '';
@@ -1986,7 +2029,27 @@
                 font-size: 0.7rem;
             }
         }
-    </style>
+    
+        /* Push notifications mobile */
+        .push-notify-banner { display: none !important;  background:#1a365d; border-radius:var(--radius-2xl); padding:1.4rem 1.8rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; box-shadow:0 10px 30px rgba(5,17,31,0.2); color:#fff; }
+        .push-notify-content { display:flex; align-items:center; gap:1.2rem; flex:1 1 300px; }
+        .push-notify-icon { width:52px; height:52px; border-radius:16px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.4); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--cyan); flex-shrink:0; box-shadow:0 0 15px rgba(0,194,224,0.2); }
+        .push-notify-info h4 { font-family:var(--font-head); font-size:1.08rem; font-weight:800; margin-bottom:0.25rem; color:#fff; display:flex; align-items:center; gap:0.6rem; }
+        .push-notify-info p { font-size:0.85rem; color:rgba(255,255,255,0.8); line-height:1.45; margin:0; }
+        .push-notify-actions { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; }
+        .btn-push-subscribe { background:var(--cyan); color:var(--navy); border:none; padding:0.65rem 1.3rem; border-radius:40px; font-weight:700; font-size:0.82rem; display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.25s; font-family:var(--font-head); box-shadow:0 4px 12px rgba(0,194,224,0.3); }
+        .btn-push-subscribe:hover { background:#00ddf7; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,194,224,0.45); }
+        .btn-push-subscribe.active { background:#16a34a; color:#fff; box-shadow:0 4px 12px rgba(22,163,74,0.3); }
+        
+        .push-status-badge { font-size:0.75rem; padding:0.2rem 0.6rem; border-radius:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .push-status-default { background:rgba(255,255,255,0.1); color:#fff; }
+        .push-status-granted { background:rgba(22,163,74,0.2); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+        .push-status-denied { background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(248,113,113,0.3); }
+        
+        #directorio.theme-dark .push-notify-banner, #gobierno-numeros.theme-dark .push-notify-banner { display: none !important;  background: #0F1E2E; border:1px solid rgba(255,255,255,0.05); }
+        #directorio.theme-light .push-notify-banner, #gobierno-numeros.theme-light .push-notify-banner { display: none !important;  background: #1a365d; }
+    
+</style>
 </head>
 <body>
 
@@ -1998,7 +2061,7 @@
         <nav class="navbar">
             <div class="logo-area">
                 <a href="../" title="Portal Principal">
-                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" class="gov-logo">
+                    <img src="/img/L1.png" alt="Gobierno de Guatemala" class="gov-logo">
                 </a>
             </div>
 
@@ -2011,7 +2074,7 @@
                     <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
-                        
+                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -2022,7 +2085,6 @@
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
                         <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
                         <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
-                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -2048,7 +2110,18 @@
      HERO
 ============================================================ -->
 <section class="hero">
-    <div class="hero-bg"></div>
+    <div class="hero-bg-slider" id="heroBgSlider">
+        <div class="hero-slide active" style="background-image: url('/img/gobiernoNumerosWall2.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/gobiernoNumerosWall.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/gobiernoNumerosWall3.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/numeros.png');"></div>
+    </div>
+    <div class="hero-slider-dots" id="heroSliderDots">
+        <button class="hero-dot active" aria-label="Diapositiva 1"></button>
+        <button class="hero-dot" aria-label="Diapositiva 2"></button>
+        <button class="hero-dot" aria-label="Diapositiva 3"></button>
+        <button class="hero-dot" aria-label="Diapositiva 4"></button>
+    </div>
     <div class="container hero-inner">
         <div class="hero-eyebrow"><span></span>Transparencia y Rendición de Cuentas</div>
         <h1>Tu <br><em>Gobierno en Números</em></h1>
@@ -2094,12 +2167,12 @@
                     <div class="about-feature"><i class="fas fa-share-alt"></i><span>Comparte información</span></div>
                     <div class="about-feature"><i class="fas fa-download"></i><span>Exporta resultados</span></div>
                     <div class="about-feature"><i class="fas fa-eye"></i><span>Transparencia activa</span></div>
-                    <img src="https://i.postimg.cc/sxB7frRm/gobierno-en-numeros-V2.png" alt="Tu Gobierno en Números">
+                    <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números">
                 </div>
                  
             </div>
             <div class="about-image">
-                <img src="https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Datos y gráficos">
+                <img src="/img/tablero.png" alt="Datos y gráficos">
             </div>
         </div>
     </section>
@@ -2148,67 +2221,11 @@
             </div>
         </div>
 
-        <!-- GRÁFICO Y BENCHMARK DE RENDICIÓN DE CUENTAS -->
-        <div class="benchmark-chart-card">
-            <div class="chart-header">
-                <div class="chart-title-group">
-                    <h3><i class="fas fa-chart-bar" style="color:var(--cyan);"></i> Benchmark de Rendición de Cuentas</h3>
-                    <p>Monitoreo en tiempo real del cumplimiento y publicación de tableros institucionales</p>
-                </div>
-                <div class="chart-controls-row">
-                    <button class="chart-mode-btn active" id="btnModeTipo" onclick="window.setChartMode('tipo')">
-                        <i class="fas fa-layer-group"></i> Por Tipo
-                    </button>
-                    <button class="chart-mode-btn" id="btnModeSector" onclick="window.setChartMode('sector')">
-                        <i class="fas fa-sitemap"></i> Por Sector
-                    </button>
-                    <button class="chart-mode-btn" id="btnModeBenchmark" onclick="window.setChartMode('benchmark')">
-                        <i class="fas fa-award"></i> Benchmark Global
-                    </button>
-                    <button class="chart-mode-btn" id="btnToggleOrientation" onclick="window.toggleChartOrientation()" title="Cambiar orientación">
-                        <i class="fas fa-sync-alt"></i> Orientación
-                    </button>
-                </div>
-            </div>
-            <div class="chart-grid-layout">
-                <div class="chart-canvas-wrapper">
-                    <canvas id="benchmarksChartCanvas"></canvas>
-                </div>
-                <div class="kpi-mini-grid">
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-percentage"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiCumplimientoGbl">0%</span>
-                            <span class="kpi-mini-lbl">Cumplimiento Global</span>
-                        </div>
-                    </div>
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-calendar-check"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiActualizadosCount">0</span>
-                            <span class="kpi-mini-lbl">Tableros Actualizados (2025/2026)</span>
-                        </div>
-                    </div>
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-crown"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiSectorLider">—</span>
-                            <span class="kpi-mini-lbl">Tipo de Dependencia Líder</span>
-                        </div>
-                    </div>
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-star"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiScoreBenchmark">—</span>
-                            <span class="kpi-mini-lbl">Calificación de Rendición</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- FILTROS DE BÚSQUEDA -->
-        <div class="filter-bar">
+        
+            
+    
+<div class="filter-bar">
             <div class="filter-bar-header">
                 <div class="filter-bar-title">
                     <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
@@ -2303,6 +2320,58 @@
             <button id="exportPdfBtn" class="btn-export"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
             <button id="exportXlsBtn" class="btn-export excel"><i class="fas fa-file-excel"></i> Exportar Excel</button>
         </div>
+
+        <!-- GRÁFICO Y BENCHMARK DE RENDICIÓN DE CUENTAS -->
+        <div class="benchmark-chart-card" style="margin-top:2.5rem;">
+            <div class="chart-header">
+                <div class="chart-title-group">
+                    <h3><i class="fas fa-chart-bar" style="color:var(--cyan);"></i> Benchmark de Rendición de Cuentas</h3>
+                    <p>Monitoreo en tiempo real del cumplimiento y publicación de tableros institucionales</p>
+                </div>
+                <div class="chart-controls-row">
+                    <button class="chart-mode-btn active" id="btnModeTipo" onclick="window.setChartMode('tipo')">
+                        <i class="fas fa-layer-group"></i> Por Tipo
+                    </button>
+                    <button class="chart-mode-btn" id="btnModeSector" onclick="window.setChartMode('sector')">
+                        <i class="fas fa-sitemap"></i> Por Sector
+                    </button>
+                    <button class="chart-mode-btn" id="btnModeBenchmark" onclick="window.setChartMode('benchmark')">
+                        <i class="fas fa-award"></i> Benchmark Global
+                    </button>
+                    <button class="chart-mode-btn" id="btnToggleOrientation" onclick="window.toggleChartOrientation()" title="Cambiar orientación">
+                        <i class="fas fa-sync-alt"></i> Orientación
+                    </button>
+                </div>
+            </div>
+            <div class="chart-grid-layout">
+                <div class="chart-canvas-wrapper">
+                    <canvas id="benchmarksChartCanvas"></canvas>
+                </div>
+                <div class="kpi-mini-grid">
+                    <div class="kpi-mini-card">
+                        <div class="kpi-mini-icon"><i class="fas fa-building" style="color:var(--cyan);"></i></div>
+                        <div class="kpi-mini-info">
+                            <span class="kpi-mini-val" id="kpiBenchTotalInst">0</span>
+                            <span class="kpi-mini-lbl">Cantidad de instituciones</span>
+                        </div>
+                    </div>
+                    <div class="kpi-mini-card">
+                        <div class="kpi-mini-icon"><i class="fas fa-table" style="color:#22C55E;"></i></div>
+                        <div class="kpi-mini-info">
+                            <span class="kpi-mini-val" id="kpiBenchTablerosAvail">0</span>
+                            <span class="kpi-mini-lbl">Cantidad de tableros disponibles</span>
+                        </div>
+                    </div>
+                    <div class="kpi-mini-card">
+                        <div class="kpi-mini-icon"><i class="fas fa-clock" style="color:#F5A623;"></i></div>
+                        <div class="kpi-mini-info">
+                            <span class="kpi-mini-val" id="kpiBenchInstPendientes">0</span>
+                            <span class="kpi-mini-lbl">Instituciones pendientes (de 67 OE)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
 <!-- ============================================================
@@ -2325,7 +2394,7 @@
                 <a href="#directorio" class="btn-primary">
                     <i class="fas fa-chart-simple"></i> Explorar tableros
                 </a>
-                <img src="https://i.postimg.cc/sxB7frRm/gobierno-en-numeros-V2.png" alt="Tu Gobierno en Números" class="banner-logo">
+                <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números" class="banner-logo">
             </div>
         </div>
 
@@ -2385,8 +2454,8 @@
     <div class="container">
         <div class="footer-grid">
             <div class="footer-brand">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala">
-                <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
+                <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
                 <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
             </div>
 
@@ -2403,7 +2472,6 @@
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
-                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
                 </ul>
             </div>
@@ -2411,8 +2479,9 @@
             <div class="footer-col">
                 <h4>Accede a la información</h4>
                 <ul class="footer-links">
-                    <li><a href="directorio/">Directorio acceso al ejecutivo</a></li>
-                    <li><a href="gobierno_en_numeros/">Tu Gobierno en números</a></li>
+                    <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
+                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
+                    <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
                 <h4 style="margin-top:1.5rem;">Aprende</h4>
                 <ul class="footer-links">
@@ -2438,8 +2507,8 @@
         <div class="footer-bottom">
             <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
-                <img src="https://i.postimg.cc/sxB7frRm/gobierno-en-numeros-V2.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
+                <img src="/img/L1.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
+                <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números" style="height:36px; width:auto; opacity:0.6;">
             </div>
         </div>
     </div>
@@ -2739,41 +2808,20 @@ window.toggleChartOrientation = function() {
 function renderBenchmarksChart() {
     const filteredList = filtrar();
 
-    // Actualizar KPI Mini Badges siempre
-    const kpiGblEl = document.getElementById('kpiCumplimientoGbl');
-    const kpiActEl = document.getElementById('kpiActualizadosCount');
-    const kpiSectorEl = document.getElementById('kpiSectorLider');
-    const kpiScoreEl = document.getElementById('kpiScoreBenchmark');
+    // Actualizar KPI Mini Badges
+    const kpiTotalInstEl = document.getElementById('kpiBenchTotalInst');
+    const kpiTablerosAvailEl = document.getElementById('kpiBenchTablerosAvail');
+    const kpiPendientesEl = document.getElementById('kpiBenchInstPendientes');
 
-    const totalFilt = filteredList.length;
-    const availFilt = filteredList.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
-    const recentFilt = filteredList.filter(i => (i.fecha_actualizacion || '').includes('2025') || (i.fecha_actualizacion || '').includes('2026')).length;
-    const pctGbl = totalFilt > 0 ? Math.round((availFilt / totalFilt) * 100) : 0;
+    const totalInstCount = filteredList.length;
+    const availCount = filteredList.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+    // La diferencia entre las 67 dependencias del Organismo Ejecutivo y las instituciones registradas
+    const totalRegistradasGbl = instituciones.length;
+    const pendientesCount = Math.max(0, 67 - totalRegistradasGbl);
 
-    if (kpiGblEl) kpiGblEl.textContent = `${pctGbl}%`;
-    if (kpiActEl) kpiActEl.textContent = recentFilt;
-
-    // Tipo líder
-    const tipoCounts = {};
-    filteredList.forEach(i => {
-        const t = i.tipo_dependencia || 'Otra';
-        if (i.link_tablero && i.link_tablero.trim() !== '') {
-            tipoCounts[t] = (tipoCounts[t] || 0) + 1;
-        }
-    });
-    let topTipo = '—';
-    let maxC = 0;
-    Object.entries(tipoCounts).forEach(([t, c]) => {
-        if (c > maxC) { maxC = c; topTipo = t; }
-    });
-    if (kpiSectorEl) kpiSectorEl.textContent = topTipo;
-
-    if (kpiScoreEl) {
-        if (pctGbl >= 90) kpiScoreEl.textContent = 'A+ (Excelente)';
-        else if (pctGbl >= 75) kpiScoreEl.textContent = 'A (Destacado)';
-        else if (pctGbl >= 50) kpiScoreEl.textContent = 'B (Aceptable)';
-        else kpiScoreEl.textContent = 'C (En progreso)';
-    }
+    if (kpiTotalInstEl) kpiTotalInstEl.textContent = totalInstCount;
+    if (kpiTablerosAvailEl) kpiTablerosAvailEl.textContent = availCount;
+    if (kpiPendientesEl) kpiPendientesEl.textContent = pendientesCount;
 
     const canvas = document.getElementById('benchmarksChartCanvas');
     if (!canvas || typeof Chart === 'undefined') return;
@@ -3204,7 +3252,7 @@ async function exportToPdf() {
     const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'legal' });
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 10;
-    const logoUrl = 'https://i.postimg.cc/k54W9fFW/gobierno-de-guatemala-2025-logo-png-seeklogo-622007.png';
+    const logoUrl = '/img/logo-gobierno-pdf.png';
     const loadImg = url => new Promise((res) => {
         const img = new Image(); img.crossOrigin = 'Anonymous';
         img.onload = () => res(img); img.onerror = () => res(null);
@@ -3299,17 +3347,64 @@ function exportToCsv() {
 /* ============================================================
    BÚSQUEDA POR VOZ
 ============================================================ */
-if ('webkitSpeechRecognition' in window) {
-    recognition = new webkitSpeechRecognition();
+if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognitionClass();
     recognition.lang = 'es-ES';
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.onstart = () => { $voiceBtn.classList.add('listening'); $voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>'; };
-    recognition.onend = () => { $voiceBtn.classList.remove('listening'); $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; };
-    recognition.onresult = e => { $searchInput.value = e.results[0][0].transcript; readFilters(); };
-    $voiceBtn.addEventListener('click', () => { try { recognition.start(); } catch (e) {} });
+
+    recognition.onstart = () => {
+        if ($voiceBtn) {
+            $voiceBtn.classList.add('listening');
+            $voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        }
+        if (typeof showToast === 'function') showToast('🎙️ Escuchando... habla ahora');
+    };
+
+    recognition.onresult = e => {
+        if (e.results && e.results[0] && e.results[0][0]) {
+            const transcript = e.results[0][0].transcript.trim();
+            if ($searchInput) {
+                $searchInput.value = transcript;
+                if ($searchInput.dispatchEvent) $searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            readFilters();
+            if (typeof showToast === 'function') showToast(`🎙️ Buscando por voz: "${transcript}"`);
+        }
+    };
+
+    recognition.onend = () => {
+        if ($voiceBtn) {
+            $voiceBtn.classList.remove('listening');
+            $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if ($searchInput && $searchInput.value && $searchInput.value.trim() !== '') {
+            readFilters();
+        }
+    };
+
+    recognition.onerror = (err) => {
+        if ($voiceBtn) {
+            $voiceBtn.classList.remove('listening');
+            $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if (err.error !== 'no-speech' && typeof showToast === 'function') {
+            showToast('⚠️ No se detectó audio de voz. Intenta de nuevo.');
+        }
+    };
+
+    if ($voiceBtn) {
+        $voiceBtn.addEventListener('click', () => {
+            if ($voiceBtn.classList.contains('listening')) {
+                try { recognition.stop(); } catch(e) {}
+            } else {
+                try { recognition.start(); } catch(e) {}
+            }
+        });
+    }
 } else {
-    $voiceBtn.style.display = 'none';
+    if ($voiceBtn) $voiceBtn.style.display = 'none';
 }
 
 /* ============================================================
@@ -3387,6 +3482,53 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 });
 
 /* ============================================================
+   HERO BANNER BACKGROUND SLIDER
+============================================================ */
+(function initHeroBgSlider() {
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+        const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            let nextIndex = (currentIndex + 1) % slides.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoplay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    });
+})();
+
+/* ============================================================
    INICIALIZACIÓN PRINCIPAL
 ============================================================ */
 async function cargarDatosYIniciar() {
@@ -3430,7 +3572,103 @@ if (document.readyState === 'loading') {
 } else {
     cargarDatosYIniciar();
 }
+
+/* ============================================================
+   SISTEMA DE NOTIFICACIONES PUSH
+============================================================ */
+function updatePushStatusUI() {
+    const bannerBadge = document.getElementById('pushStatusBadgeBanner');
+    const subscribeBtn = document.getElementById('btnSubscribePush');
+    
+    if(!bannerBadge || !subscribeBtn) return;
+
+    const perm = ("Notification" in window) ? Notification.permission : 'unsupported';
+    let badgeClass = 'push-status-default';
+    let badgeText = 'Pendiente';
+    let btnHtml = '<i class="fas fa-bell"></i> Activar Notificaciones';
+    let btnActiveClass = false;
+
+    if (perm === 'granted') {
+        badgeClass = 'push-status-granted';
+        badgeText = 'Activo';
+        btnHtml = '<i class="fas fa-check-circle"></i> Notificaciones Activas';
+        btnActiveClass = true;
+    } else if (perm === 'denied') {
+        badgeClass = 'push-status-denied';
+        badgeText = 'Bloqueado';
+        btnHtml = '<i class="fas fa-exclamation-circle"></i> Permiso Denegado';
+    } else if (perm === 'unsupported') {
+        badgeClass = 'push-status-default';
+        badgeText = 'In-App';
+        btnHtml = '<i class="fas fa-bell"></i> Alertas In-App';
+    }
+
+    bannerBadge.className = `push-status-badge ${badgeClass}`;
+    bannerBadge.innerText = badgeText;
+    
+    subscribeBtn.innerHTML = btnHtml;
+    if (btnActiveClass) subscribeBtn.classList.add('active');
+    else subscribeBtn.classList.remove('active');
+}
+
+async function requestPushPermission() {
+    if (!("Notification" in window)) {
+        if (typeof showToast === 'function') showToast("🔔 Notificaciones In-App Activadas");
+        updatePushStatusUI();
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        sendPushNotification("🔔 Notificaciones Push Activas", "Las alertas push están habilitadas para esta sección.");
+        return;
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        updatePushStatusUI();
+        if (permission === 'granted') {
+            sendPushNotification("🎉 ¡Notificaciones Activadas!", "Recibirás alertas en tiempo real sobre nuevas actualizaciones institucionales.");
+        } else {
+            if (typeof showToast === 'function') showToast("⚠️ Permiso de Notificaciones denegado");
+        }
+    } catch(e) {
+        console.error("Error al solicitar permiso", e);
+    }
+}
+
+function sendPushNotification(title, body) {
+    if (typeof showToast === 'function') showToast(title);
+    if ("Notification" in window && Notification.permission === 'granted') {
+        try {
+            const notif = new Notification(title, {
+                body: body,
+                icon: '/img/logo-gobierno.png'
+            });
+            notif.onclick = function() { window.focus(); notif.close(); };
+        } catch(e) { console.error("Error Notification API", e); }
+    }
+}
+
+function simularCambioEstadoPush() {
+    if (!tableros || tableros.length === 0) return;
+    const item = tableros[Math.floor(Math.random() * tableros.length)];
+    sendPushNotification("✅ Actualización en Institución", `${item.nombre_institucion} ha reportado nueva información pública.`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        updatePushStatusUI();
+        const subBtn = document.getElementById('btnSubscribePush');
+        const testBtn = document.getElementById('btnTestPush');
+        if(subBtn) subBtn.addEventListener('click', requestPushPermission);
+        if(testBtn) testBtn.addEventListener('click', simularCambioEstadoPush);
+    }, 1000);
+});
+
 </script>
 
+<script src="/js/pia-chatbot.js" defer></script>
+<script src="/js/sw-register.js">
+</script>
 </body>
 </html>

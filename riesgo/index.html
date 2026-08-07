@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         /* ========== ESTILOS BASE Y VARIABLES ========== */
         :root {
@@ -78,8 +80,56 @@
 
         /* Hero */
         .hero { position:relative; overflow:hidden; min-height:71vh; display:flex; align-items:center; background:var(--navy); }
-        .hero-bg { position:absolute; inset:0; z-index:0; background-image:url('https://i.postimg.cc/bvnYN2wh/gestion-de-riesgo5.png'); background-size:cover; background-position:center; filter:grayscale(20%) brightness(0.22); }
-        .hero::before { content:''; position:absolute; inset:0; z-index:1; background: radial-gradient(ellipse 75% 55% at 50% 0%, rgba(43,130,201,0.38), transparent), radial-gradient(ellipse 50% 50% at 85% 80%, rgba(0,194,224,0.12), transparent), linear-gradient(180deg, rgba(5,17,31,0.45) 0%, rgba(5,17,31,0.88) 100%); }
+        .hero-bg-slider {
+            position: absolute; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            filter: brightness(0.48) contrast(1.1);
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 7s ease-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+            padding: 5px 12px;
+            background: rgba(5, 17, 31, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 50px;
+        }
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .hero-dot:hover {
+            background: rgba(0, 194, 224, 0.8);
+        }
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 12px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 194, 224, 0.6);
+        }
+        .hero::before { content:''; position:absolute; inset:0; z-index:1; background: radial-gradient(ellipse 75% 55% at 50% 0%, rgba(43,130,201,0.45), transparent), radial-gradient(ellipse 50% 50% at 85% 80%, rgba(0,194,224,0.22), transparent), linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.90) 100%); }
         .hero::after { content:''; position:absolute; inset:0; z-index:1; background-image: linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px); background-size:48px 48px; pointer-events:none; }
         .hero-inner { position:relative; z-index:2; width:100%; padding:2.8rem 1.5rem 2.2rem; display:grid; grid-template-columns:1fr 1fr; gap:2.2rem; align-items:center; }
         .hero-eyebrow { display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:50px; border:1px solid rgba(0,194,224,0.35); background:rgba(0,194,224,0.08); font-size:0.75rem; font-weight:600; text-transform:uppercase; color:var(--cyan); margin-bottom:1.5rem; }
@@ -225,6 +275,8 @@
         .btn-clear:hover { background:var(--navy-light); }
         .btn-excel { background: #1e6f5c; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; font-family: var(--font-head); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-excel:hover { background: #0f5a49; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-pdf { background: #c0392b; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; font-family: var(--font-head); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-pdf:hover { background: #962d22; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
         .table-wrapper { overflow-x:auto; border-radius:var(--radius-xl); border:1px solid var(--border); }
         .institution-table { width:100%; border-collapse:collapse; min-width:800px; }
@@ -306,6 +358,250 @@
         .table-note i { margin-right: 4px; color: var(--text-muted); }
 
         /* Footer Unificado */
+
+        /* ========== NOTIFICACIONES PUSH & ALERTAS ========== */
+        .push-notify-banner { display: none !important; 
+            background: linear-gradient(135deg, var(--navy), #0a2540);
+            border: 1px solid rgba(0, 194, 224, 0.35);
+            border-radius: var(--radius-2xl);
+            padding: 1.4rem 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            box-shadow: 0 10px 30px rgba(5, 17, 31, 0.2);
+            color: #fff;
+        }
+        .push-notify-content {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex: 1 1 300px;
+        }
+        .push-notify-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: rgba(0, 194, 224, 0.15);
+            border: 1px solid rgba(0, 194, 224, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--cyan);
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(0, 194, 224, 0.2);
+        }
+        .push-notify-info h4 {
+            font-family: var(--font-head);
+            font-size: 1.08rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .push-notify-info p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.45;
+            margin: 0;
+        }
+        .push-notify-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .btn-push-subscribe {
+            background: var(--cyan);
+            color: var(--navy);
+            border: none;
+            padding: 0.65rem 1.3rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: var(--font-head);
+            box-shadow: 0 4px 12px rgba(0, 194, 224, 0.3);
+        }
+        .btn-push-subscribe:hover {
+            background: #00ddf7;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 194, 224, 0.45);
+        }
+        .btn-push-subscribe.active {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+        .btn-push-test {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.65rem 1.1rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-head);
+        }
+        .btn-push-test:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateY(-2px);
+        }
+        .btn-push-config {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-push-config:hover {
+            background: rgba(0, 194, 224, 0.3);
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+        .push-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .push-status-granted { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .push-status-default { background: rgba(234, 179, 8, 0.2); color: #ca8a04; border: 1px solid rgba(234, 179, 8, 0.4); }
+        .push-status-denied { background: rgba(239, 68, 68, 0.2); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        .push-log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 220px;
+            overflow-y: auto;
+            margin-top: 0.8rem;
+            padding-right: 4px;
+        }
+        .push-log-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--blue-bright);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            font-size: 0.82rem;
+        }
+        .push-log-item.cumple { border-left-color: #22c55e; }
+        .push-log-item.cgc { border-left-color: #eab308; }
+        .push-log-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.2rem;
+        }
+        .push-log-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Toast de notificación in-app */
+        .push-toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: calc(100% - 48px);
+            pointer-events: none;
+        }
+        .push-toast {
+            background: #ffffff;
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            border-left: 5px solid var(--blue-bright);
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 15px 35px rgba(5, 17, 31, 0.25);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            pointer-events: auto;
+            animation: pushToastIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
+        }
+        .push-toast.cumple { border-left-color: #22c55e; }
+        .push-toast.cgc { border-left-color: #eab308; }
+        @keyframes pushToastIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .push-toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(43, 130, 201, 0.1);
+            color: var(--blue-bright);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .push-toast-body {
+            flex: 1;
+        }
+        .push-toast-title {
+            font-family: var(--font-head);
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: var(--navy);
+            margin-bottom: 2px;
+        }
+        .push-toast-message {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .push-toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+        }
+        .push-toast-close:hover { color: var(--navy); }
         .footer { background:var(--navy); color:rgba(255,255,255,0.6); padding:3.5rem 0 1.5rem; margin-top:3rem; }
         .footer-grid { display:grid; grid-template-columns:2fr 1.5fr 1.5fr 1.2fr 1fr; gap:2.5rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,255,255,0.08); }
         .footer-brand img { height:52px; width:auto; margin-bottom:1rem; }
@@ -361,6 +657,21 @@
             .graph-page-btn { padding: 0.2rem 0.6rem; font-size: 0.7rem; }
             .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
             .footer-bottom { flex-direction: column; text-align: center; }
+            
+            /* Push notifications mobile */
+            .push-notify-banner { display: none !important;  flex-direction: column; align-items: stretch; padding: 1.2rem; gap: 1rem; }
+            .push-notify-content { flex-direction: column; align-items: stretch; gap: 0.8rem; text-align: center; }
+            .push-notify-icon { margin: 0 auto; width: 48px; height: 48px; font-size: 1.3rem; }
+            .push-notify-info h4 { justify-content: center; flex-wrap: wrap; text-align: center; }
+            .push-notify-actions { flex-direction: column; width: 100%; align-items: stretch; }
+            .btn-push-subscribe, .btn-push-test { width: 100%; justify-content: center; }
+            .btn-push-config { width: 100%; border-radius: 40px; padding: 0.65rem 1.1rem; height: auto; }
+            .btn-push-config::after { content: " Configuración"; font-family: var(--font-head); font-size: 0.82rem; font-weight: 700; margin-left: 6px; }
+            
+            .modal-content { padding: 1.5rem; }
+            .push-toast-container { right: 16px; bottom: 16px; width: calc(100% - 32px); }
+            .modal-actions-mobile { flex-direction: column !important; gap: 0.6rem !important; }
+            .modal-actions-mobile button { width: 100%; justify-content: center; margin: 0 !important; }
         }
     </style>
 </head>
@@ -372,7 +683,7 @@
         <nav class="navbar">
             <div class="logo-area">
                 <a href="../" title="Portal Principal">
-                    <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" class="gov-logo" />
+                    <img src="/img/L1.png" alt="Gobierno de Guatemala" class="gov-logo" />
                 </a>
             </div>
 
@@ -385,6 +696,7 @@
                     <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -395,7 +707,6 @@
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
                         <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
                         <li><a href="../riesgo/" class="active"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
-                        <li><a href="../vehiculos/"><i class="fas fa-car-side"></i> Transparencia Vehicular</a></li>
                     </ul>
                 </li>
 
@@ -420,12 +731,23 @@
 
 <!-- ========== HERO Y CONTENIDO ACTUALIZADO ========== -->
 <section class="hero" id="inicio">
-    <div class="hero-bg"></div>
+    <div class="hero-bg-slider" id="heroBgSlider">
+        <div class="hero-slide active" style="background-image: url('/img/gestion-de-riesgo.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/riesgo.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/riesgo2.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/riesgo3.jpg');"></div>
+    </div>
+    <div class="hero-slider-dots" id="heroSliderDots">
+        <button class="hero-dot active" aria-label="Diapositiva 1"></button>
+        <button class="hero-dot" aria-label="Diapositiva 2"></button>
+        <button class="hero-dot" aria-label="Diapositiva 3"></button>
+        <button class="hero-dot" aria-label="Diapositiva 4"></button>
+    </div>
     <div class="container hero-inner">
         <div class="hero-text">
             <div class="hero-eyebrow"><span></span> Gestión de Riesgos - Gobierno de Guatemala · Organismo Ejecutivo</div>
             <div style="margin-bottom:1.4rem;">
-                <img src="https://i.postimg.cc/Hn5ywRSS/riesgo-nuevo-logo-sin-fondo.png" alt="Riesgo en la Mira" style="max-width:340px; width:100%; height:auto; filter:drop-shadow(0 6px 24px rgba(0,194,224,0.25));" />
+                <img src="/img/nuevoLogoRiesgo.png" alt="Riesgo en la Mira" style="max-width:340px; width:100%; height:auto; filter:drop-shadow(0 6px 24px rgba(0,194,224,0.25));" />
             </div>
             <!-- SUBTÍTULO ACTUALIZADO -->
             <p style="font-size:1.1rem; font-weight:600; color:var(--cyan); margin-bottom:1rem; letter-spacing:0.02em;">
@@ -518,13 +840,18 @@
     <section class="section" style="padding-top:0;" id="catalogo">
         <div class="card fade-up">
             <div class="section-header"><div class="section-tag">Directorio</div><h2 class="section-title">Catálogo de instituciones</h2><p class="section-sub">Estado de cumplimiento en gestión de riesgos de corrupción por institución, sector y nivel de adopción.</p></div>
+            
+            
+
             <div class="filter-bar">
                 <select id="catalogoYearSelect" class="filter-select" style="margin-right:0.5rem;"></select>
                 <input type="text" id="catSearch" placeholder="🔎 Buscar por nombre o siglas..." />
                 <select id="catSector"><option value="all">📌 Todos los sectores</option></select>
                 <select id="catStatus"><option value="all">🎯 Todos los estados</option><option value="cumple">🟢 Cumple</option><option value="parcial">🟡 Parcial</option><option value="no_cumple">🔴 En proceso</option></select>
+                <select id="catFav"><option value="all">⭐ Favoritas: Todas</option><option value="fav">⭐ Solo Favoritas</option></select>
                 <button id="clearCatFiltersBtn" class="btn-clear"><i class="fas fa-eraser"></i> Limpiar</button>
                 <button id="exportExcelBtn" class="btn-excel"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+                <button id="exportPdfBtn" class="btn-pdf"><i class="fas fa-file-pdf"></i> Exportar a PDF</button>
             </div>
             <div class="table-wrapper">
                 <table class="institution-table">
@@ -619,8 +946,8 @@
     <div class="container">
         <div class="footer-grid">
             <div class="footer-brand">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" />
-                <img src="https://i.postimg.cc/7ZfBzcr6/logo-PIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;" />
+                <img src="/img/L1.png" alt="Gobierno de Guatemala" />
+                <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;" />
                 <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
             </div>
 
@@ -637,7 +964,6 @@
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
-                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
                 </ul>
             </div>
@@ -646,6 +972,7 @@
                 <h4>Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
+                    <li><a href="../vehiculos/">Transparencia Vehicular</a></li>
                     <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
                 <h4 style="margin-top:1.5rem;">Aprende</h4>
@@ -672,8 +999,8 @@
         <div class="footer-bottom">
             <p>© Gobierno de Guatemala 2026. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
-                <img src="https://i.postimg.cc/JnhTXzJZ/Logo-gobierno.png" alt="Gobierno de Guatemala" />
-                <img src="https://i.postimg.cc/Hn5ywRSS/riesgo-nuevo-logo-sin-fondo.png" alt="Riesgo en la Mira" />
+                <img src="/img/L1.png" alt="Gobierno de Guatemala" />
+                <img src="/img/nuevoLogoRiesgo.png" alt="Riesgo en la Mira" />
             </div>
         </div>
     </div>
@@ -695,6 +1022,80 @@
     <div class="modal-riesgo-content">
         <button class="modal-riesgo-close">&times;</button>
         <div id="riesgoModalBody"></div>
+    </div>
+</div>
+
+<!-- MODAL CONFIGURACIÓN PUSH -->
+<div id="pushConfigModal" class="modal">
+    <div class="modal-content" style="max-width: 580px;">
+        <button class="close-modal" id="closePushConfigModal">&times;</button>
+        <h3 class="modal-title" style="display:flex; align-items:center; gap:8px; margin-bottom:0.4rem;">
+            <i class="fas fa-bell" style="color:var(--blue-bright);"></i> Configuración de Notificaciones Push
+        </h3>
+        <p style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1.2rem; line-height:1.5;">
+            Personaliza las alertas automáticas que deseas recibir en tu navegador cuando el estado de cumplimiento de las instituciones sufra cambios.
+        </p>
+
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.2rem; margin-bottom:1.2rem;">
+            <div style="font-weight:700; font-size:0.9rem; color:var(--navy); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                <span>Estado de Permisos Web Push</span>
+                <span id="pushPermissionBadgeModal" class="push-status-badge push-status-default">Pendiente</span>
+            </div>
+            <p id="pushPermissionDescModal" style="font-size:0.82rem; color:var(--text-muted); margin:0; line-height:1.45;">
+                Las notificaciones web te permiten enterarte al instante sobre los cambios de estado institucional sin recargar la página.
+            </p>
+        </div>
+
+        <div style="margin-bottom:1.2rem;">
+            <div style="font-family:var(--font-head); font-weight:700; font-size:0.88rem; color:var(--navy); margin-bottom:0.6rem;">
+                Tipos de Alertas de Interés
+            </div>
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:0.6rem; font-size:0.85rem; cursor:pointer;">
+                <input type="checkbox" id="prefCumple" checked style="width:18px; height:18px; accent-color:var(--blue-bright);" />
+                <span>Cuando una institución cambie a estado <strong>🟢 Cumple</strong></span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:0.6rem; font-size:0.85rem; cursor:pointer;">
+                <input type="checkbox" id="prefCGC" checked style="width:18px; height:18px; accent-color:var(--blue-bright);" />
+                <span>Cuando la <strong>Contraloría General de Cuentas (CGC)</strong> actualice hallazgos</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:0.6rem; font-size:0.85rem; cursor:pointer;">
+                <input type="checkbox" id="prefSeguidas" checked style="width:18px; height:18px; accent-color:var(--blue-bright);" />
+                <span>Priorizar instituciones que he marcado como <strong>⭐ Seguidas</strong></span>
+            </label>
+        </div>
+
+        <div style="margin-bottom:1.2rem;">
+            <div style="font-family:var(--font-head); font-weight:700; font-size:0.88rem; color:var(--navy); margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                <span>Histórico de Alertas Recibidas</span>
+                <button id="btnClearPushLog" style="background:none; border:none; color:var(--red); font-size:0.75rem; font-weight:700; cursor:pointer;"><i class="fas fa-trash-alt"></i> Limpiar</button>
+            </div>
+            <div id="pushLogContainer" class="push-log-list">
+                <!-- Se puebla por JS -->
+            </div>
+        </div>
+
+        <div class="modal-actions-mobile" style="display:flex; justify-content:space-between; gap:10px; border-top:1px solid var(--border); padding-top:1rem; margin-top:1rem; flex-wrap:wrap;">
+            <button id="btnSimulateUpdatePush" class="btn-push-test" style="background:var(--navy); color:#fff; border:none;"><i class="fas fa-random"></i> Simular Cambio de Estado</button>
+            <button id="btnSavePushConfig" class="btn-push-subscribe"><i class="fas fa-check"></i> Guardar Configuración</button>
+        </div>
+    </div>
+</div>
+
+<!-- CONTENEDOR DE TOASTS IN-APP -->
+<div id="pushToastContainer" class="push-toast-container"></div>
+
+<!-- MODAL ÉXITO SUSCRIPCIÓN PUSH -->
+<div id="pushSuccessModal" class="modal">
+    <div class="modal-content" style="max-width: 420px; text-align: center; padding: 2.5rem 2rem;">
+        <button class="close-modal" id="closePushSuccessModal">&times;</button>
+        <div style="font-size: 3.5rem; color: #22c55e; margin-bottom: 1rem; animation: pulse 2s infinite;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title" style="margin-bottom: 0.8rem; font-size: 1.4rem;">¡Suscripción Exitosa!</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem;">
+            Has activado correctamente las notificaciones push. A partir de ahora recibirás alertas en tiempo real sobre actualizaciones del estado de cumplimiento institucional.
+        </p>
+        <button id="btnPushSuccessOk" class="btn-primary" style="width: 100%; justify-content: center; font-size: 1rem; padding: 0.8rem;">Entendido</button>
     </div>
 </div>
 
@@ -903,6 +1304,7 @@ async function cargarDatos() {
         graphStatus.addEventListener('change', applyGraphFilters);
         
         document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+        document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
         setupEventosGlobales();
         
         setTimeout(() => {
@@ -953,10 +1355,11 @@ function cargarAnioBanner(year) {
 async function cargarCatalogoPorAnio(year) {
     if (!globalData || !globalData.years[year]) return;
     catalogoData = globalData.years[year].instituciones;
-    catFilters = { sector: 'all', status: 'all', search: '' };
+    catFilters = { sector: 'all', status: 'all', fav: 'all', search: '' };
     document.getElementById('catSearch').value = '';
     document.getElementById('catSector').value = 'all';
     document.getElementById('catStatus').value = 'all';
+    if (document.getElementById('catFav')) document.getElementById('catFav').value = 'all';
     currentCatalogPage = 1;
     populateCatalogSectorFilter();
     renderCatalogoTabla();
@@ -974,6 +1377,7 @@ function filterCatalogInstitutions() {
     return catalogoData.filter(inst => {
         if (catFilters.sector !== 'all' && inst.sector !== catFilters.sector) return false;
         if (catFilters.status !== 'all' && inst.estado !== catFilters.status) return false;
+        if (catFilters.fav === 'fav' && !isInstFollowed(inst.id)) return false;
         if (catFilters.search) {
             const term = catFilters.search.toLowerCase();
             if (!`${inst.nombre} ${inst.siglas}`.toLowerCase().includes(term)) return false;
@@ -1004,8 +1408,12 @@ function renderCatalogoTabla() {
         else if (cgcDisplay === 'En proceso') cgcHtml = '<span class="badge-cgc cgc-proceso"><i class="fas fa-clock"></i>En proceso</span>';
         else if (cgcDisplay === 'Pendiente') cgcHtml = '<span class="badge-cgc cgc-pendiente"><i class="fas fa-hourglass-half"></i>Pendiente</span>';
         else cgcHtml = '<span class="badge-cgc cgc-sin-dato"><i class="fas fa-minus-circle"></i>--</span>';
+        
+        const isFav = isInstFollowed(inst.id);
+        const favStar = isFav ? '<span title="Institución Favorita para seguimiento" style="color:#eab308; margin-left:6px;"><i class="fas fa-star"></i></span>' : '';
+
         return `<tr>
-            <td><strong>${inst.nombre}</strong>${inst.siglas!=='N/A' ? `<span style="color:var(--text-muted);font-size:0.78rem;"> (${inst.siglas})</span>` : ''}</td>
+            <td><strong>${inst.nombre}</strong>${inst.siglas!=='N/A' ? `<span style="color:var(--text-muted);font-size:0.78rem;"> (${inst.siglas})</span>` : ''}${favStar}</td>
             <td>${statusHtml}</td>
             <td style="font-size:0.82rem;">${nivelIcon} ${nivelDisplay}</td>
             <td style="color:var(--text-muted);">${inst.sector}</td>
@@ -1026,6 +1434,7 @@ function updateCatalogFilters() {
     catFilters.search = document.getElementById('catSearch').value;
     catFilters.sector = document.getElementById('catSector').value;
     catFilters.status = document.getElementById('catStatus').value;
+    catFilters.fav = document.getElementById('catFav') ? document.getElementById('catFav').value : 'all';
     currentCatalogPage = 1;
     renderCatalogoTabla();
 }
@@ -1034,7 +1443,8 @@ function clearCatalogFilters() {
     document.getElementById('catSearch').value = '';
     document.getElementById('catSector').value = 'all';
     document.getElementById('catStatus').value = 'all';
-    catFilters = { sector:'all', status:'all', search:'' };
+    if (document.getElementById('catFav')) document.getElementById('catFav').value = 'all';
+    catFilters = { sector:'all', status:'all', fav:'all', search:'' };
     currentCatalogPage = 1;
     renderCatalogoTabla();
 }
@@ -1063,6 +1473,318 @@ function exportToExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, `Riesgo_${currentCatalogYear}`);
     XLSX.writeFile(wb, `riesgo_${currentCatalogYear}_instituciones.xlsx`);
+}
+
+async function exportToPdf() {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("La librería para generar PDF se está cargando. Por favor, reintente en un momento.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const filtered = filterCatalogInstitutions();
+    if (!filtered || !filtered.length) {
+        alert("No hay datos para exportar con los filtros actuales.");
+        return;
+    }
+
+    const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 10;
+
+    const logoUrl = '/img/logo-gobierno-pdf.png';
+    const loadImg = url => new Promise((res) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => res(img);
+        img.onerror = () => res(null);
+        img.src = url;
+    });
+    const logoImg = await loadImg(logoUrl);
+
+    const cleanPdfText = str => (str || '')
+        .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '')
+        .replace(/[🎯📌🟢🟡🔴🔍⚡🚀📘🔒✅❌✓✗]/g, '')
+        .trim();
+
+    const catSectorEl = document.getElementById('catSector');
+    const catStatusEl = document.getElementById('catStatus');
+    const rawSectorText = catSectorEl ? catSectorEl.options[catSectorEl.selectedIndex]?.text || 'Todos los sectores' : 'Todos los sectores';
+    const rawStatusText = catStatusEl ? catStatusEl.options[catStatusEl.selectedIndex]?.text || 'Todos los estados' : 'Todos los estados';
+
+    const selectedSectorText = cleanPdfText(rawSectorText) || 'Todos los sectores';
+    const selectedStatusText = cleanPdfText(rawStatusText) || 'Todos los estados';
+    const searchText = catFilters.search ? `"${cleanPdfText(catFilters.search)}"` : 'Sin filtro';
+
+    const addHeader = (d, pg, total) => {
+        if (logoImg) {
+            const lw = 28;
+            const lh = (logoImg.height * lw) / logoImg.width;
+            d.addImage(logoImg, 'PNG', margin, 4, lw, lh);
+        }
+        
+        d.setFontSize(11);
+        d.setFont('helvetica', 'bold');
+        d.setTextColor(5, 17, 31);
+        d.text('Riesgo en la Mira - Reporte de Cumplimiento Institucional', pageWidth / 2, 9, { align: 'center' });
+        
+        d.setFontSize(8);
+        d.setFont('helvetica', 'normal');
+        d.setTextColor(90, 110, 125);
+        d.text(`Año: ${currentCatalogYear}  |  Sector: ${selectedSectorText}  |  Estado: ${selectedStatusText}  |  Búsqueda: ${searchText}  |  Total: ${filtered.length} entidades`, pageWidth / 2, 14, { align: 'center' });
+
+        const now = new Date();
+        d.setFontSize(7.5);
+        d.setTextColor(100, 100, 100);
+        d.text(`Emitido: ${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`, pageWidth - margin, 8, { align: 'right' });
+
+        d.setDrawColor(26, 92, 143);
+        d.setLineWidth(0.4);
+        d.line(margin, 18, pageWidth - margin, 18);
+
+        d.setFontSize(7.5);
+        d.setTextColor(110, 120, 130);
+        d.text('Gobierno de Guatemala · Organismo Ejecutivo | Comisión Nacional Contra la Corrupción', margin, pageHeight - 5);
+        d.text(`Página ${pg} de ${total}`, pageWidth - margin, pageHeight - 5, { align: 'right' });
+    };
+
+    const cols = [
+        { header: 'Institución', width: 60 },
+        { header: 'Sector', width: 35 },
+        { header: 'Estado', width: 22 },
+        { header: 'Nivel', width: 20 },
+        { header: 'Pasos Verificados (Cumplimiento)', width: 65 },
+        { header: 'Buenas Prácticas', width: 26 },
+        { header: 'Verificación CGC', width: 27 },
+        { header: 'Actualización', width: 22 }
+    ];
+
+    const rows = filtered.map(inst => {
+        const nombre = cleanPdfText(inst.nombre) + (inst.siglas && inst.siglas !== 'N/A' ? ` (${cleanPdfText(inst.siglas)})` : '');
+        const estadoText = inst.estado === 'cumple' ? 'Cumple' : (inst.estado === 'parcial' ? 'Parcial' : 'En proceso');
+        const nivelText = cleanPdfText(getNivelDisplay(inst));
+        const sectorText = cleanPdfText(inst.sector) || '--';
+        
+        const checks = inst.checks || {};
+        const stepIdent = checks.identificacion ? 'Identificación (Sí)' : 'Identificación (No)';
+        const stepAnal = checks.analisis ? 'Análisis (Sí)' : 'Análisis (No)';
+        const stepPres = checks.presentacion ? 'Presentación (Sí)' : 'Presentación (No)';
+        const pasosDetail = `${stepIdent} | ${stepAnal} | ${stepPres}`;
+
+        const buenasPracticas = inst.buenasPracticas ? 'Adoptadas' : 'No adoptadas';
+        const cgcText = cleanPdfText(formatCGC(inst.verificacionCGC));
+        const fechaText = cleanPdfText(inst.fechaActualizacion) || '--';
+
+        return [
+            nombre,
+            sectorText,
+            estadoText,
+            nivelText,
+            pasosDetail,
+            buenasPracticas,
+            cgcText,
+            fechaText
+        ];
+    });
+
+    const finalDoc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
+    
+    finalDoc.autoTable({
+        startY: 21,
+        head: [cols.map(c => c.header)],
+        body: rows,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [5, 17, 31],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            halign: 'center',
+            fontSize: 8,
+            cellPadding: 2.5
+        },
+        styles: {
+            fontSize: 7.2,
+            cellPadding: 2,
+            valign: 'middle',
+            overflow: 'linebreak',
+            lineColor: [210, 220, 230]
+        },
+        columnStyles: {
+            0: { cellWidth: 60, fontStyle: 'bold' },
+            1: { cellWidth: 35 },
+            2: { cellWidth: 22, halign: 'center' },
+            3: { cellWidth: 20, halign: 'center' },
+            4: { cellWidth: 65 },
+            5: { cellWidth: 26, halign: 'center' },
+            6: { cellWidth: 27, halign: 'center' },
+            7: { cellWidth: 22, halign: 'center' }
+        },
+        margin: { top: 21, bottom: 12, left: margin, right: margin },
+        didParseCell: function(data) {
+            if (data.section === 'body' && data.column.index === 2) {
+                const val = data.cell.raw;
+                if (val === 'Cumple') {
+                    data.cell.styles.textColor = [22, 101, 52];
+                    data.cell.styles.fillColor = [220, 252, 231];
+                    data.cell.styles.fontStyle = 'bold';
+                } else if (val === 'Parcial') {
+                    data.cell.styles.textColor = [133, 77, 14];
+                    data.cell.styles.fillColor = [254, 249, 195];
+                    data.cell.styles.fontStyle = 'bold';
+                } else if (val === 'En proceso') {
+                    data.cell.styles.textColor = [153, 27, 27];
+                    data.cell.styles.fillColor = [254, 226, 226];
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
+        }
+    });
+
+    const totalPgs = finalDoc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPgs; i++) {
+        finalDoc.setPage(i);
+        addHeader(finalDoc, i, totalPgs);
+    }
+
+    finalDoc.save(`riesgo_en_la_mira_${currentCatalogYear}_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+async function exportSingleInstitutionPdf(inst, year) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("La librería para generar PDF se está cargando. Por favor, reintente en un momento.");
+        return;
+    }
+    
+    // Show a loading notification
+    if (typeof showInAppToast === 'function') {
+        showInAppToast("⏳ Generando PDF", `Generando ficha de cumplimiento de ${inst.nombre}...`, "general");
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+
+    const logoUrl = '/img/logo-gobierno-pdf.png';
+    const loadImg = url => new Promise((res) => {
+        const img = new Image(); img.crossOrigin = 'Anonymous';
+        img.onload = () => res(img); img.onerror = () => res(null);
+        img.src = url;
+    });
+    const logoImg = await loadImg(logoUrl);
+
+    if (logoImg) {
+        const lw = 28;
+        const lh = (logoImg.height * lw) / logoImg.width;
+        doc.addImage(logoImg, 'PNG', margin, 12, lw, lh);
+    }
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(5, 17, 31);
+    doc.text('Ficha de Cumplimiento en Gestión de Riesgos', pageWidth - margin, 18, { align: 'right' });
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Riesgo en la Mira · Gobierno de Guatemala', pageWidth - margin, 24, { align: 'right' });
+
+    doc.setDrawColor(26, 92, 143);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 30, pageWidth - margin, 30);
+
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(5, 17, 31);
+    const instTitle = `${inst.nombre}${inst.siglas !== 'N/A' ? ' (' + inst.siglas + ')' : ''}`;
+    doc.text(instTitle, margin, 42);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(90, 110, 125);
+    doc.text(`Período / Año evaluado: ${year}`, margin, 48);
+
+    doc.setFillColor(240, 245, 251);
+    doc.roundedRect(margin, 54, pageWidth - (margin * 2), 36, 3, 3, 'F');
+
+    const statusText = inst.estado==='cumple'?'Cumple':(inst.estado==='parcial'?'Cumplimiento Parcial':'En Proceso');
+    const nivelDisplay = getNivelDisplay(inst);
+    const cgcDisplay = formatCGC(inst.verificacionCGC);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(5, 17, 31);
+    doc.text('INFORMACIÓN GENERAL DE CUMPLIMIENTO', margin + 5, 62);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`• Estado General: ${statusText}`, margin + 5, 70);
+    doc.text(`• Nivel de Adopción: ${nivelDisplay}`, margin + 5, 76);
+    doc.text(`• Sector: ${inst.sector || 'No especificado'}`, margin + 5, 82);
+
+    doc.text(`• Buenas Prácticas GRC: ${inst.buenasPracticas ? 'Adoptadas' : 'No adoptadas'}`, pageWidth / 2 + 5, 70);
+    doc.text(`• Verificación CGC: ${cgcDisplay}`, pageWidth / 2 + 5, 76);
+    doc.text(`• Última Actualización: ${inst.fechaActualizacion || '--'}`, pageWidth / 2 + 5, 82);
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(5, 17, 31);
+    doc.text('PASOS DEL LINEAMIENTO DE GESTIÓN DE RIESGOS', margin, 102);
+
+    const checks = inst.checks || {};
+    const checkRows = [
+        ['1. Identificación de Riesgos', checks.identificacion ? 'CUMPLIDO' : 'NO CUMPLIDO', 'Elaboración de catálogo de eventos de corrupción por área crítica.'],
+        ['2. Análisis e Interpretación', checks.analisis ? 'CUMPLIDO' : 'NO CUMPLIDO', 'Matriz de ponderación de riesgos de la entidad.'],
+        ['3. Presentación a Máxima Autoridad', checks.presentacion ? 'CUMPLIDO' : 'NO CUMPLIDO', 'Entrega y validación ante la autoridad superior.']
+    ];
+
+    doc.autoTable({
+        startY: 106,
+        head: [['Paso del Lineamiento', 'Verificación', 'Descripción']],
+        body: checkRows,
+        theme: 'grid',
+        headStyles: { fillColor: [5, 17, 31], textColor: 255, fontStyle: 'bold' },
+        styles: { fontSize: 8.5, cellPadding: 3 },
+        columnStyles: {
+            0: { cellWidth: 55, fontStyle: 'bold' },
+            1: { cellWidth: 30, halign: 'center', fontStyle: 'bold' },
+            2: { cellWidth: 95 }
+        },
+        margin: { left: margin, right: margin },
+        didParseCell: function(data) {
+            if (data.section === 'body' && data.column.index === 1) {
+                if (data.cell.raw === 'CUMPLIDO') {
+                    data.cell.styles.textColor = [22, 101, 52];
+                    data.cell.styles.fillColor = [220, 252, 231];
+                } else {
+                    data.cell.styles.textColor = [153, 27, 27];
+                    data.cell.styles.fillColor = [254, 226, 226];
+                }
+            }
+        }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 12;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(120, 120, 120);
+    doc.text('Nota: Los documentos de análisis de riesgos de corrupción son de uso interno conforme a la normativa vigente.', margin, finalY);
+
+    const now = new Date();
+    doc.text(`Documento generado el ${now.toLocaleDateString('es-GT')} a las ${now.toLocaleTimeString('es-GT')}`, margin, finalY + 6);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Gobierno de Guatemala · Organismo Ejecutivo | Comisión Nacional Contra la Corrupción', margin, 285);
+
+    const fileSiglas = (inst.siglas && inst.siglas !== 'N/A' ? inst.siglas : 'Inst_' + inst.id);
+    doc.save(`Ficha_Riesgo_${fileSiglas}_${year}.pdf`);
+    
+    if (typeof showInAppToast === 'function') {
+        showInAppToast("✅ PDF Listo", "El archivo ha sido generado y descargado.", "cumple");
+    }
 }
 
 function actualizarHeroPanel(yearData) {
@@ -1199,6 +1921,14 @@ function openModal(inst, year) {
     else if (cgcDisplay === 'En proceso') cgcText = '<span class="badge-cgc cgc-proceso">En proceso</span>';
     else if (cgcDisplay === 'Pendiente') cgcText = '<span class="badge-cgc cgc-pendiente">Pendiente</span>';
     else cgcText = '<span class="badge-cgc cgc-sin-dato">--</span>';
+
+    const isFollowed = isInstFollowed(inst.id);
+    const followBtnHtml = `
+        <button id="btnToggleFollowInst" class="btn-push-test" style="background:${isFollowed ? 'rgba(234,179,8,0.12)' : 'var(--surface)'}; color:${isFollowed ? '#854d0e' : 'var(--navy)'}; border:1px solid ${isFollowed ? 'rgba(234,179,8,0.4)' : 'var(--border)'}; font-size:0.8rem; margin-top:0.8rem; width:100%; justify-content:center;">
+            <i class="${isFollowed ? 'fas' : 'far'} fa-star" style="color:${isFollowed ? '#eab308' : 'inherit'}; margin-right:6px;"></i> ${isFollowed ? 'Marcada como favorita para seguimiento' : 'Marcar como favorita para seguimiento'}
+        </button>
+    `;
+
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-field"><strong>Estado:</strong> ${statusText}</div>
         <div class="modal-field"><strong>Nivel:</strong> ${nivelIcon} ${nivelDisplay} ${nivelDisplay === 'Intermedio' ? '(cumplimiento parcial)' : (nivelDisplay === 'Avanzado' ? '(mitigación + verificación)' : '(lineamiento mínimo)')}</div>
@@ -1209,9 +1939,24 @@ function openModal(inst, year) {
         <div class="checklist-item">${chk(inst.checks.presentacion)} Presentación a máxima autoridad 🔒</div>
         <div class="modal-field" style="margin-top:1rem;"><strong>Aplicación de buenas prácticas GRC:</strong> ${inst.buenasPracticas ? '<span style="color:#16A34A;">✅ Adoptadas</span>' : '<span style="color:#64748B;">No adoptadas</span>'}</div>
         <div class="modal-field"><strong>Verificación hallazgos CGC:</strong> ${cgcText}</div>
-        <div class="method-note" style="margin-top:1rem;">Los documentos de análisis de riesgos son de uso interno de cada entidad.</div>
+        ${followBtnHtml}
+        <button id="exportSinglePdfBtn" class="btn-pdf" style="margin-top:0.8rem; width:100%; justify-content:center;"><i class="fas fa-file-pdf"></i> Exportar Ficha en PDF</button>
+        <div class="method-note" style="margin-top:0.8rem;">Los documentos de análisis de riesgos son de uso interno de cada entidad.</div>
     `;
     modal.style.display = 'flex';
+
+    document.getElementById('exportSinglePdfBtn')?.addEventListener('click', () => exportSingleInstitutionPdf(inst, year));
+
+    document.getElementById('btnToggleFollowInst')?.addEventListener('click', () => {
+        const nowFollowed = toggleFollowInst(inst.id);
+        openModal(inst, year);
+        renderCatalogoTabla();
+        if (nowFollowed) {
+            showInAppToast("⭐ Marcada como Favorita", `${inst.nombre} guardada en tus instituciones favoritas para seguimiento.`, "general");
+        } else {
+            showInAppToast("Favorita removida", `${inst.nombre} removida de tus instituciones favoritas.`, "general");
+        }
+    });
 }
 
 function initYearComparisonButtons() {
@@ -1513,7 +2258,379 @@ function handleGraphPagination(e) {
     actualizarGraficaComparativa();
 }
 
+/* ============================================================
+   SISTEMA DE NOTIFICACIONES PUSH Y ALERTAS EN TIEMPO REAL
+============================================================ */
+const PUSH_PREFS_KEY = 'riesgo_push_prefs';
+const PUSH_LOG_KEY = 'riesgo_push_log';
+const FOLLOWED_INSTS_KEY = 'riesgo_followed_insts';
+
+function getPushPrefs() {
+    try {
+        const stored = localStorage.getItem(PUSH_PREFS_KEY);
+        return stored ? JSON.parse(stored) : { cumple: true, cgc: true, seguidas: true };
+    } catch(e) {
+        return { cumple: true, cgc: true, seguidas: true };
+    }
+}
+
+function savePushPrefs(prefs) {
+    try {
+        localStorage.setItem(PUSH_PREFS_KEY, JSON.stringify(prefs));
+    } catch(e) { console.error("Error al guardar preferencias push", e); }
+}
+
+function getPushLog() {
+    try {
+        const stored = localStorage.getItem(PUSH_LOG_KEY);
+        return stored ? JSON.parse(stored) : [
+            {
+                id: 1,
+                title: "🟢 Ministerio de Salud Pública (MSPAS)",
+                body: "Actualizó su estado de cumplimiento a CUMPLE tras verificar el análisis y la presentación a la máxima autoridad.",
+                type: "cumple",
+                time: "Hoy, 10:30 AM"
+            },
+            {
+                id: 2,
+                title: "📜 Secretaría de Planificación (SEGEPLAN)",
+                body: "Completó la verificación de hallazgos por la Contraloría General de Cuentas (CGC).",
+                type: "cgc",
+                time: "Ayer, 03:15 PM"
+            }
+        ];
+    } catch(e) {
+        return [];
+    }
+}
+
+function addPushLogItem(title, body, type = 'general') {
+    try {
+        const log = getPushLog();
+        const now = new Date();
+        const timeStr = `${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`;
+        log.unshift({ id: Date.now(), title, body, type, time: timeStr });
+        if (log.length > 30) log.pop();
+        localStorage.setItem(PUSH_LOG_KEY, JSON.stringify(log));
+        renderPushLog();
+    } catch(e) { console.error("Error al agregar al registro push", e); }
+}
+
+function clearPushLog() {
+    try {
+        localStorage.setItem(PUSH_LOG_KEY, JSON.stringify([]));
+        renderPushLog();
+    } catch(e) { console.error(e); }
+}
+
+function getFollowedInsts() {
+    try {
+        const stored = localStorage.getItem(FOLLOWED_INSTS_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch(e) { return []; }
+}
+
+function isInstFollowed(instId) {
+    const list = getFollowedInsts();
+    return list.includes(instId);
+}
+
+function toggleFollowInst(instId) {
+    let list = getFollowedInsts();
+    if (list.includes(instId)) {
+        list = list.filter(id => id !== instId);
+    } else {
+        list.push(instId);
+    }
+    try {
+        localStorage.setItem(FOLLOWED_INSTS_KEY, JSON.stringify(list));
+    } catch(e) { console.error(e); }
+    return list.includes(instId);
+}
+
+function updatePushStatusUI() {
+    const bannerBadge = document.getElementById('pushStatusBadgeBanner');
+    const modalBadge = document.getElementById('pushPermissionBadgeModal');
+    const subscribeBtn = document.getElementById('btnSubscribePush');
+    const descModal = document.getElementById('pushPermissionDescModal');
+
+    const perm = ("Notification" in window) ? Notification.permission : 'unsupported';
+
+    let badgeClass = 'push-status-default';
+    let badgeText = 'Pendiente';
+    let btnHtml = '<i class="fas fa-bell"></i> Activar Notificaciones';
+    let btnActiveClass = false;
+
+    if (perm === 'granted') {
+        badgeClass = 'push-status-granted';
+        badgeText = 'Activo';
+        btnHtml = '<i class="fas fa-check-circle"></i> Notificaciones Activas';
+        btnActiveClass = true;
+        if (descModal) descModal.innerText = "¡Notificaciones activas! Recibirás alertas flotantes de navegador cuando se detecten actualizaciones.";
+    } else if (perm === 'denied') {
+        badgeClass = 'push-status-denied';
+        badgeText = 'Bloqueado';
+        btnHtml = '<i class="fas fa-exclamation-circle"></i> Permiso Denegado';
+        if (descModal) descModal.innerText = "Las notificaciones están bloqueadas en tu navegador. Puedes habilitarlas desde la configuración de tu navegador.";
+    } else if (perm === 'unsupported') {
+        badgeClass = 'push-status-default';
+        badgeText = 'In-App';
+        btnHtml = '<i class="fas fa-bell"></i> Alertas In-App';
+        if (descModal) descModal.innerText = "Tu navegador actual no soporta notificaciones nativas de escritorio, pero recibirás avisos flotantes en pantalla.";
+    }
+
+    if (bannerBadge) {
+        bannerBadge.className = `push-status-badge ${badgeClass}`;
+        bannerBadge.innerText = badgeText;
+    }
+    if (modalBadge) {
+        modalBadge.className = `push-status-badge ${badgeClass}`;
+        modalBadge.innerText = badgeText;
+    }
+    if (subscribeBtn) {
+        subscribeBtn.innerHTML = btnHtml;
+        if (btnActiveClass) subscribeBtn.classList.add('active');
+        else subscribeBtn.classList.remove('active');
+    }
+}
+
+async function requestPushPermission() {
+    if (!("Notification" in window)) {
+        showInAppToast("🔔 Notificaciones In-App Activadas", "Recibirás avisos flotantes en pantalla durante tu sesión.", "general");
+        updatePushStatusUI();
+        document.getElementById('pushSuccessModal').style.display = 'flex';
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        sendPushNotification("🔔 Notificaciones Push Activas", "Las alertas push están habilitadas para el reporte de cumplimiento.", "general");
+        document.getElementById('pushSuccessModal').style.display = 'flex';
+        return;
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        updatePushStatusUI();
+        if (permission === 'granted') {
+            sendPushNotification("🎉 ¡Notificaciones Activadas!", "Recibirás alertas en tiempo real cuando cambie el estado de cumplimiento institucional.", "cumple");
+            document.getElementById('pushSuccessModal').style.display = 'flex';
+        } else {
+            showInAppToast("⚠️ Permiso de Notificaciones", "Puedes habilitar las notificaciones desde la configuración de sitio de tu navegador.", "general");
+        }
+    } catch(e) {
+        console.error("Error al solicitar permiso de notificaciones push", e);
+    }
+}
+
+function sendPushNotification(title, body, type = 'general', instId = null) {
+    addPushLogItem(title, body, type);
+    showInAppToast(title, body, type);
+
+    if ("Notification" in window && Notification.permission === 'granted') {
+        try {
+            const notif = new Notification(title, {
+                body: body,
+                icon: '/img/logo-gobierno.png',
+                badge: '/img/nuevoLogoRiesgo.png',
+                tag: 'riesgo-mira-alert'
+            });
+            notif.onclick = function() {
+                window.focus();
+                if (instId && globalData) {
+                    const inst = globalData.years[currentCatalogYear]?.instituciones.find(i => i.id === instId);
+                    if (inst) openModal(inst, currentCatalogYear);
+                }
+            };
+        } catch(e) {
+            console.log("Notificación push nativa en modo simulado:", e);
+        }
+    }
+}
+
+function showInAppToast(title, body, type = 'general') {
+    const container = document.getElementById('pushToastContainer');
+    if (!container) return;
+
+    let iconHtml = '<i class="fas fa-bell"></i>';
+    if (type === 'cumple') iconHtml = '<i class="fas fa-check-circle" style="color:#22c55e;"></i>';
+    if (type === 'cgc') iconHtml = '<i class="fas fa-file-invoice" style="color:#eab308;"></i>';
+
+    const toast = document.createElement('div');
+    toast.className = `push-toast ${type}`;
+    toast.innerHTML = `
+        <div class="push-toast-icon">${iconHtml}</div>
+        <div class="push-toast-body">
+            <div class="push-toast-title">${title}</div>
+            <div class="push-toast-message">${body}</div>
+        </div>
+        <button class="push-toast-close">&times;</button>
+    `;
+
+    toast.querySelector('.push-toast-close').addEventListener('click', () => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+    });
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 6500);
+}
+
+function renderPushLog() {
+    const container = document.getElementById('pushLogContainer');
+    if (!container) return;
+    const log = getPushLog();
+    if (!log.length) {
+        container.innerHTML = '<div style="font-size:0.82rem; color:var(--text-muted); text-align:center; padding:1rem;">No hay alertas registradas aún.</div>';
+        return;
+    }
+    container.innerHTML = log.map(item => `
+        <div class="push-log-item ${item.type}">
+            <div class="push-log-header">
+                <span>${item.title}</span>
+                <span class="push-log-time">${item.time}</span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">${item.body}</div>
+        </div>
+    `).join('');
+}
+
+function simularCambioEstadoPush() {
+    if (!globalData || !globalData.years[currentCatalogYear]) {
+        sendPushNotification("🟢 MSPAS - Estado Actualizado", "El Ministerio de Salud Pública y Asistencia Social cambió a CUMPLE en la verificación de 3 pasos.", "cumple");
+        return;
+    }
+
+    const insts = globalData.years[currentCatalogYear].instituciones || [];
+    if (!insts.length) return;
+
+    const randomInst = insts[Math.floor(Math.random() * insts.length)];
+    const isCgc = Math.random() > 0.5;
+
+    if (isCgc) {
+        sendPushNotification(
+            `📜 CGC: ${randomInst.nombre}`,
+            `La Contraloría General de Cuentas (CGC) ha completado la revisión de hallazgos para ${randomInst.nombre}.`,
+            "cgc",
+            randomInst.id
+        );
+    } else {
+        sendPushNotification(
+            `🟢 ${randomInst.nombre} - Cumplimiento`,
+            `${randomInst.nombre} (${randomInst.siglas !== 'N/A' ? randomInst.siglas : 'Entidad'}) ha acreditado la presentación a la máxima autoridad y pasó a estado CUMPLE.`,
+            "cumple",
+            randomInst.id
+        );
+    }
+}
+
+function initPushNotificationEvents() {
+    updatePushStatusUI();
+    renderPushLog();
+
+    const prefs = getPushPrefs();
+    if (document.getElementById('prefCumple')) document.getElementById('prefCumple').checked = prefs.cumple;
+    if (document.getElementById('prefCGC')) document.getElementById('prefCGC').checked = prefs.cgc;
+    if (document.getElementById('prefSeguidas')) document.getElementById('prefSeguidas').checked = prefs.seguidas;
+
+    document.getElementById('btnSubscribePush')?.addEventListener('click', requestPushPermission);
+    
+    document.getElementById('btnTestPush')?.addEventListener('click', () => {
+        simularCambioEstadoPush();
+    });
+
+    document.getElementById('btnPushConfig')?.addEventListener('click', () => {
+        updatePushStatusUI();
+        renderPushLog();
+        document.getElementById('pushConfigModal').style.display = 'flex';
+    });
+
+    document.getElementById('closePushConfigModal')?.addEventListener('click', () => {
+        document.getElementById('pushConfigModal').style.display = 'none';
+    });
+
+    document.getElementById('closePushSuccessModal')?.addEventListener('click', () => {
+        document.getElementById('pushSuccessModal').style.display = 'none';
+    });
+    
+    document.getElementById('btnPushSuccessOk')?.addEventListener('click', () => {
+        document.getElementById('pushSuccessModal').style.display = 'none';
+    });
+
+    document.getElementById('btnSimulateUpdatePush')?.addEventListener('click', () => {
+        simularCambioEstadoPush();
+    });
+
+    document.getElementById('btnClearPushLog')?.addEventListener('click', () => {
+        clearPushLog();
+    });
+
+    document.getElementById('btnSavePushConfig')?.addEventListener('click', () => {
+        const newPrefs = {
+            cumple: document.getElementById('prefCumple')?.checked ?? true,
+            cgc: document.getElementById('prefCGC')?.checked ?? true,
+            seguidas: document.getElementById('prefSeguidas')?.checked ?? true
+        };
+        savePushPrefs(newPrefs);
+        showInAppToast("✅ Preferencias Guardadas", "Tus preferencias de notificaciones han sido actualizadas.", "general");
+        document.getElementById('pushConfigModal').style.display = 'none';
+    });
+}
+
 function setupEventosGlobales() {
+    initPushNotificationEvents();
+    /* ============================================================
+       HERO BANNER BACKGROUND SLIDER
+    ============================================================ */
+    (function initHeroBgSlider() {
+        const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+        const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            let nextIndex = (currentIndex + 1) % slides.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoplay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    })();
+
     // Header & Mobile Nav
     const mobileMenu = document.getElementById('mobileMenu');
     const navMenu = document.getElementById('navMenu');
@@ -1548,6 +2665,7 @@ function setupEventosGlobales() {
     document.getElementById('catSearch').addEventListener('input', updateCatalogFilters);
     document.getElementById('catSector').addEventListener('change', updateCatalogFilters);
     document.getElementById('catStatus').addEventListener('change', updateCatalogFilters);
+    document.getElementById('catFav')?.addEventListener('change', updateCatalogFilters);
     document.getElementById('clearCatFiltersBtn').addEventListener('click', clearCatalogFilters);
     document.getElementById('catalogoPagination').addEventListener('click', e => {
         const btn = e.target.closest('.page-btn');
@@ -1588,5 +2706,7 @@ function setupEventosGlobales() {
 
 cargarDatos();
 </script>
+<script src="/js/pia-chatbot.js" defer></script>
+<script src="/js/sw-register.js"></script>
 </body>
 </html>
