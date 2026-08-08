@@ -46,7 +46,7 @@
        RESET & BASE 
     ============================================================ */
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; background-color: #05111F; }
     body {
         font-family: var(--font-body);
         background: var(--surface);
@@ -1812,6 +1812,113 @@
             gap: 0.4rem;
         }
 
+        /* Barra de Alerta de Auditoría de Calidad */
+        .data-val-alert-bar {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: 16px;
+            padding: 0.85rem 1.25rem;
+            margin: 1rem 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .data-val-alert-bar .data-val-alert-icon {
+            color: var(--amber);
+            font-size: 1.25rem;
+        }
+        .data-val-alert-bar .data-val-alert-text {
+            font-size: 0.83rem;
+            color: var(--text-main);
+            flex: 1;
+        }
+        .btn-val-alert-details {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #d97706;
+            padding: 0.4rem 0.85rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-val-alert-details:hover {
+            background: #f59e0b;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Modal Auditoría */
+        .val-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(8, 26, 43, 0.75);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .val-modal-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            max-width: 650px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        .val-modal-head {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .val-modal-head h3 {
+            margin: 0;
+            font-family: var(--font-head);
+            font-size: 1.1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .val-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .val-modal-close:hover {
+            color: var(--cyan);
+        }
+        .val-modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .val-modal-foot {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+        }
+
         .dashboard-container {
             background: var(--surface-card);
             border: 1px solid var(--border);
@@ -2418,7 +2525,6 @@
                     <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
-                        <li><a href="#guiaMultilingue"><i class="fas fa-language"></i> Guía Multilingüe Mayas</a></li>
                         <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
                     </ul>
                 </li>
@@ -2678,6 +2784,34 @@
             </button>
             <div class="dashboard-toggle-subtext">
                 <i class="fas fa-info-circle"></i> Haz clic para desplegar u ocultar las estadísticas y métricas de cumplimiento
+            </div>
+        </div>
+
+        <!-- Alerta de Auditoría de Registro de Canales -->
+        <div id="dataValAlertBar" class="data-val-alert-bar" style="display:none;">
+            <div class="data-val-alert-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="data-val-alert-text">
+                <strong>Auditoría de Calidad de Datos:</strong> Se detectaron <span id="valAlertCountNum" style="font-weight:800; color:var(--amber);">0</span> registros con observaciones (canales no reportados o discrepancias de datos).
+            </div>
+            <button type="button" class="btn-val-alert-details" onclick="toggleValAlertModal(true)">
+                <i class="fas fa-list-check"></i> Ver Inconsistencias
+            </button>
+        </div>
+
+        <!-- Modal de Auditoría y Control de Errores de Registro -->
+        <div id="valAlertModal" class="val-modal-overlay" style="display:none;" onclick="if(event.target===this) toggleValAlertModal(false)">
+            <div class="val-modal-card">
+                <div class="val-modal-head">
+                    <h3><i class="fas fa-clipboard-check" style="color:var(--amber);"></i> Auditoría de Registro de Canales</h3>
+                    <button type="button" class="val-modal-close" onclick="toggleValAlertModal(false)">&times;</button>
+                </div>
+                <div class="val-modal-body" id="valModalBody">
+                    <!-- Contenido dinámico de inconsistencias -->
+                </div>
+                <div class="val-modal-foot">
+                    <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fas fa-code"></i> Detalles técnicos disponibles en la consola (F12).</span>
+                    <button type="button" class="btn-capsula" onclick="toggleValAlertModal(false)">Entendido</button>
+                </div>
             </div>
         </div>
 
@@ -3903,6 +4037,142 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 })();
 
 /* ============================================================
+   VALIDACIÓN DE CALIDAD Y AUDITORÍA DE CANALES
+============================================================ */
+let globalValAuditResults = { zeroChannels: [], contradictions: [] };
+
+function validarDirectorioCanales(rawData) {
+    if (!Array.isArray(rawData)) return;
+
+    const zeroChannels = [];
+    const contradictions = [];
+
+    rawData.forEach((item, idx) => {
+        const nombre = item.institucion || item.nombre_institucion || `Institución #${idx + 1}`;
+        const tel = (item.telefono || '').toString().trim();
+        const mail = (item.correo || '').toString().trim();
+        const form = (item.formulario || (Array.isArray(item.enlaces_solicitud) && item.enlaces_solicitud[0]) || '').toString().trim();
+        const dir = (item.direccion || item.ubicacion || '').toString().trim();
+        const tipocom = (item.tipocom || '').toString().trim();
+        const otro = (item.otro || '').toString().trim();
+
+        let realCount = 0;
+        if (tel) realCount++;
+        if (mail) realCount++;
+        if (form) realCount++;
+        
+        const hasPresencial = dir.length > 0 || (
+            tipocom.toLowerCase().includes('presencial') ||
+            tipocom.toLowerCase().includes('verbal') ||
+            tipocom.toLowerCase().includes('escrita') ||
+            tipocom.toLowerCase().includes('oficina') ||
+            tipocom.toLowerCase().includes('unidad')
+        );
+        if (hasPresencial) realCount++;
+        if (otro) realCount++;
+
+        const declaredCanales = item.canales;
+        const issues = [];
+
+        // 1. Detectar 0 canales
+        if (realCount === 0) {
+            issues.push('0 canales de contacto o denuncia detectados.');
+            zeroChannels.push({ nombre, index: idx, item });
+        }
+
+        // 2. Discrepancia entre canales declarados vs reales
+        if (declaredCanales !== undefined && declaredCanales !== null && Number(declaredCanales) !== realCount) {
+            issues.push(`Declaró ${declaredCanales} canales pero se identificaron ${realCount} vías de contacto registradas.`);
+        }
+
+        // 3. Inconsistencia de formato de correo
+        if (mail && !mail.includes('@')) {
+            issues.push(`Correo registrado con formato atípico ("${mail}").`);
+        }
+
+        // 4. Inconsistencia en teléfono (sin números)
+        if (tel && !/\d/.test(tel)) {
+            issues.push(`Teléfono registrado sin caracteres numéricos ("${tel}").`);
+        }
+
+        if (issues.length > 0) {
+            contradictions.push({
+                nombre,
+                index: idx,
+                declarado: declaredCanales,
+                calculado: realCount,
+                issues
+            });
+        }
+    });
+
+    globalValAuditResults = { zeroChannels, contradictions };
+
+    // Consola de aviso para administradores/desarrolladores
+    if (zeroChannels.length > 0 || contradictions.length > 0) {
+        console.group('%c⚠️ AUDITORÍA DE REGISTRO - CANALES POR LA INTEGRIDAD', 'color: #f59e0b; font-weight: bold; font-size: 12px;');
+        console.warn(`Se analizaron ${rawData.length} registros. Se encontraron ${zeroChannels.length} instituciones sin canales y ${contradictions.length} observaciones de registro.`);
+        if (zeroChannels.length > 0) {
+            console.warn('🔴 Instituciones con 0 canales de denuncia:', zeroChannels);
+        }
+        if (contradictions.length > 0) {
+            console.warn('🟡 Registros con observaciones o datos contradictorios:', contradictions);
+        }
+        console.groupEnd();
+
+        // Mostrar aviso visual en la interfaz de usuario
+        showValidationAlertBar(zeroChannels, contradictions);
+    }
+}
+
+function showValidationAlertBar(zeroList, contradictionsList) {
+    const alertBar = document.getElementById('dataValAlertBar');
+    const alertCountNum = document.getElementById('valAlertCountNum');
+    if (!alertBar) return;
+
+    const totalObs = contradictionsList.length;
+    if (alertCountNum) alertCountNum.textContent = totalObs;
+    alertBar.style.display = 'flex';
+}
+
+function toggleValAlertModal(show) {
+    const modal = document.getElementById('valAlertModal');
+    if (!modal) return;
+    if (show) {
+        const body = document.getElementById('valModalBody');
+        if (body) {
+            const { zeroChannels, contradictions } = globalValAuditResults;
+            let html = `<div style="margin-bottom:1rem; font-size:0.85rem; color:var(--text-muted);">
+                A continuación se detallan las instituciones que presentan observaciones o posibles errores humanos de registro al cargar el JSON:
+            </div>`;
+
+            if (contradictions.length === 0) {
+                html += `<div style="padding:1rem; background:rgba(34,197,94,0.1); border-radius:10px; color:#15803d;">
+                    <i class="fas fa-check-circle"></i> No se detectaron inconsistencias críticas en el registro.
+                </div>`;
+            } else {
+                html += `<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem;">`;
+                contradictions.forEach(item => {
+                    html += `
+                        <li style="background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--amber); border-radius:10px; padding:0.85rem 1rem;">
+                            <strong style="color:var(--text-main); font-size:0.9rem;">${item.nombre}</strong>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+                                ${item.issues.map(iss => `<div><i class="fas fa-exclamation-circle" style="color:var(--amber);"></i> ${iss}</div>`).join('')}
+                            </div>
+                        </li>
+                    `;
+                });
+                html += `</ul>`;
+            }
+            body.innerHTML = html;
+        }
+        modal.style.display = 'flex';
+    } else {
+        modal.style.display = 'none';
+    }
+}
+
+/* ============================================================
    INICIALIZACIÓN PRINCIPAL (carga JSON)
 ============================================================ */
 async function cargarDatosYIniciar() {
@@ -3910,6 +4180,10 @@ async function cargarDatosYIniciar() {
         const response = await fetch('data_directorio.json');
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
+
+        // Auditoría de datos y detección de errores de registro
+        validarDirectorioCanales(data);
+
         instituciones = data.map(item => {
             const nombre = item.institucion || item.nombre_institucion || '';
             const tipoDep = item.tipo || item.sector || '';
@@ -3919,12 +4193,22 @@ async function cargarDatosYIniciar() {
             const tipocom = item.tipocom || (item.direccion ? 'Atención presencial en Unidad de Acceso a la Información Pública' : '');
             const otro = item.otro || '';
             
+            // CONTEO AUTOMÁTICO DE CANALES DE DENUNCIA (evita errores humanos de registro)
             let chCount = 0;
-            if (tel) chCount++;
-            if (mail) chCount++;
-            if (form) chCount++;
-            if (tipocom) chCount++;
-            if (otro) chCount++;
+            if (tel && tel.trim()) chCount++;
+            if (mail && mail.trim()) chCount++;
+            if (form && form.trim()) chCount++;
+            
+            const hasDireccion = !!(item.direccion && item.direccion.trim()) || !!(item.ubicacion && item.ubicacion.trim());
+            const hasTipocomPresencial = tipocom && (
+                tipocom.toLowerCase().includes('presencial') ||
+                tipocom.toLowerCase().includes('verbal') ||
+                tipocom.toLowerCase().includes('escrita') ||
+                tipocom.toLowerCase().includes('oficina') ||
+                tipocom.toLowerCase().includes('unidad')
+            );
+            if (hasDireccion || hasTipocomPresencial) chCount++;
+            if (otro && otro.trim()) chCount++;
             if (chCount === 0) chCount = 1;
 
             const prot = item['Protocolo de actuación'] !== undefined ? item['Protocolo de actuación'] : (item.informacion_publica_oficio !== false);
@@ -3933,7 +4217,7 @@ async function cargarDatosYIniciar() {
                 ...item,
                 institucion: nombre,
                 tipo: tipoDep,
-                canales: item.canales || chCount,
+                canales: chCount, // Garantiza conteo exacto de canales activos registradas
                 'Protocolo de actuación': prot,
                 telefono: tel,
                 correo: mail,

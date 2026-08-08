@@ -40,7 +40,7 @@
            RESET & BASE
         ============================================================ */
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; background-color: #05111F; }
         body { font-family: var(--font-body); background: var(--surface); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; }
         a { color: inherit; text-decoration: none; }
         img { display: block; max-width: 100%; }
@@ -746,7 +746,7 @@
         .cta-band p { font-size: 1rem; color: rgba(255,255,255,0.6); max-width: 560px; margin: 0 auto 2rem; line-height: 1.7; }
         .cta-band-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
-        .fade-up { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
+        .fade-up { opacity: 0; transform: translateY(16px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; will-change: opacity, transform; }
         .fade-up.visible { opacity: 1; transform: translateY(0); }
 
         @media (max-width: 1024px) {
@@ -3078,7 +3078,7 @@ Utiliza los mecanismos oficiales para participar activamente.
                 fadeObserver.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.05, rootMargin: '0px 0px 100px 0px' });
     document.querySelectorAll('.fade-up').forEach(el => fadeObserver.observe(el));
 
     /* ============================================================

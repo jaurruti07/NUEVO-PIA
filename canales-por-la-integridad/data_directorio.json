@@ -156,7 +156,7 @@
   {
     "institucion": "Ministerio de Salud Pública y Asistencia Social - MSPAS",
     "tipo": "Ministerios",
-    "canales": 6,
+    "canales": 5,
     "correo": "unidadasuntosinternos@mspas.gob.gt",
     "telefono": "2444-7447 Ext 1740",
     "formulario": "https://www.mspas.gob.gt/institucional/contactenos/sugerencias-quejas",
@@ -212,7 +212,7 @@
   {
     "institucion": "Secretaría de Bienestar Social de la Presidencia - SBS",
     "tipo": "Secretarías",
-    "canales": 2,
+    "canales": 3,
     "correo": "denunciaprobidad@sbs.gob.gt",
     "telefono": "1505",
     "formulario": "",
@@ -226,7 +226,7 @@
   {
     "institucion": "Secretaría de Coordinación Ejecutiva de la Presidencia - SCEP",
     "tipo": "Secretarías",
-    "canales": 3,
+    "canales": 4,
     "correo": "info@scep.gob.gt",
     "telefono": "PBX: 1504",
     "formulario": "https://encuestas.scep.gob.gt/index.php?r=survey/index&sid=551961&lang=es-MX",
@@ -338,7 +338,7 @@
   {
     "institucion": "Secretaría de Seguridad Alimentaria y Nutricional - SESAN",
     "tipo": "Secretarías",
-    "canales": 1,
+    "canales": 2,
     "correo": "denuncias@sesan.gob.gt",
     "telefono": "",
     "formulario": "",
@@ -383,7 +383,7 @@
     "canales": 3,
     "correo": "denuncias@codisra.gob.gt",
     "telefono": "24945300",
-    "formulario":"",
+    "formulario": "",
     "tipocom": "Verbal y escrita",
     "otro": "",
     "direccion": "14 Calle 9 - 64, zona 1, Guatemala, Guatemala",
@@ -394,7 +394,7 @@
   {
     "institucion": "Comisión Presidencial por la Paz y los Derechos Humanos - COPADEH",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "comitedeetica@copadeh.gob.gt",
     "telefono": "",
     "formulario": "https://forms.office.com/r/S5fibcSEmG",
@@ -464,7 +464,7 @@
   {
     "institucion": "Gobernación Departamental de Baja Verapaz ",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 5,
+    "canales": 4,
     "correo": "gobbajaverapaz@mingob.gob.gt",
     "telefono": "77254594",
     "formulario": "",
@@ -548,7 +548,7 @@
   {
     "institucion": "Gobernación Departamental de Jutiapa",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 4,
+    "canales": 3,
     "correo": "denuncias@gobernacionjutiapa.gob.gt",
     "telefono": "",
     "formulario": "",
@@ -604,7 +604,7 @@
   {
     "institucion": "Gobernación Departamental de Sacatepéquez",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 2,
+    "canales": 3,
     "correo": "denuncias@gobernacionsacatepequez.gob.gt",
     "telefono": "7934-6783",
     "formulario": "",
@@ -618,7 +618,7 @@
   {
     "institucion": "Gobernación Departamental de San Marcos",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 3,
+    "canales": 4,
     "correo": "gobsanmarcos@mingob.gob.gt",
     "telefono": "7760-1523",
     "formulario": "https://gobernacionsanmarcos.gob.gt/wp/denuncias/",
@@ -646,7 +646,7 @@
   {
     "institucion": "Gobernación Departamental de Zacapa",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 2,
+    "canales": 5,
     "correo": "denuncias_admin@gobernacionzacapa.gob.gt",
     "telefono": "3093-9482",
     "formulario": "https://gobernacionzacapa.gob.gt/denuncias-administrativas-de-irregularidades/",
@@ -688,7 +688,7 @@
   {
     "institucion": "Gobernación Departamental de Chiquimula",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 2,
+    "canales": 3,
     "correo": "gobdenunciaschiquimula@gmail.com",
     "telefono": "49096412",
     "formulario": "",
@@ -730,7 +730,7 @@
   {
     "institucion": "Gobernación Departamental de Retalhuleu",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 3,
+    "canales": 4,
     "correo": "denuncias@gobernacionretalhuleu.gob.gt",
     "telefono": "",
     "formulario": "https://www.gobernacionretalhuleu.gob.gt/denuncias.php",
@@ -744,7 +744,7 @@
   {
     "institucion": "Secretaría de Comunicación Social de la Presidencia - SCSPR",
     "tipo": "Secretarías",
-    "canales": 3,
+    "canales": 4,
     "correo": "unidaddeprobidad@scspr.gob.gt",
     "telefono": "24614990",
     "formulario": "https://denuncias.scspr.gob.gt/home",
@@ -758,7 +758,7 @@
   {
     "institucion": "Gobernación Departamental de Izabal",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 2,
+    "canales": 3,
     "correo": "",
     "telefono": "77909315",
     "formulario": "https://izabal.sirtagob.gt/tramite/5000",
@@ -786,7 +786,7 @@
   {
     "institucion": "Gobernación Departamental de Sololá",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 2,
+    "canales": 3,
     "correo": "denuncias@gobernaciondesolola.gob.gt",
     "telefono": "79639200",
     "formulario": "",
@@ -800,7 +800,7 @@
   {
     "institucion": "Gobernación Departamental de Totonicapán",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 4,
+    "canales": 5,
     "correo": "probidad@gobernaciontotonicapan.gob.gt",
     "telefono": "7766 1366 o 7766 7187, extensión 111",
     "formulario": "https://gobernaciontotonicapan.gob.gt/probidad/denunciasprob",
@@ -814,7 +814,7 @@
   {
     "institucion": "Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN",
     "tipo": "Secretarías",
-    "canales": 3,
+    "canales": 4,
     "correo": "probidad@segeplan.gob.gt",
     "telefono": "2504 4473",
     "formulario": "https://portal.segeplan.gob.gt/segeplan/?page_id=14952 ",
@@ -828,7 +828,7 @@
   {
     "institucion": "Autoridad para el Manejo Sustentable de la cuenca del lago de Amatitlán - AMSA",
     "tipo": "Otras dependencias",
-    "canales": 1,
+    "canales": 2,
     "correo": "",
     "telefono": "",
     "formulario": "",
@@ -842,7 +842,7 @@
   {
     "institucion": "Comisión Nacional Contra la Corrupción - CNC",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "probidad@cnc.gob.gt",
     "telefono": "",
     "formulario": "https://l1nk.dev/1fang5b",
@@ -856,7 +856,7 @@
   {
     "institucion": "Defensoría de la Mujer Indígena - DEMI",
     "tipo": "Otras dependencias",
-    "canales": 3,
+    "canales": 4,
     "correo": "auditoriainterna@demi.gob.gt",
     "telefono": "",
     "formulario": "https://docs.google.com/forms/d/e/1FAIpQLScCAaDemIJ-Xs3Pu25iEGbF6CPWj92boXhRdEhoU37Rr5gcwg/viewform",
@@ -870,7 +870,7 @@
   {
     "institucion": "Oficina Nacional de Servicio Civil - ONSEC",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "",
     "telefono": "",
     "formulario": "https://tramitesdpc.onsec.gob.gt/denunciaprob_onsec/",
@@ -880,5 +880,5 @@
     "ubicacion": "13 calle 6-77 zona 1, Guatemala, Guatemala",
     "horario": "Lunes a viernes, de 8:00 a 16:00",
     "Protocolo de actuación": true
-    }
+  }
 ]

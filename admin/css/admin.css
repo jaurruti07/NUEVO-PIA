@@ -36,6 +36,11 @@
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+html {
+    background-color: #05111F;
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;

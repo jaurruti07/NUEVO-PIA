@@ -209,6 +209,33 @@ function saveModuleRecords(module, records) {
     return writeJsonFile(filePath, portalData);
   }
 
+  if (module === 'canales' || module === 'canales-por-la-integridad') {
+    records = records.map(item => {
+      let count = 0;
+      if (item.telefono && String(item.telefono).trim()) count++;
+      if (item.correo && String(item.correo).trim()) count++;
+      if (item.formulario && String(item.formulario).trim()) count++;
+      
+      const dirStr = String(item.direccion || item.ubicacion || '');
+      const tipocom = String(item.tipocom || '');
+      const hasPresencial = dirStr.trim().length > 0 || (
+        tipocom.toLowerCase().includes('presencial') ||
+        tipocom.toLowerCase().includes('verbal') ||
+        tipocom.toLowerCase().includes('escrita') ||
+        tipocom.toLowerCase().includes('oficina') ||
+        tipocom.toLowerCase().includes('unidad')
+      );
+      if (hasPresencial) count++;
+      if (item.otro && String(item.otro).trim()) count++;
+
+      return {
+        ...item,
+        canales: count > 0 ? count : 1
+      };
+    });
+    return writeJsonFile(filePath, records);
+  }
+
   return writeJsonFile(filePath, records);
 }
 
