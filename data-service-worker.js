@@ -17,6 +17,7 @@ const STATIC_ASSETS = [
   '/riesgo/index.html',
   '/css/pia-chatbot.css',
   '/js/pia-chatbot.js',
+  '/img/asistenteVirtual2.png',
   '/js/sw-register.js',
   '/data_portal.json',
   '/canales-por-la-integridad/data_directorio.json',

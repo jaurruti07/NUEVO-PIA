@@ -45,14 +45,24 @@
            RESET & BASE
         ============================================================ */
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior: smooth; background-color: #05111F; }
+        html { scroll-behavior: smooth; background-color: #05111F !important; }
+
+        /* View Transitions API (Navegación Fluida sin Parpadeos) */
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both pageFadeOut; }
+        ::view-transition-new(root) { animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both pageFadeIn; }
+        @keyframes pageFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.995); } }
+        @keyframes pageFadeIn { from { opacity: 0; transform: scale(1.005); } to { opacity: 1; transform: scale(1); } }
+
         body {
             font-family: var(--font-body);
             background: var(--surface);
             color: var(--text-main);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        body.page-exiting { opacity: 0 !important; }
         a { color: inherit; text-decoration: none; }
         img { display: block; max-width: 100%; }
         button { font-family: var(--font-body); cursor: pointer; }
@@ -710,30 +720,93 @@
         .btn-reset:hover { background: var(--navy-light); transform: translateY(-1px); }
 
         /* ============================================================
-           COUNTER BADGES
+           COUNTER BADGES (Grid compacto estilo Banner KPIs)
         ============================================================ */
         .counter-row {
-            display: flex; gap: 1rem; justify-content: center;
-            flex-wrap: wrap; margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            margin-top: 1.25rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
         }
         .counter-badge {
-            display: flex; align-items: center; gap: 14px;
-            padding: 1rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.1rem 0.75rem;
             background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 50px;
-            box-shadow: var(--shadow-sm);
-            transition: background-color 0.2s, border-color 0.2s;
+            text-align: center;
+            transition: background-color 0.2s;
         }
-        .counter-badge-icon { font-size: 1.4rem; color: var(--blue-bright); }
-        .counter-val { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; }
-        .counter-lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+        .counter-badge:hover {
+            background: rgba(0,194,224,0.04);
+        }
+        .counter-badge-icon {
+            font-size: 1.25rem;
+            color: var(--blue-bright);
+            margin-bottom: 0.35rem;
+        }
+        .counter-val {
+            font-family: var(--font-head);
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.1;
+        }
+        .counter-lbl {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
 
-        #directorio.theme-dark .counter-badge {
-            background: var(--navy-mid);
+        #directorio.theme-dark .counter-row {
+            background: rgba(0,194,224,0.15);
             border-color: rgba(0,194,224,0.15);
         }
-        #directorio.theme-dark .counter-val { color: #fff; }
+        #directorio.theme-dark .counter-badge {
+            background: var(--navy-mid);
+        }
+        #directorio.theme-dark .counter-badge:hover {
+            background: rgba(0,194,224,0.08);
+        }
+        #directorio.theme-dark .counter-badge-icon {
+            color: var(--cyan);
+        }
+        #directorio.theme-dark .counter-val {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .counter-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 640px) {
+            .counter-badge {
+                padding: 0.75rem 0.35rem;
+            }
+            .counter-badge-icon {
+                font-size: 1.1rem;
+                margin-bottom: 0.2rem;
+            }
+            .counter-val {
+                font-size: 1.35rem;
+            }
+            .counter-lbl {
+                font-size: 0.62rem;
+                letter-spacing: 0;
+                line-height: 1.15;
+            }
+        }
 
         /* ============================================================
            SELECTOR DE VISTA (TARJETA / LISTA)
@@ -838,23 +911,27 @@
         .dir-list-contact {
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            gap: 0.35rem;
             font-size: 0.82rem;
             color: var(--text-muted);
         }
         .dir-list-contact div {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
-            word-break: break-word;
+            word-break: break-all;
+            overflow-wrap: anywhere;
         }
         .dir-list-contact i {
             color: var(--blue-bright);
             width: 14px;
             text-align: center;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
         .dir-list-contact a {
             color: var(--blue-bright);
+            word-break: break-all;
         }
         .dir-list-contact a:hover {
             text-decoration: underline;
@@ -924,7 +1001,15 @@
 
         @media (max-width: 992px) {
             .dir-list-item {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+                padding: 1.25rem;
+                align-items: start;
+            }
+            .dir-list-contact {
+                display: flex;
+                flex-direction: column;
+                gap: 0.4rem;
             }
         }
         @media (max-width: 640px) {
@@ -933,8 +1018,31 @@
                 gap: 1rem;
                 padding: 1.1rem;
             }
+            .dir-list-contact {
+                display: flex;
+                flex-direction: column;
+                gap: 0.45rem;
+                background: rgba(0, 194, 224, 0.04);
+                padding: 0.75rem 0.9rem;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+            }
+            #directorio.theme-dark .dir-list-contact {
+                background: rgba(255, 255, 255, 0.03);
+                border-color: rgba(0, 194, 224, 0.12);
+            }
+            .dir-list-avail {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
             .dir-list-actions {
                 justify-content: flex-start;
+                width: 100%;
+            }
+            .btn-list-action {
+                flex: 1;
             }
         }
 
@@ -1339,20 +1447,25 @@
             border-bottom: 1px solid var(--border);
             background: #fff; flex-shrink: 0;
             overflow-x: auto;
+            overflow-y: hidden;
             overscroll-behavior-x: contain;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
             scrollbar-width: none;
             width: 100%;
+            max-width: 100%;
+            scroll-snap-type: x proximity;
         }
         .modal-tabs::-webkit-scrollbar { display: none; }
         .modal-tab {
-            flex: 1 0 auto; min-width: max-content; white-space: nowrap;
-            padding: 0.9rem 1.2rem;
+            flex: 1 1 auto; min-width: max-content; white-space: nowrap;
+            padding: 0.85rem 1.1rem;
             background: none; border: none; border-bottom: 3px solid transparent;
             font-family: var(--font-head); font-size: 0.82rem; font-weight: 700;
-            letter-spacing: 0.04em; text-transform: uppercase;
+            letter-spacing: 0.03em; text-transform: uppercase;
             color: var(--text-muted); cursor: pointer;
-            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+            scroll-snap-align: center; user-select: none;
         }
         .modal-tab:hover { color: var(--blue-bright); background: rgba(43,130,201,0.04); }
         .modal-tab.active { color: var(--blue-bright); border-bottom-color: var(--blue-bright); background: rgba(43,130,201,0.04); }
@@ -1738,7 +1851,6 @@
             .info-band-img img { max-width: 320px; }
             .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
             .filter-grid { grid-template-columns: 1fr; }
-            .counter-row { flex-direction: column; align-items: center; }
             .dir-swiper { padding: 1rem 0 3rem !important; }
             .export-row { flex-direction: column; align-items: center; }
             .card-modal { border-radius: var(--radius-xl); }
@@ -2763,7 +2875,31 @@ document.querySelectorAll('.modal-tab').forEach(tab => {
         document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.modal-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
-        document.getElementById('panel' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.add('active');
+        const targetPanel = tab.dataset.tab;
+        const panelEl = document.getElementById('panel' + targetPanel.charAt(0).toUpperCase() + targetPanel.slice(1)) || document.getElementById('panel' + targetPanel);
+        if (panelEl) panelEl.classList.add('active');
+        try {
+            tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } catch(e) {}
+    });
+});
+
+// Enable drag-to-scroll for tabs container
+document.querySelectorAll('.modal-tabs').forEach(container => {
+    let isDown = false, startX, scrollLeft;
+    container.addEventListener('mousedown', e => {
+        isDown = true;
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+    container.addEventListener('mouseleave', () => { isDown = false; });
+    container.addEventListener('mouseup', () => { isDown = false; });
+    container.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        container.scrollLeft = scrollLeft - walk;
     });
 });
 

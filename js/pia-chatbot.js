@@ -57,7 +57,7 @@
         const triggerMarkup = `
             <button id="piaChatbotTrigger" class="pia-chatbot-trigger" aria-label="Abrir Asistente Virtual Lupita" title="Lupita - Asistente Virtual IA">
                 <div class="pia-chatbot-trigger-icon">
-                    <img src="/img/asistenteVirtual.png" alt="Asistente Virtual Lupita" class="pia-assistant-icon" />
+                    <img src="/img/asistenteVirtual2.png" alt="Asistente Virtual Lupita" class="pia-assistant-icon" />
                     <span class="pia-chatbot-pulse"></span>
                 </div>
                 <div class="pia-chatbot-trigger-text">
@@ -73,7 +73,7 @@
                 <div class="pia-cb-header">
                     <div class="pia-cb-header-brand">
                         <div class="pia-cb-avatar">
-                            <img src="/img/asistenteVirtual.png" alt="Asistente Virtual Lupita" class="pia-assistant-icon" />
+                            <img src="/img/asistenteVirtual2.png" alt="Asistente Virtual Lupita" class="pia-assistant-icon" />
                         </div>
                         <div class="pia-cb-title-box">
                             <h2 id="piaCbHeaderTitle" class="pia-cb-title">Lupita · Asistente Virtual</h2>
