@@ -3284,10 +3284,12 @@ window._openModal = function(nombre) {
         <div class="modal-detail-item full"><div class="lbl">URL del tablero</div><div class="val">${inst.link_tablero ? `<a href="${inst.link_tablero}" target="_blank" rel="noopener">${inst.link_tablero}</a>` : 'No disponible'}</div></div>
     `;
 
+    const safeName = inst.nombre_institucion.replace(/'/g, "\\'");
     document.getElementById('modalActionsRow').innerHTML = `
         ${inst.link_tablero ? `<a href="${inst.link_tablero}" target="_blank" rel="noopener" class="modal-action-btn primary"><i class="fas fa-external-link-alt"></i> Abrir Tablero</a>` : ''}
+        <button class="modal-action-btn pdf" onclick="window._exportFichaPdf('${safeName}')" style="background:var(--cyan); color:var(--navy); font-weight:700;"><i class="fas fa-file-pdf"></i> Exportar Ficha a PDF</button>
         <button class="modal-action-btn outline" onclick="window._copyLink('${inst.link_tablero || ''}')"><i class="fas fa-copy"></i> Copiar Enlace</button>
-        <button class="modal-action-btn whatsapp" onclick="window._shareCard('${inst.nombre_institucion.replace(/'/g, "\\'")}')"><i class="fab fa-whatsapp"></i> Compartir</button>
+        <button class="modal-action-btn whatsapp" onclick="window._shareCard('${safeName}')"><i class="fab fa-whatsapp"></i> Compartir</button>
     `;
 
     document.getElementById('cardModal').classList.add('active');
@@ -3317,6 +3319,154 @@ document.addEventListener('keydown', e => {
 /* ============================================================
    EXPORTAR FUNCIONES
 ============================================================ */
+window._exportFichaPdf = async function(nombreParam) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        if (typeof showToast === 'function') showToast("Cargando generador PDF, reintente en un momento.");
+        else alert("Cargando generador PDF, reintente en un momento.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const modalNameEl = document.getElementById('modalInstName');
+    const modalName = modalNameEl ? modalNameEl.textContent.trim() : '';
+    const targetSearch = (nombreParam || modalName).trim();
+    if (!targetSearch) { alert('No hay datos para exportar.'); return; }
+
+    const inst = instituciones.find(i => {
+        const fullN = i.nombre_institucion + (i.siglas ? ` (${i.siglas})` : '');
+        return i.nombre_institucion === targetSearch || fullN === targetSearch || targetSearch.includes(i.nombre_institucion) || i.nombre_institucion.includes(targetSearch);
+    });
+    if (!inst) { alert('No se encontraron datos para la institución.'); return; }
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'letter' });
+    const pageWidth = doc.internal.pageSize.getWidth();   // 215.9 mm
+    const pageHeight = doc.internal.pageSize.getHeight(); // 279.4 mm
+    const margin = 15;
+    const contentWidth = pageWidth - (margin * 2);
+
+    // Header Box (Gobierno Navy)
+    doc.setFillColor(15, 30, 46);
+    doc.rect(margin, 12, contentWidth, 24, 'F');
+
+    doc.setTextColor(0, 194, 224);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("GOBIERNO DE GUATEMALA", margin + 6, 20);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Tu Gobierno en Números — Ficha Técnica de Rendición de Cuentas", margin + 6, 27);
+
+    let yPos = 42;
+
+    // Título de la Institución (Caja dinámica)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    const fullTitle = inst.nombre_institucion + (inst.siglas ? ` (${inst.siglas})` : '');
+    const titleLines = doc.splitTextToSize(fullTitle, contentWidth - 12);
+    const titleBoxHeight = Math.max(14, (titleLines.length * 5) + 6);
+
+    doc.setFillColor(245, 247, 250);
+    doc.setDrawColor(200, 210, 220);
+    doc.roundedRect(margin, yPos, contentWidth, titleBoxHeight, 2, 2, 'FD');
+
+    doc.setTextColor(15, 30, 46);
+    doc.text(titleLines, margin + 6, yPos + 6.5);
+
+    yPos += titleBoxHeight + 5;
+
+    // Ficha de Resumen
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "normal");
+    const tipoLines = doc.splitTextToSize(`Tipo de dependencia: ${inst.tipo_dependencia || 'No especificado'}`, 82);
+    const sectorLines = doc.splitTextToSize(`Sector institucional: ${inst.sector || 'No especificado'}`, 82);
+    const estadoLines = doc.splitTextToSize(`Estado del tablero: ${inst.estado || 'No especificado'}`, 82);
+    const fechaLines = doc.splitTextToSize(`Última actualización: ${inst.fecha_actualizacion || 'No especificada'}`, 82);
+
+    const leftColHeight = (tipoLines.length * 4.2) + (sectorLines.length * 4.2) + 2;
+    const rightColHeight = (estadoLines.length * 4.2) + (fechaLines.length * 4.2) + 2;
+    const topGridHeight = Math.max(leftColHeight, rightColHeight);
+    const totalResumenHeight = 11 + topGridHeight + 6;
+
+    // Dibujar marco contenedor de Resumen
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(0, 194, 224);
+    doc.roundedRect(margin, yPos, contentWidth, totalResumenHeight, 2, 2, 'D');
+
+    // Título de sección de resumen
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(15, 30, 46);
+    doc.text("RESUMEN DE ESTADO Y CLASIFICACIÓN", margin + 6, yPos + 6.5);
+
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 70, 80);
+
+    // Renderizar Columna Izquierda
+    let leftY = yPos + 12;
+    doc.text(tipoLines, margin + 6, leftY);
+    leftY += (tipoLines.length * 4.2) + 2;
+    doc.text(sectorLines, margin + 6, leftY);
+
+    // Renderizar Columna Derecha
+    let rightY = yPos + 12;
+    doc.text(estadoLines, margin + 95, rightY);
+    rightY += (estadoLines.length * 4.2) + 2;
+    doc.text(fechaLines, margin + 95, rightY);
+
+    yPos += totalResumenHeight + 6;
+
+    // Sección: Detalle de Tablero e Indicadores
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 30, 46);
+    doc.text("DETALLES DEL TABLERO DE RENDICIÓN DE CUENTAS", margin, yPos);
+    doc.setLineWidth(0.4);
+    doc.setDrawColor(0, 194, 224);
+    doc.line(margin, yPos + 2, margin + contentWidth, yPos + 2);
+
+    yPos += 7;
+
+    const items = [
+        { label: "Descripción del Tablero", val: inst.descripcion || "No disponible" },
+        { label: "Enlace Directo al Tablero", val: inst.link_tablero || "No disponible" },
+        { label: "Estado de Disponibilidad", val: inst.estado || "No disponible" },
+        { label: "Sector de Cobertura", val: inst.sector || "No especificado" }
+    ];
+
+    items.forEach(item => {
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        const valLines = doc.splitTextToSize(String(item.val), contentWidth - 65);
+        const boxHeight = Math.max(9, (valLines.length * 4.2) + 5);
+        doc.roundedRect(margin, yPos, contentWidth, boxHeight, 1.5, 1.5, 'FD');
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 30, 46);
+        doc.text(item.label + ":", margin + 4, yPos + 5.5);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(50, 60, 70);
+        doc.text(valLines, margin + 60, yPos + 5.5);
+
+        yPos += boxHeight + 2.5;
+    });
+
+    // Pie de página
+    const now = new Date();
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(120, 130, 140);
+    doc.setDrawColor(200, 210, 220);
+    doc.line(margin, pageHeight - 15, margin + contentWidth, pageHeight - 15);
+    doc.text("Ficha oficial generada desde Tu Gobierno en Números — Gobierno de Guatemala", margin, pageHeight - 10);
+    doc.text(`Fecha y hora de impresión: ${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`, margin + contentWidth, pageHeight - 10, { align: 'right' });
+
+    const safeFilename = inst.nombre_institucion.replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Ficha_Gobierno_Numeros_${safeFilename}.pdf`);
+};
 async function exportToPdf() {
     const { jsPDF } = window.jspdf;
     const filtered = filtrar();

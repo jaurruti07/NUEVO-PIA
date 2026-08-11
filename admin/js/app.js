@@ -117,6 +117,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    window.fillCredentials = function(username, password) {
+        const userInp = document.getElementById('loginUser');
+        const passInp = document.getElementById('loginPassword') || document.getElementById('loginPass');
+        if (userInp) userInp.value = username;
+        if (passInp) passInp.value = password;
+        const errorDiv = document.getElementById('loginError');
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        }
+    };
+
     // Sidebar toggles & overlay for mobile
     const sidebar = document.getElementById('sidebar');
     const toggleMob = document.getElementById('sidebarToggleMobile');
@@ -884,6 +896,95 @@ function renderTableRows(data) {
                 </td>
             </tr>`;
         }).join('');
+        table.innerHTML = `<thead>${headerHtml}</thead><tbody>${bodyHtml}</tbody>`;
+        return;
+    }
+
+    if (currentModule === 'canales') {
+        let headerHtml = `<tr style="background: #F0F5FB; border-bottom: 2px solid rgba(26,92,143,0.14);">
+            <th style="padding: 0.85rem 1rem;">ID</th>
+            <th style="padding: 0.85rem 1rem;">Institución / Clasificación</th>
+            <th style="padding: 0.85rem 1rem;">Canales Activos</th>
+            <th style="padding: 0.85rem 1rem;">Contacto de Probidad</th>
+            <th style="padding: 0.85rem 1rem;">Formulario Web / Protocolo</th>
+            <th style="padding: 0.85rem 1rem; text-align: right;">Acciones</th>
+        </tr>`;
+
+        let bodyHtml = data.map(row => {
+            const hasForm = row.formulario && String(row.formulario).startsWith('http');
+            const hasProtocol = row['Protocolo de actuación'] === true;
+
+            return `<tr style="border-bottom: 1px solid #E8EEF7;">
+                <td style="padding: 0.85rem 1rem; font-weight: 700; color: #1A5C8F;">#${row.id}</td>
+                <td style="padding: 0.85rem 1rem;">
+                    <strong style="color:#05111F; font-size: 0.92rem;">${escapeHtml(row.institucion || '')}</strong>
+                    <br><span style="font-size:0.75rem; background:#E0F2FE; color:#0369A1; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtml(row.tipo || 'Ministerios')}</span>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <span style="font-size:0.85rem; font-weight:800; color:#00C2E0; background:#E0F7FA; padding:4px 10px; border-radius:12px;">
+                        <i class="fas fa-headset" style="margin-right:4px;"></i> ${row.canales || 1} Canales
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    ${row.correo ? `<div style="font-size:0.83rem; color:#1A5C8F;"><i class="fas fa-envelope" style="margin-right:4px;"></i> ${escapeHtml(row.correo)}</div>` : '<div style="font-size:0.8rem; color:#A8BFCC;">Sin correo</div>'}
+                    ${row.telefono ? `<div style="font-size:0.78rem; color:#5E7A8E;"><i class="fas fa-phone" style="margin-right:4px;"></i> ${escapeHtml(row.telefono)}</div>` : ''}
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    ${hasForm ? `<a href="${escapeHtml(row.formulario)}" target="_blank" style="display:inline-block; font-size:0.78rem; color:#0369A1; background:#E0F2FE; padding:3px 8px; border-radius:6px; font-weight:600; text-decoration:none; margin-bottom:4px;"><i class="fas fa-external-link-alt" style="margin-right:4px;"></i> Abrir Formulario</a><br>` : '<span style="font-size:0.78rem; color:#A8BFCC;">Sin formulario web</span><br>'}
+                    <span style="font-size:0.75rem; font-weight:700; color:${hasProtocol ? '#15803D' : '#92400E'};">
+                        <i class="fas ${hasProtocol ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="margin-right:3px;"></i>
+                        Protocolo: ${hasProtocol ? 'Sí' : 'En proceso'}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: right;">
+                    <button onclick="window.editRecord(${row.id})" style="padding: 0.4rem 0.75rem; background: #00C2E0; color: #05111F; border-radius: 6px; font-weight: 600; margin-right: 0.3rem;" title="Editar canal"><i class="fas fa-edit"></i></button>
+                    <button onclick="window.deleteRecord(${row.id})" style="padding: 0.4rem 0.75rem; background: #EF4444; color: #fff; border-radius: 6px; font-weight: 600;" title="Eliminar canal"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        table.innerHTML = `<thead>${headerHtml}</thead><tbody>${bodyHtml}</tbody>`;
+        return;
+    }
+
+    if (currentModule === 'tableros') {
+        let headerHtml = `<tr style="background: #F0F5FB; border-bottom: 2px solid rgba(26,92,143,0.14);">
+            <th style="padding: 0.85rem 1rem;">ID</th>
+            <th style="padding: 0.85rem 1rem;">Institución / Siglas</th>
+            <th style="padding: 0.85rem 1rem;">Tipo / Sector</th>
+            <th style="padding: 0.85rem 1rem;">Enlace Tablero</th>
+            <th style="padding: 0.85rem 1rem;">Estado / Actualización</th>
+            <th style="padding: 0.85rem 1rem; text-align: right;">Acciones</th>
+        </tr>`;
+
+        let bodyHtml = data.map(row => {
+            const hasLink = row.link_tablero && String(row.link_tablero).startsWith('http');
+            const estadoBg = row.estado === 'Disponible' ? 'background: #DCFCE7; color: #15803D;' : 'background: #FEF3C7; color: #92400E;';
+
+            return `<tr style="border-bottom: 1px solid #E8EEF7;">
+                <td style="padding: 0.85rem 1rem; font-weight: 700; color: #1A5C8F;">#${row.id}</td>
+                <td style="padding: 0.85rem 1rem;">
+                    <strong style="color:#05111F; font-size: 0.92rem;">${escapeHtml(row.nombre_institucion || '')}</strong>
+                    ${row.siglas ? `<span style="font-size:0.75rem; color:#5E7A8E; font-weight:bold; margin-left:4px;">(${escapeHtml(row.siglas)})</span>` : ''}
+                    ${row.descripcion ? `<div style="font-size:0.78rem; color:#5E7A8E; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(row.descripcion)}">${escapeHtml(row.descripcion)}</div>` : ''}
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <div style="font-size:0.85rem; font-weight:600; color:#1A5C8F;">${escapeHtml(row.tipo_dependencia || 'Ministerio')}</div>
+                    <small style="color:#5E7A8E;">${escapeHtml(row.sector || '')}</small>
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    ${hasLink ? `<a href="${escapeHtml(row.link_tablero)}" target="_blank" style="display:inline-block; font-size:0.8rem; color:#0369A1; background:#E0F2FE; padding:4px 10px; border-radius:6px; font-weight:700; text-decoration:none;"><i class="fas fa-chart-line" style="margin-right:4px;"></i> Ver Tablero</a>` : '<span style="font-size:0.8rem; color:#A8BFCC;">Sin URL</span>'}
+                </td>
+                <td style="padding: 0.85rem 1rem;">
+                    <span style="padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; ${estadoBg}">${escapeHtml(row.estado || 'Disponible')}</span>
+                    <div style="font-size:0.75rem; color:#5E7A8E; margin-top:2px;">Act.: ${escapeHtml(String(row.fecha_actualizacion || '2026'))}</div>
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: right;">
+                    <button onclick="window.editRecord(${row.id})" style="padding: 0.4rem 0.75rem; background: #00C2E0; color: #05111F; border-radius: 6px; font-weight: 600; margin-right: 0.3rem;" title="Editar tablero"><i class="fas fa-edit"></i></button>
+                    <button onclick="window.deleteRecord(${row.id})" style="padding: 0.4rem 0.75rem; background: #EF4444; color: #fff; border-radius: 6px; font-weight: 600;" title="Eliminar tablero"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
 
         table.innerHTML = `<thead>${headerHtml}</thead><tbody>${bodyHtml}</tbody>`;
         return;
@@ -1240,6 +1341,368 @@ function openCrudModal(record = null) {
         return;
     }
 
+    if (currentModule === 'canales') {
+        const defaultInstList = [
+            { name: "Ministerio de Agricultura, Ganadería y Alimentación - MAGA", tipo: "Ministerios", correo: "alerta.probidad@maga.gob.gt", tel: "2354-4125", dir: "7a Avenida 12-90, edificio Monja Blanca, Zona 13, Ciudad de Guatemala", web: "https://apps.maga.gob.gt/denuncias/Formularios/Index" },
+            { name: "Ministerio de Economía - MINECO", tipo: "Ministerios", correo: "oficinadeprobidad@mineco.gob.gt", tel: "2412-0200 Ext 1306", dir: "8ª Avenida 10-43, Zona 1, 3er. nivel, Ciudad de Guatemala", web: "https://www.mineco.gob.gt" },
+            { name: "Ministerio de Comunicaciones, Infraestructura y Vivienda - MICIVI", tipo: "Ministerios", correo: "civdenuncias@civ.gob.gt", tel: "1514", dir: "8a avenida y 15 calle, zona 13, Ciudad de Guatemala", web: "https://www.civ.gob.gt" },
+            { name: "Ministerio de Cultura y Deportes - MICUDE", tipo: "Ministerios", correo: "unidadprobidad@mcd.gob.gt", tel: "3029-8081", dir: "3ª Avenida y 11 Calle, Zona 1, Palacio Nacional de la Cultura, Ciudad de Guatemala", web: "https://mcd.gob.gt" },
+            { name: "Ministerio de la Defensa Nacional - MINDEF", tipo: "Ministerios", correo: "denuncias.probidad@mindef.gob.gt", tel: "2232-4125", dir: "Avenida Reforma 1-45, Zona 10, Ciudad de Guatemala", web: "https://www.mindef.gob.gt" },
+            { name: "Ministerio de Desarrollo Social - MIDES", tipo: "Ministerios", correo: "probidad@mides.gob.gt", tel: "2300-5400", dir: "5a Avenida 8-78, Zona 9, Ciudad de Guatemala", web: "https://mides.gob.gt" },
+            { name: "Ministerio de Educación - MINEDUC", tipo: "Ministerios", correo: "denuncias.probidad@mineduc.gob.gt", tel: "1503", dir: "6ª Calle 1-36, Zona 10, Ciudad de Guatemala", web: "https://www.mineduc.gob.gt" },
+            { name: "Ministerio de Energía y Minas - MEM", tipo: "Ministerios", correo: "unidad.probidad@mem.gob.gt", tel: "2419-6300", dir: "Diagonal 17, 29-78, Zona 11, Ciudad de Guatemala", web: "https://mem.gob.gt" },
+            { name: "Ministerio de Finanzas Públicas - MINFIN", tipo: "Ministerios", correo: "probidad@minfin.gob.gt", tel: "2374-3000", dir: "8a Avenida 20-87, Zona 1, Ciudad de Guatemala", web: "https://www.minfin.gob.gt" },
+            { name: "Ministerio de Gobernación - MINGOB", tipo: "Ministerios", correo: "probidad@mingob.gob.gt", tel: "110 / 1531", dir: "6ª Avenida 13-71, Zona 1, Ciudad de Guatemala", web: "https://mingob.gob.gt" },
+            { name: "Ministerio de Relaciones Exteriores - MINEX", tipo: "Ministerios", correo: "probidad@minex.gob.gt", tel: "2410-0000", dir: "2ª Avenida 4-17, Zona 10, Ciudad de Guatemala", web: "https://minex.gob.gt" },
+            { name: "Ministerio de Salud Pública y Asistencia Social - MSPAS", tipo: "Ministerios", correo: "probidad@mspas.gob.gt", tel: "2444-7474", dir: "6ª Avenida 3-45, Zona 11, Ciudad de Guatemala", web: "https://mspas.gob.gt" },
+            { name: "Ministerio de Trabajo y Previsión Social - MINTRAB", tipo: "Ministerios", correo: "probidad@mintrabajo.gob.gt", tel: "1511", dir: "7ª Avenida 3-33, Zona 9, Edificio Torre Empresarial, Ciudad de Guatemala", web: "https://mintrabajo.gob.gt" },
+            { name: "Secretaría General de la Presidencia - SGP", tipo: "Secretarías", correo: "probidad@sgp.gob.gt", tel: "2269-8000", dir: "6ª Avenida y 6ª Calle, Zona 1, Palacio Nacional, Ciudad de Guatemala", web: "https://sgp.gob.gt" },
+            { name: "Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN", tipo: "Secretarías", correo: "probidad@segeplan.gob.gt", tel: "2504-4444", dir: "9a Calle 10-44, Zona 1, Ciudad de Guatemala", web: "https://segeplan.gob.gt" },
+            { name: "Comisión Nacional contra la Corrupción - CNC", tipo: "Presidencia", correo: "denuncias@cnc.gob.gt", tel: "2269-8000", dir: "Casa Presidencial, Zona 1, Ciudad de Guatemala", web: "https://cnc.gob.gt" },
+            { name: "Superintendencia de Administración Tributaria - SAT", tipo: "Entidades descentralizadas", correo: "denuncias@sat.gob.gt", tel: "1570", dir: "7a Avenida 3-73, Zona 9, Edificio Torre SAT, Ciudad de Guatemala", web: "https://sat.gob.gt" }
+        ];
+
+        let catalogOptionsHtml = defaultInstList.map((inst, idx) => `
+            <option value="${idx}">${inst.name} (${inst.tipo})</option>
+        `).join('');
+
+        fieldsContainer.innerHTML = `
+            <div style="background: #F0F7FF; border-left: 4px solid #00C2E0; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                    <i class="fas fa-info-circle" style="color: #00C2E0; font-size: 1.25rem; margin-top: 2px;"></i>
+                    <div style="font-size: 0.88rem; color: #0C1F30; line-height: 1.45;">
+                        <strong>Módulo de Canales por la Integridad:</strong><br>
+                        Registre y actualice los canales de recepción de denuncias y probidad de las instituciones del Ejecutivo.
+                        Utilice el selector de <em>Datos Sombra</em> para auto-completar la información base del catálogo institucional.
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #FAFDFE; border: 1px dashed #A8BFCC; padding: 0.9rem 1rem; border-radius: 10px; margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 700; color: #1A5C8F; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                    <i class="fas fa-magic" style="color: #00C2E0; margin-right: 4px;"></i> Autocompletar con Datos Sombra del Catálogo
+                </label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select id="canalesCatalogSelector" style="flex: 1; padding: 0.55rem; border: 1px solid #A8BFCC; border-radius: 8px; font-size: 0.88rem; background: #fff;">
+                        <option value="">-- Seleccionar institución del catálogo para auto-rellenar --</option>
+                        ${catalogOptionsHtml}
+                    </select>
+                    <button type="button" id="btnApplyCanalesCatalog" style="padding: 0.55rem 1rem; background: #1A5C8F; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; whitespace: nowrap;">
+                        Aplicar
+                    </button>
+                </div>
+                <div style="font-size: 0.78rem; color: #5E7A8E; margin-top: 0.3rem;">
+                    * Al aplicar, se completarán los campos de correo oficial, teléfono, tipo, dirección y horario con datos oficiales sugeridos.
+                </div>
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">
+                <i class="fas fa-building" style="margin-right: 6px;"></i> Identificación Institucional
+            </h4>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                    Nombre Oficial de la Institución <span style="color: #EF4444;">*</span>
+                </label>
+                <input type="text" id="canales_institucion" name="institucion" value="${escapeHtml(record?.institucion || '')}" placeholder="Ej. Ministerio de Finanzas Públicas - MINFIN" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                <div style="font-size: 0.78rem; color: #5E7A8E; margin-top: 3px;">
+                    <i class="fas fa-font"></i> Nombre oficial completo, pudiendo incluir siglas al final (ej. MINECO).
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Tipo de Entidad / Clasificación
+                    </label>
+                    <select id="canales_tipo" name="tipo" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                        <option value="Ministerios" ${record?.tipo === 'Ministerios' ? 'selected' : ''}>Ministerios</option>
+                        <option value="Secretarías" ${record?.tipo === 'Secretarías' ? 'selected' : ''}>Secretarías</option>
+                        <option value="Gobernaciones" ${record?.tipo === 'Gobernaciones' ? 'selected' : ''}>Gobernaciones</option>
+                        <option value="Presidencia" ${record?.tipo === 'Presidencia' ? 'selected' : ''}>Presidencia</option>
+                        <option value="Entidades descentralizadas" ${record?.tipo === 'Entidades descentralizadas' ? 'selected' : ''}>Entidades Descentralizadas</option>
+                        <option value="Otras dependencias" ${record?.tipo === 'Otras dependencias' ? 'selected' : ''}>Otras dependencias</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Total de Canales Habilitados (Auto/Manual)
+                    </label>
+                    <input type="number" id="canales_canales" name="canales" value="${record?.canales !== undefined ? record.canales : 4}" min="1" max="10" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 3px;">Calculado automáticamente según vías activas (correo, PBX, formulario web, presencial).</div>
+                </div>
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">
+                <i class="fas fa-headset" style="margin-right: 6px;"></i> Canales Directos de Denuncia y Probidad
+            </h4>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Correo de Denuncias / Probidad
+                    </label>
+                    <input type="email" id="canales_correo" name="correo" value="${escapeHtml(record?.correo || '')}" placeholder="Ej. alerta.probidad@maga.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 3px;">Se recomienda correo oficial con dominio <code>@gob.gt</code>.</div>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Teléfono / PBX de Atención
+                    </label>
+                    <input type="text" id="canales_telefono" name="telefono" value="${escapeHtml(record?.telefono || '')}" placeholder="Ej. 2354-4125 Ext. 104 o PBX 1514" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 3px;">Número directo o PBX habilitado para denuncias.</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                    Formulario Web de Denuncias en Línea (URL Directa)
+                </label>
+                <input type="url" id="canales_formulario" name="formulario" value="${escapeHtml(record?.formulario || '')}" placeholder="Ej. https://apps.maga.gob.gt/denuncias/Formularios/Index" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 3px;">Enlace seguro comenzando con <code>https://</code>.</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Modalidad / Tipo de Comunicación
+                    </label>
+                    <select id="canales_tipocom" name="tipocom" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                        <option value="Verbal y escrita" ${record?.tipocom === 'Verbal y escrita' ? 'selected' : ''}>Verbal y escrita</option>
+                        <option value="Escrita" ${record?.tipocom === 'Escrita' ? 'selected' : ''}>Escrita</option>
+                        <option value="Digital y telefónica" ${record?.tipocom === 'Digital y telefónica' ? 'selected' : ''}>Digital y telefónica</option>
+                        <option value="Verbal, escrita y digital" ${record?.tipocom === 'Verbal, escrita y digital' ? 'selected' : ''}>Verbal, escrita y digital</option>
+                        <option value="Electrónica" ${record?.tipocom === 'Electrónica' ? 'selected' : ''}>Electrónica</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Otros Canales / Especificaciones
+                    </label>
+                    <input type="text" id="canales_otro" name="otro" value="${escapeHtml(record?.otro || '')}" placeholder="Ej. Buzón físico institucional, App móvil" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.85rem; border-radius: 8px; margin-bottom: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: #0C1F30; cursor: pointer;">
+                    <input type="checkbox" id="canales_protocolo" name="Protocolo de actuación" ${record && record['Protocolo de actuación'] === false ? '' : 'checked'} style="width: 18px; height: 18px;" />
+                    ¿Cuenta con Protocolo de Actuación Institucionalizado?
+                </label>
+                <div style="font-size: 0.78rem; color: #5E7A8E; margin-top: 4px; margin-left: 28px;">
+                    Indica si la entidad dispone de un procedimiento formal aprobado para tramitar e investigar alertas de corrupción e infracciones administrativas.
+                </div>
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">
+                <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i> Sede Física y Atención Presencial
+            </h4>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                    Dirección Física de la Unidad de Probidad / Sede Central
+                </label>
+                <input type="text" id="canales_direccion" name="direccion" value="${escapeHtml(record?.direccion || '')}" placeholder="Ej. 7a Avenida 12-90, edificio Monja Blanca, Zona 13, Ciudad de Guatemala" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Ubicación Geográfica
+                    </label>
+                    <input type="text" id="canales_ubicacion" name="ubicacion" value="${escapeHtml(record?.ubicacion || '')}" placeholder="Ej. Ciudad de Guatemala, Guatemala" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Horario de Atención Presencial
+                    </label>
+                    <input type="text" id="canales_horario" name="horario" value="${escapeHtml(record?.horario || 'Lunes a viernes, de 08:00 a 16:30 horas')}" placeholder="Ej. Lunes a viernes, de 08:00 a 16:30 horas" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('btnApplyCanalesCatalog')?.addEventListener('click', () => {
+            const selIdx = document.getElementById('canalesCatalogSelector')?.value;
+            if (selIdx === '' || selIdx === undefined) {
+                showToast('Seleccione una institución del catálogo primero.', 'info');
+                return;
+            }
+            const item = defaultInstList[Number(selIdx)];
+            if (item) {
+                document.getElementById('canales_institucion').value = item.name;
+                document.getElementById('canales_tipo').value = item.tipo;
+                document.getElementById('canales_correo').value = item.correo;
+                document.getElementById('canales_telefono').value = item.tel;
+                document.getElementById('canales_direccion').value = item.dir;
+                document.getElementById('canales_ubicacion').value = "Ciudad de Guatemala, Guatemala";
+                if (item.web && item.web.includes('http')) {
+                    document.getElementById('canales_formulario').value = item.web;
+                }
+                showToast(`Datos sombra de '${item.name}' aplicados exitosamente.`, 'success');
+            }
+        });
+
+        return;
+    }
+
+    if (currentModule === 'tableros') {
+        const defaultInstList = [
+            { name: "Vicepresidencia de la República", siglas: "VICE", tipo: "Vicepresidencia", sector: "Presidencia", link: "https://www.vicepresidencia.gob.gt/", desc: "Tablero de rendición de cuentas e indicadores de gestión estratégica de la Vicepresidencia de la República." },
+            { name: "Ministerio de Agricultura, Ganadería y Alimentación", siglas: "MAGA", tipo: "Ministerio", sector: "Agricultura", link: "https://www.maga.gob.gt/", desc: "Tablero de ejecuciones presupuestarias, metas agrícolas y programas de apoyo a la agricultura familiar." },
+            { name: "Ministerio de Ambiente y Recursos Naturales", siglas: "MARN", tipo: "Ministerio", sector: "Ambiente", link: "https://www.marn.gob.gt/", desc: "Tablero de proyectos ambientales, licencias y monitoreo de recursos naturales." },
+            { name: "Ministerio de Comunicaciones, Infraestructura y Vivienda", siglas: "CIV", tipo: "Ministerio", sector: "Infraestructura", link: "https://www.civ.gob.gt/", desc: "Tablero de ejecución de obra pública, conservación vial e infraestructura nacional." },
+            { name: "Ministerio de Cultura y Deportes", siglas: "MICUDE", tipo: "Ministerio", sector: "Cultura", link: "https://mcd.gob.gt/", desc: "Tablero numérico de desarrollo cultural, parques nacionales y proyectos deportivos." },
+            { name: "Ministerio de la Defensa Nacional", siglas: "MINDEF", tipo: "Ministerio", sector: "Defensa", link: "https://www.mindef.gob.gt/", desc: "Tablero de rendición de cuentas en seguridad nacional y apoyo a la ciudadanía." },
+            { name: "Ministerio de Desarrollo Social", siglas: "MIDES", tipo: "Ministerio", sector: "Desarrollo Social", link: "https://mides.gob.gt/", desc: "Tablero de programas sociales, comedores sociales y transferencias monetarias condicionadas." },
+            { name: "Ministerio de Economía", siglas: "MINECO", tipo: "Ministerio", sector: "Economía", link: "https://www.mineco.gob.gt/", desc: "Tablero de atracción de inversiones, apoyo a MIPYMES y comercio exterior." },
+            { name: "Ministerio de Educación", siglas: "MINEDUC", tipo: "Ministerio", sector: "Educación", link: "https://www.mineduc.gob.gt/", desc: "Tablero de cobertura educativa, remozamiento de escuelas y programas de alimentación escolar." },
+            { name: "Ministerio de Energía y Minas", siglas: "MEM", tipo: "Ministerio", sector: "Energía", link: "https://mem.gob.gt/", desc: "Tablero de electrificación rural, licencias mineras y matriz energética." },
+            { name: "Ministerio de Finanzas Públicas", siglas: "MINFIN", tipo: "Ministerio", sector: "Finanzas", link: "https://www.minfin.gob.gt/", desc: "Tablero portal de transparencia fiscal, ejecución presupuestaria general y deuda pública." },
+            { name: "Ministerio de Gobernación", siglas: "MINGOB", tipo: "Ministerio", sector: "Gobernación", link: "https://mingob.gob.gt/", desc: "Tablero de estadísticas de seguridad ciudadana, incidencia criminal y fortalecimiento policial." },
+            { name: "Ministerio de Relaciones Exteriores", siglas: "MINEX", tipo: "Ministerio", sector: "Relaciones Exteriores", link: "https://minex.gob.gt/", desc: "Tablero de atención consular, servicios para la diáspora y diplomacia comercial." },
+            { name: "Ministerio de Salud Pública y Asistencia Social", siglas: "MSPAS", tipo: "Ministerio", sector: "Salud", link: "https://mspas.gob.gt/", desc: "Tablero de abastecimiento de medicamentos, red hospitalaria e indicadores sanitarios." },
+            { name: "Ministerio de Trabajo y Previsión Social", siglas: "MINTRAB", tipo: "Ministerio", sector: "Trabajo", link: "https://mintrabajo.gob.gt/", desc: "Tablero de empleo, programa de aporte al adulto mayor e inspecciones laborales." },
+            { name: "Secretaría de Planificación y Programación de la Presidencia", siglas: "SEGEPLAN", tipo: "Secretaría", sector: "Presidencia", link: "https://segeplan.gob.gt/", desc: "Tablero de seguimiento al Plan Nacional de Desarrollo y prioridades presidenciales." },
+            { name: "Superintendencia de Administración Tributaria", siglas: "SAT", tipo: "Entidad Descentralizada", sector: "Finanzas", link: "https://sat.gob.gt/", desc: "Tablero de recaudación tributaria, facilitación del comercio y metas fiscales." }
+        ];
+
+        let catalogOptionsHtml = defaultInstList.map((inst, idx) => `
+            <option value="${idx}">${inst.name} (${inst.siglas})</option>
+        `).join('');
+
+        fieldsContainer.innerHTML = `
+            <div style="background: #F0F9FF; border-left: 4px solid #22C55E; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                    <i class="fas fa-chart-bar" style="color: #22C55E; font-size: 1.25rem; margin-top: 2px;"></i>
+                    <div style="font-size: 0.88rem; color: #0C1F30; line-height: 1.45;">
+                        <strong>Módulo Tu Gobierno en Números (Tableros de Rendición de Cuentas):</strong><br>
+                        Registre y enlace los tableros interactivos de datos abiertos de las instituciones públicas.
+                        Complete los campos con la información sugerida en los <em>datos sombra</em>.
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #FAFDFE; border: 1px dashed #A8BFCC; padding: 0.9rem 1rem; border-radius: 10px; margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 700; color: #1A5C8F; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                    <i class="fas fa-magic" style="color: #22C55E; margin-right: 4px;"></i> Autocompletar con Datos Sombra Institucionales
+                </label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select id="tablerosCatalogSelector" style="flex: 1; padding: 0.55rem; border: 1px solid #A8BFCC; border-radius: 8px; font-size: 0.88rem; background: #fff;">
+                        <option value="">-- Seleccionar institución sugerida --</option>
+                        ${catalogOptionsHtml}
+                    </select>
+                    <button type="button" id="btnApplyTablerosCatalog" style="padding: 0.55rem 1rem; background: #1A5C8F; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; whitespace: nowrap;">
+                        Aplicar
+                    </button>
+                </div>
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">
+                <i class="fas fa-building" style="margin-right: 6px;"></i> Datos de la Institución
+            </h4>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                    Nombre Completo de la Institución <span style="color: #EF4444;">*</span>
+                </label>
+                <input type="text" id="tableros_nombre" name="nombre_institucion" value="${escapeHtml(record?.nombre_institucion || '')}" placeholder="Ej. Ministerio de Finanzas Públicas" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Siglas Institucionales
+                    </label>
+                    <input type="text" id="tableros_siglas" name="siglas" value="${escapeHtml(record?.siglas || '')}" placeholder="Ej. MINFIN, MAGA, SAT" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Tipo de Dependencia
+                    </label>
+                    <select id="tableros_tipo" name="tipo_dependencia" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                        <option value="Ministerio" ${record?.tipo_dependencia === 'Ministerio' ? 'selected' : ''}>Ministerio</option>
+                        <option value="Secretaría" ${record?.tipo_dependencia === 'Secretaría' ? 'selected' : ''}>Secretaría</option>
+                        <option value="Gobernación" ${record?.tipo_dependencia === 'Gobernación' ? 'selected' : ''}>Gobernación</option>
+                        <option value="Presidencia" ${record?.tipo_dependencia === 'Presidencia' ? 'selected' : ''}>Presidencia</option>
+                        <option value="Vicepresidencia" ${record?.tipo_dependencia === 'Vicepresidencia' ? 'selected' : ''}>Vicepresidencia</option>
+                        <option value="Entidad Descentralizada" ${record?.tipo_dependencia === 'Entidad Descentralizada' ? 'selected' : ''}>Entidad Descentralizada</option>
+                        <option value="Empresa Pública" ${record?.tipo_dependencia === 'Empresa Pública' ? 'selected' : ''}>Empresa Pública</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Sector / Eje Temático
+                    </label>
+                    <input type="text" id="tableros_sector" name="sector" value="${escapeHtml(record?.sector || '')}" placeholder="Ej. Finanzas, Agricultura, Salud" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+
+            <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">
+                <i class="fas fa-link" style="margin-right: 6px;"></i> Enlace del Tablero y Descripción Informativa
+            </h4>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                    URL del Tablero Interactivo / Portal Numérico <span style="color: #EF4444;">*</span>
+                </label>
+                <input type="url" id="tableros_link" name="link_tablero" value="${escapeHtml(record?.link_tablero || '')}" placeholder="Ej. https://www.minfin.gob.gt/transparencia-fiscal" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 3px;">Debe iniciar obligatoriamente con <code>https://</code>.</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                    Descripción Breve del Contenido del Tablero <span style="color: #EF4444;">*</span>
+                </label>
+                <textarea id="tableros_desc" name="descripcion" rows="3" required placeholder="Ej. Tablero interactivo de rendición de cuentas, ejecución presupuestaria general, prioridades presidenciales e indicadores clave..." style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px; font-family: inherit;">${escapeHtml(record?.descripcion || '')}</textarea>
+                <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 3px;">Explique brevemente a la ciudadanía qué información podrá visualizar en este tablero.</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Estado de Disponibilidad del Tablero <span style="color: #EF4444;">*</span>
+                    </label>
+                    <select id="tableros_estado" name="estado" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
+                        <option value="Disponible" ${record?.estado === 'Disponible' || !record?.estado ? 'selected' : ''}>Disponible (En línea)</option>
+                        <option value="En proceso" ${record?.estado === 'En proceso' ? 'selected' : ''}>En Proceso de Integración</option>
+                        <option value="En actualización" ${record?.estado === 'En actualización' ? 'selected' : ''}>En Actualización Periódica</option>
+                        <option value="En revisión" ${record?.estado === 'En revisión' ? 'selected' : ''}>En Revisión Técnica</option>
+                        <option value="No disponible" ${record?.estado === 'No disponible' ? 'selected' : ''}>No Disponible Temporariamente</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
+                        Fecha / Año de Última Actualización
+                    </label>
+                    <input type="text" id="tableros_fecha" name="fecha_actualizacion" value="${escapeHtml(record?.fecha_actualizacion || new Date().getFullYear().toString())}" placeholder="Ej. 2026 o 2026-08-11" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                </div>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('btnApplyTablerosCatalog')?.addEventListener('click', () => {
+            const selIdx = document.getElementById('tablerosCatalogSelector')?.value;
+            if (selIdx === '' || selIdx === undefined) {
+                showToast('Seleccione una institución del catálogo sugerido.', 'info');
+                return;
+            }
+            const item = defaultInstList[Number(selIdx)];
+            if (item) {
+                document.getElementById('tableros_nombre').value = item.name;
+                document.getElementById('tableros_siglas').value = item.siglas;
+                document.getElementById('tableros_tipo').value = item.tipo;
+                document.getElementById('tableros_sector').value = item.sector;
+                document.getElementById('tableros_link').value = item.link;
+                document.getElementById('tableros_desc').value = item.desc;
+                showToast(`Datos sombra de '${item.name}' aplicados exitosamente.`, 'success');
+            }
+        });
+
+        return;
+    }
+
     const schemaSource = record || (currentModuleData.length > 0 ? currentModuleData[0] : { nombre: '', descripcion: '' });
 
     let fieldsHtml = '';
@@ -1468,6 +1931,120 @@ async function saveCrudRecord(e) {
             showToast(editingRecordId ? 'Institución actualizada y guardada en bitácora' : 'Institución registrada y guardada en bitácora', 'success');
             closeCrudModal();
             await fetchAndRenderTable('directorio');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+        return;
+    }
+
+    if (currentModule === 'canales') {
+        const getVal = (name) => form.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+        const getCheck = (name) => form.querySelector(`[name="${name}"]`)?.checked || false;
+
+        let activeChannels = 0;
+        if (getVal('correo')) activeChannels++;
+        if (getVal('telefono')) activeChannels++;
+        if (getVal('formulario')) activeChannels++;
+        if (getVal('direccion')) activeChannels++;
+        if (getVal('otro')) activeChannels++;
+        const manualCanales = Number(getVal('canales'));
+        const canalesCount = manualCanales > 0 ? manualCanales : Math.max(1, activeChannels);
+
+        const recordObj = {
+            institucion: getVal('institucion'),
+            tipo: getVal('tipo') || 'Ministerios',
+            canales: canalesCount,
+            correo: getVal('correo'),
+            telefono: getVal('telefono'),
+            formulario: getVal('formulario'),
+            tipocom: getVal('tipocom') || 'Verbal y escrita',
+            otro: getVal('otro'),
+            direccion: getVal('direccion'),
+            ubicacion: getVal('ubicacion') || getVal('direccion'),
+            horario: getVal('horario') || 'Lunes a viernes, de 08:00 a 16:30 horas',
+            'Protocolo de actuación': getCheck('Protocolo de actuación')
+        };
+
+        const validation = validateModuleRecord('canales', recordObj);
+        if (!validation.isValid) {
+            showToast(`Error de Validación: ${validation.errors.join(' | ')}`, 'error');
+            return;
+        }
+
+        try {
+            let url = `${getApiBase()}/canales`;
+            let method = 'POST';
+
+            if (editingRecordId) {
+                url += `/${editingRecordId}`;
+                method = 'PUT';
+                recordObj.id = Number(editingRecordId);
+            }
+
+            const res = await fetch(url, {
+                method,
+                headers: getHeaders(),
+                body: JSON.stringify(recordObj)
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error al guardar');
+            }
+
+            showToast(editingRecordId ? 'Canal de integridad actualizado y auditado' : 'Canal de integridad registrado y auditado', 'success');
+            closeCrudModal();
+            await fetchAndRenderTable('canales');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+        return;
+    }
+
+    if (currentModule === 'tableros') {
+        const getVal = (name) => form.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+
+        const recordObj = {
+            nombre_institucion: getVal('nombre_institucion'),
+            siglas: getVal('siglas'),
+            tipo_dependencia: getVal('tipo_dependencia') || 'Ministerio',
+            sector: getVal('sector') || 'Presidencia',
+            link_tablero: getVal('link_tablero'),
+            descripcion: getVal('descripcion'),
+            fecha_actualizacion: getVal('fecha_actualizacion') || new Date().getFullYear().toString(),
+            estado: getVal('estado') || 'Disponible'
+        };
+
+        const validation = validateModuleRecord('tableros', recordObj);
+        if (!validation.isValid) {
+            showToast(`Error de Validación: ${validation.errors.join(' | ')}`, 'error');
+            return;
+        }
+
+        try {
+            let url = `${getApiBase()}/tableros`;
+            let method = 'POST';
+
+            if (editingRecordId) {
+                url += `/${editingRecordId}`;
+                method = 'PUT';
+                recordObj.id = Number(editingRecordId);
+            }
+
+            const res = await fetch(url, {
+                method,
+                headers: getHeaders(),
+                body: JSON.stringify(recordObj)
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error al guardar');
+            }
+
+            showToast(editingRecordId ? 'Tablero de gobierno actualizado y auditado' : 'Tablero de gobierno registrado y auditado', 'success');
+            closeCrudModal();
+            await fetchAndRenderTable('tableros');
         } catch (err) {
             showToast(err.message, 'error');
         }

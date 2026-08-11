@@ -340,10 +340,37 @@ export function validateModuleRecord(moduleName, recordObj) {
     }
   } else if (moduleName === 'canales') {
     if (!isNonEmptyString(recordObj.institucion)) {
-      errors.push('El nombre de la institución es obligatorio.');
+      errors.push('El nombre de la institución es obligatorio y debe tener al menos 3 caracteres.');
+    } else if (recordObj.institucion.trim().length < 3) {
+      errors.push('El nombre de la institución ingresado es demasiado corto.');
     }
     if (recordObj.correo && !isValidEmail(recordObj.correo)) {
-      errors.push('El correo electrónico ingresado no tiene un formato válido.');
+      errors.push(`El correo electrónico de probidad/denuncias '${recordObj.correo}' no tiene un formato válido (ej. alerta@institucion.gob.gt).`);
+    }
+    if (recordObj.formulario && !isValidUrlOrPath(recordObj.formulario)) {
+      errors.push(`El enlace del formulario web de denuncias '${recordObj.formulario}' debe tener un formato URL válido (iniciando con http:// o https://).`);
+    }
+    if (recordObj.canales !== undefined && (typeof recordObj.canales !== 'number' || recordObj.canales < 0)) {
+      errors.push('El número de canales debe ser un valor numérico no negativo.');
+    }
+  } else if (moduleName === 'tableros') {
+    if (!isNonEmptyString(recordObj.nombre_institucion)) {
+      errors.push('El nombre de la institución es obligatorio.');
+    } else if (recordObj.nombre_institucion.trim().length < 3) {
+      errors.push('El nombre de la institución debe contener al menos 3 caracteres.');
+    }
+    if (!isNonEmptyString(recordObj.link_tablero)) {
+      errors.push('La dirección URL del tablero de rendición de cuentas es obligatoria.');
+    } else if (!isValidUrlOrPath(recordObj.link_tablero)) {
+      errors.push(`La URL ingresada '${recordObj.link_tablero}' no es válida. Debe iniciar con http:// o https://.`);
+    }
+    if (!isNonEmptyString(recordObj.descripcion)) {
+      errors.push('La descripción del tablero es obligatoria.');
+    } else if (recordObj.descripcion.trim().length < 10) {
+      errors.push('La descripción del tablero debe ser informativa (mínimo 10 caracteres explicativos).');
+    }
+    if (!isNonEmptyString(recordObj.estado)) {
+      errors.push('El estado de disponibilidad del tablero es obligatorio.');
     }
   }
 

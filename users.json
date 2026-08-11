@@ -19,7 +19,7 @@
     "sessionTimeout": "30m",
     "allowedIp": "*",
     "forcePasswordChange": false,
-    "lastLogin": "2026-08-06T23:46:18.621Z"
+    "lastLogin": "2026-08-11T15:46:51.492Z"
   },
   {
     "id": "usr_jaurruti",
@@ -41,7 +41,7 @@
     "sessionTimeout": "60m",
     "allowedIp": "*",
     "forcePasswordChange": false,
-    "lastLogin": "2026-08-06T22:20:47.037Z"
+    "lastLogin": "2026-08-11T15:46:51.517Z"
   },
   {
     "id": "usr_2",

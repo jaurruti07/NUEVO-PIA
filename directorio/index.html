@@ -2827,7 +2827,7 @@ window._openModal = function(nombre) {
         </div></div>
         <div class="modal-actions-row">
             <button class="modal-action-btn whatsapp" onclick="window._shareCard('${safe}')"><i class="fab fa-whatsapp"></i> Compartir</button>
-            <button class="modal-action-btn" style="background:#0F1E2E; color:white;" onclick="window._exportFichaPdf('${safe}')"><i class="fas fa-file-pdf"></i> PDF</button>
+            <button class="modal-action-btn pdf" style="background:var(--cyan); color:var(--navy); font-weight:700;" onclick="window._exportFichaPdf('${safe}')"><i class="fas fa-file-pdf"></i> Exportar Ficha a PDF</button>
         </div>
     `;
 
@@ -2977,34 +2977,246 @@ function renderList(list, append = false) {
    CAMBIO DE VISTA (TARJETAS / LISTA)
 ============================================================ */
 
-window._exportFichaPdf = async function() {
+window._exportFichaPdf = async function(nombreParam) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        if (typeof showToast === 'function') showToast("Cargando generador PDF, reintente en un momento.");
+        else alert("Cargando generador PDF, reintente en un momento.");
+        return;
+    }
     const { jsPDF } = window.jspdf;
-    const nombre = document.getElementById('modalInstName').textContent;
-    if (!nombre) { alert('No hay datos para exportar.'); return; }
-    const doc = new jsPDF({ orientation:'p', unit:'mm', format:'letter' });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    
-    doc.setFontSize(16); doc.setFont('helvetica','bold');
-    doc.text('Ficha de Institución - Directorio', pageWidth/2, 20, { align:'center' });
-    
-    doc.setFontSize(14); doc.setFont('helvetica','bold');
-    doc.text(nombre, 20, 35);
-    
-    // We can extract data from the DOM or find the inst again
-    const inst = instituciones.find(i => (i.nombre_institucion + (i.siglas ? ' ('+i.siglas+')' : '')) === nombre);
-    if (!inst) return;
-    
-    doc.setFontSize(10); doc.setFont('helvetica','normal');
-    doc.text(`Sector: ${inst.sector || 'N/A'}`, 20, 45);
-    doc.text(`Departamento: ${inst.departamento || 'N/A'}`, 20, 52);
-    doc.text(`Correo: ${inst.correo || 'N/A'}`, 20, 59);
-    doc.text(`Teléfono: ${inst.telefono || 'N/A'}`, 20, 66);
-    doc.text(`Horario: ${inst.horario_atencion || 'N/A'}`, 20, 73);
-    
-    const addr = doc.splitTextToSize(`Dirección: ${inst.direccion || 'N/A'}`, pageWidth - 40);
-    doc.text(addr, 20, 80);
-    
-    doc.save(`Ficha_${inst.nombre_institucion}.pdf`);
+    const modalNameEl = document.getElementById('modalInstName');
+    const modalName = modalNameEl ? modalNameEl.textContent.trim() : '';
+    const targetSearch = (nombreParam || modalName).trim();
+    if (!targetSearch) { alert('No hay datos para exportar.'); return; }
+
+    const inst = instituciones.find(i => {
+        const fullN = i.nombre_institucion + (i.siglas ? ` (${i.siglas})` : '');
+        return i.nombre_institucion === targetSearch || fullN === targetSearch || targetSearch.includes(i.nombre_institucion) || i.nombre_institucion.includes(targetSearch);
+    });
+    if (!inst) { alert('No se encontraron datos para la institución.'); return; }
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'letter' });
+    const pageWidth = doc.internal.pageSize.getWidth();   // 215.9 mm
+    const pageHeight = doc.internal.pageSize.getHeight(); // 279.4 mm
+    const margin = 15;
+    const contentWidth = pageWidth - (margin * 2);
+
+    // Header Box (Gobierno Navy)
+    doc.setFillColor(15, 30, 46);
+    doc.rect(margin, 12, contentWidth, 24, 'F');
+
+    doc.setTextColor(0, 194, 224);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("GOBIERNO DE GUATEMALA", margin + 6, 20);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Directorio de Acceso al Ejecutivo — Ficha Técnica Institucional", margin + 6, 27);
+
+    let yPos = 42;
+
+    // Título de la Institución (Caja dinámica)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    const fullTitle = inst.nombre_institucion + (inst.siglas ? ` (${inst.siglas})` : '');
+    const titleLines = doc.splitTextToSize(fullTitle, contentWidth - 12);
+    const titleBoxHeight = Math.max(14, (titleLines.length * 5) + 6);
+
+    doc.setFillColor(245, 247, 250);
+    doc.setDrawColor(200, 210, 220);
+    doc.roundedRect(margin, yPos, contentWidth, titleBoxHeight, 2, 2, 'FD');
+
+    doc.setTextColor(15, 30, 46);
+    doc.text(titleLines, margin + 6, yPos + 6.5);
+
+    yPos += titleBoxHeight + 5;
+
+    // Ficha de Resumen
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "normal");
+    const tipoLines = doc.splitTextToSize(`Sector / Dependencia: ${inst.sector || 'No especificada'}`, 82);
+    const deptoLines = doc.splitTextToSize(`Departamento: ${inst.departamento || 'Guatemala'}`, 82);
+    const telLines = doc.splitTextToSize(`Teléfono / PBX: ${inst.telefono || 'No registrado'}`, 82);
+    const emailLines = doc.splitTextToSize(`Correo oficial: ${inst.correo || 'No especificado'}`, 82);
+    const horTextVal = `Horario de atención: ${inst.horario_atencion || 'No especificado'}`;
+    const fullHorLines = doc.splitTextToSize(horTextVal, contentWidth - 12);
+
+    const leftColHeight = (tipoLines.length * 4.2) + (deptoLines.length * 4.2) + 2;
+    const rightColHeight = (telLines.length * 4.2) + (emailLines.length * 4.2) + 2;
+    const topGridHeight = Math.max(leftColHeight, rightColHeight);
+    const horHeight = fullHorLines.length * 4.2;
+    const totalResumenHeight = 11 + topGridHeight + horHeight + 6;
+
+    // Dibujar marco contenedor de Resumen
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(0, 194, 224);
+    doc.roundedRect(margin, yPos, contentWidth, totalResumenHeight, 2, 2, 'D');
+
+    // Título de sección de resumen
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(15, 30, 46);
+    doc.text("RESUMEN INSTITUCIONAL Y DATOS DE CONTACTO", margin + 6, yPos + 6.5);
+
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 70, 80);
+
+    // Renderizar Columna Izquierda
+    let leftY = yPos + 12;
+    doc.text(tipoLines, margin + 6, leftY);
+    leftY += (tipoLines.length * 4.2) + 2;
+    doc.text(deptoLines, margin + 6, leftY);
+
+    // Renderizar Columna Derecha
+    let rightY = yPos + 12;
+    doc.text(telLines, margin + 95, rightY);
+    rightY += (telLines.length * 4.2) + 2;
+    doc.text(emailLines, margin + 95, rightY);
+
+    // Renderizar Horario
+    let horY = yPos + 12 + topGridHeight + 2;
+    doc.text(fullHorLines, margin + 6, horY);
+
+    yPos += totalResumenHeight + 6;
+
+    // Sección: Información de Contacto y Atención
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 30, 46);
+    doc.text("DATOS DE CONTACTO Y ATENCIÓN PÚBLICA", margin, yPos);
+    doc.setLineWidth(0.4);
+    doc.setDrawColor(0, 194, 224);
+    doc.line(margin, yPos + 2, margin + contentWidth, yPos + 2);
+
+    yPos += 7;
+
+    const items = [
+        { label: "Teléfono / PBX Directo", val: inst.telefono || "No disponible" },
+        { label: "Correo Electrónico Oficial", val: inst.correo || "No disponible" },
+        { label: "Sitio Web Institucional", val: inst.sitio_web || "No disponible" },
+        { label: "Horario de Atención Presencial", val: inst.horario_atencion || "No especificado" },
+        { label: "Dirección Física Oficial", val: inst.direccion || "No disponible" }
+    ];
+
+    items.forEach(item => {
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        const valLines = doc.splitTextToSize(String(item.val), contentWidth - 65);
+        const boxHeight = Math.max(9, (valLines.length * 4.2) + 5);
+
+        if (yPos + boxHeight > pageHeight - 20) {
+            doc.addPage();
+            yPos = 20;
+        }
+
+        doc.roundedRect(margin, yPos, contentWidth, boxHeight, 1.5, 1.5, 'FD');
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 30, 46);
+        doc.text(item.label + ":", margin + 4, yPos + 5.5);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(50, 60, 70);
+        doc.text(valLines, margin + 60, yPos + 5.5);
+
+        yPos += boxHeight + 2.5;
+    });
+
+    yPos += 3;
+
+    if (yPos + 15 > pageHeight - 20) {
+        doc.addPage();
+        yPos = 20;
+    }
+
+    // Sección: Acceso a la Información Pública (UAIP)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 30, 46);
+    doc.text("UNIDAD DE ACCESO A LA INFORMACIÓN PÚBLICA (UAIP)", margin, yPos);
+    doc.setLineWidth(0.4);
+    doc.setDrawColor(0, 194, 224);
+    doc.line(margin, yPos + 2, margin + contentWidth, yPos + 2);
+
+    yPos += 7;
+
+    const solLinks = getAccesoLinks(inst.enlaces_solicitud, inst.solicitud_en_linea, inst.sitio_web);
+    const ofiLinks = getAccesoLinks(inst.enlaces_oficio, inst.informacion_publica_oficio, inst.sitio_web);
+
+    let solVal = "";
+    if (solLinks.length > 0) {
+        solVal = solLinks.length === 1 ? solLinks[0] : solLinks.map((l, i) => `${i + 1}. ${l}`).join('\n');
+    } else if (inst.enlace_uaip || inst.unidad_acceso_info) {
+        solVal = String(inst.enlace_uaip || inst.unidad_acceso_info);
+    } else if (inst.solicitud_en_linea === true || inst.solicitud_en_linea === 'Sí' || inst.solicitud_en_linea === 'Si') {
+        solVal = "Sí (Disponible en portal institucional)";
+    } else {
+        solVal = "No disponible";
+    }
+
+    let ofiVal = "";
+    if (ofiLinks.length > 0) {
+        ofiVal = ofiLinks.length === 1 ? ofiLinks[0] : ofiLinks.map((l, i) => `${i + 1}. ${l}`).join('\n');
+    } else if (inst.oficio_link || inst.info_oficio) {
+        ofiVal = String(inst.oficio_link || inst.info_oficio);
+    } else if (inst.informacion_publica_oficio === true || inst.informacion_publica_oficio === 'Sí' || inst.informacion_publica_oficio === 'Si') {
+        ofiVal = "Sí (Disponible en portal institucional)";
+    } else {
+        ofiVal = "No disponible";
+    }
+
+    const uaipItems = [
+        { label: "Solicitud de Información en Línea", val: solVal },
+        { label: "Información Pública de Oficio", val: ofiVal },
+        { label: "Fecha de Última Actualización", val: inst.ultima_actualizacion || "Registro oficial actualizado" }
+    ];
+
+    uaipItems.forEach(item => {
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        const valLines = doc.splitTextToSize(String(item.val), contentWidth - 65);
+        const boxHeight = Math.max(9, (valLines.length * 4.2) + 5);
+
+        if (yPos + boxHeight > pageHeight - 20) {
+            doc.addPage();
+            yPos = 20;
+        }
+
+        doc.roundedRect(margin, yPos, contentWidth, boxHeight, 1.5, 1.5, 'FD');
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 30, 46);
+        doc.text(item.label + ":", margin + 4, yPos + 5.5);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(50, 60, 70);
+        doc.text(valLines, margin + 60, yPos + 5.5);
+
+        yPos += boxHeight + 2.5;
+    });
+
+    // Pie de página en todas las páginas
+    const totalPages = doc.internal.getNumberOfPages();
+    const now = new Date();
+    for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        doc.setFontSize(7.5);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(120, 130, 140);
+        doc.setDrawColor(200, 210, 220);
+        doc.line(margin, pageHeight - 15, margin + contentWidth, pageHeight - 15);
+        doc.text("Ficha oficial generada desde el Directorio de Acceso al Ejecutivo — Gobierno de Guatemala", margin, pageHeight - 10);
+        const pageText = totalPages > 1 ? `Página ${p} de ${totalPages} | ` : '';
+        doc.text(`${pageText}Fecha y hora de impresión: ${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`, margin + contentWidth, pageHeight - 10, { align: 'right' });
+    }
+
+    const safeFilename = inst.nombre_institucion.replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Ficha_Directorio_${safeFilename}.pdf`);
 };
 
 function switchView(view) {
