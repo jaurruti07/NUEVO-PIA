@@ -541,6 +541,130 @@
     color: var(--pia-cb-subtext-dark);
 }
 
+/* Slide-over Overlay Panels for Knowledge Base & AI Settings */
+.pia-cb-overlay-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: var(--pia-cb-card-light);
+    color: var(--pia-cb-text-light);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100%);
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pia-chatbot-window.dark .pia-cb-overlay-panel {
+    background: var(--pia-cb-card-dark);
+    color: var(--pia-cb-text-dark);
+}
+
+.pia-cb-overlay-panel.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.pia-cb-overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #05111F 0%, #0C2033 100%);
+    color: #FFFFFF;
+}
+
+.pia-cb-overlay-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pia-cb-overlay-body {
+    flex: 1;
+    padding: 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pia-cb-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pia-cb-form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--pia-cb-text-light);
+}
+
+.pia-chatbot-window.dark .pia-cb-form-label {
+    color: var(--pia-cb-text-dark);
+}
+
+.pia-cb-form-input, .pia-cb-form-select, .pia-cb-form-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    border-radius: 8px;
+    border: 1px solid var(--pia-cb-border-light);
+    background: var(--pia-cb-bg-light);
+    color: var(--pia-cb-text-light);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.pia-chatbot-window.dark .pia-cb-form-input,
+.pia-chatbot-window.dark .pia-cb-form-select,
+.pia-chatbot-window.dark .pia-cb-form-textarea {
+    border-color: var(--pia-cb-border-dark);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--pia-cb-text-dark);
+}
+
+.pia-cb-btn-primary {
+    background: #00C2E0;
+    color: #05111F;
+    font-weight: 700;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.pia-cb-btn-primary:hover {
+    background: #38BDF8;
+}
+
+.pia-cb-kb-item-card {
+    background: var(--pia-cb-bg-light);
+    border: 1px solid var(--pia-cb-border-light);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pia-chatbot-window.dark .pia-cb-kb-item-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--pia-cb-border-dark);
+}
+
 /* Responsive Styles */
 @media (max-width: 640px) {
     .pia-chatbot-trigger {

@@ -1146,6 +1146,92 @@ app.get('/api/chatbot/config', (req, res) => {
   });
 });
 
+// Chatbot Knowledge Base Endpoints (Accesibles para el Asistente Virtual)
+app.get('/api/chatbot/knowledge', (req, res) => {
+  res.json(getChatbotKnowledge());
+});
+
+app.post('/api/chatbot/knowledge', (req, res) => {
+  const { title, category, content, keywords, link } = req.body || {};
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Título y contenido son obligatorios' });
+  }
+
+  const knowledge = getChatbotKnowledge();
+  const newItem = {
+    id: `kb_${Date.now()}`,
+    title: title.trim(),
+    category: category ? category.trim() : 'General',
+    content: content.trim(),
+    keywords: Array.isArray(keywords) ? keywords : (keywords || '').split(',').map(k => k.trim()).filter(Boolean),
+    link: link || '/'
+  };
+
+  knowledge.unshift(newItem);
+  saveChatbotKnowledge(knowledge);
+
+  logAudit({
+    user: 'asistente_virtual',
+    action: 'NUEVO CONOCIMIENTO IA (WIDGET)',
+    module: 'chatbot',
+    target: newItem.id,
+    details: `Artículo agregado a la Base de Conocimiento desde el Asistente Virtual: '${newItem.title}'`
+  });
+
+  res.json(newItem);
+});
+
+app.delete('/api/chatbot/knowledge/:id', (req, res) => {
+  const { id } = req.params;
+  let knowledge = getChatbotKnowledge();
+  const item = knowledge.find(k => k.id === id);
+
+  knowledge = knowledge.filter(k => k.id !== id);
+  saveChatbotKnowledge(knowledge);
+
+  logAudit({
+    user: 'asistente_virtual',
+    action: 'ELIMINACIÓN CONOCIMIENTO IA (WIDGET)',
+    module: 'chatbot',
+    target: id,
+    details: `Artículo eliminado desde el Asistente Virtual: '${item ? item.title : id}'`
+  });
+
+  res.json({ success: true });
+});
+
+// Chatbot Settings Endpoints (Configuración de la IA desde el Asistente Virtual)
+app.get('/api/chatbot/settings', (req, res) => {
+  res.json(getChatbotSettings());
+});
+
+app.put('/api/chatbot/settings', (req, res) => {
+  const { model, temperature, maxTokens, systemPrompt, enabled, features } = req.body || {};
+  const current = getChatbotSettings();
+
+  const updated = {
+    ...current,
+    model: model || current.model,
+    temperature: temperature !== undefined ? Number(temperature) : current.temperature,
+    maxTokens: maxTokens !== undefined ? Number(maxTokens) : current.maxTokens,
+    systemPrompt: systemPrompt !== undefined ? systemPrompt : current.systemPrompt,
+    enabled: enabled !== undefined ? !!enabled : current.enabled,
+    features: features ? { ...current.features, ...features } : current.features
+  };
+
+  saveChatbotSettings(updated);
+
+  logAudit({
+    user: 'asistente_virtual',
+    action: 'CONFIGURACIÓN IA (WIDGET)',
+    module: 'chatbot',
+    target: 'settings',
+    details: `Configuración de la IA actualizada desde el Widget: Modelo=${updated.model}, Temperatura=${updated.temperature}`
+  });
+
+  res.json(updated);
+});
+
 // Main Chatbot Query Endpoint
 app.post('/api/chatbot/chat', async (req, res) => {
   const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';

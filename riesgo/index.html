@@ -58,8 +58,9 @@
         .site-header { position:sticky; top:0; z-index:200; background:rgba(5,17,31,0.93); backdrop-filter:blur(20px); border-bottom:1px solid rgba(0,194,224,0.10); transition:box-shadow 0.3s; }
         .site-header.scrolled { box-shadow:0 4px 32px rgba(0,0,0,0.3); }
         .navbar { display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0; gap:1.5rem; }
-        .logo-area { display:flex; align-items:center; gap:14px; }
-        .gov-logo { height:52px; width:auto; }
+        .logo-area { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+        .logo-area a { display:inline-flex; align-items:center; flex-shrink:0; line-height:1; }
+        .gov-logo { height:52px; width:auto; max-height:52px; max-width:100%; object-fit:contain; aspect-ratio:auto; flex-shrink:0; display:block; }
         .nav-menu { display:flex; gap:0.25rem; align-items:center; margin-left:auto; }
         .nav-menu > li { position: relative; }
         .nav-menu a { display:inline-block; padding:0.45rem 0.9rem; border-radius:50px; font-family:var(--font-head); font-size:0.77rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.7); transition:all 0.2s; }
@@ -287,11 +288,66 @@
         .btn-pdf { background: #c0392b; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; font-family: var(--font-head); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-pdf:hover { background: #962d22; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-        .table-wrapper { overflow-x:auto; border-radius:var(--radius-xl); border:1px solid var(--border); }
-        .institution-table { width:100%; border-collapse:collapse; min-width:800px; }
-        .institution-table thead { background:var(--navy); }
-        .institution-table th { padding:1rem 1rem; text-align:left; font-family:var(--font-head); font-size:0.72rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.7); cursor:help; }
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            position: relative;
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            background: #ffffff;
+            box-shadow: var(--shadow-sm);
+            scroll-behavior: smooth;
+        }
+        .institution-table { width:100%; border-collapse:collapse; min-width:860px; }
+        .institution-table thead { background: linear-gradient(135deg, #091C2E 0%, #0F2D4A 100%); }
+        .institution-table th {
+            padding: 1.1rem 1.15rem;
+            text-align: left;
+            font-family: var(--font-head);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #ffffff !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #091C2E;
+            border-bottom: 2.5px solid var(--cyan) !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .institution-table th i {
+            color: var(--cyan);
+            margin-right: 6px;
+            font-size: 0.85rem;
+        }
+        .institution-table td:first-child,
+        .institution-table th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            box-shadow: 4px 0 12px rgba(5, 17, 31, 0.12);
+        }
+        .institution-table th:first-child {
+            z-index: 25;
+            top: 0;
+            background: #071727 !important;
+            color: #ffffff !important;
+            border-right: 2px solid var(--cyan) !important;
+            border-bottom: 2.5px solid var(--cyan) !important;
+        }
+        .institution-table td:first-child {
+            background: #ffffff;
+            font-weight: 700;
+            color: var(--text-main);
+            border-right: 2px solid var(--border) !important;
+        }
         .institution-table td { padding:0.9rem 1rem; border-bottom:1px solid var(--border); font-size:0.85rem; vertical-align:middle; background:#fff; }
+        .institution-table tr:hover td { background: rgba(0, 194, 224, 0.04); }
+        .institution-table tr:hover td:first-child { background: #f0f7fc !important; }
         .status-badge { display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px; border-radius:50px; font-size:0.73rem; }
         .status-green { background:#DCFCE7; color:#166534; }
         .status-yellow { background:#FEF9C3; color:#854D0E; }
@@ -613,8 +669,9 @@
         .push-toast-close:hover { color: var(--navy); }
         .footer { background:var(--navy); color:rgba(255,255,255,0.6); padding:3.5rem 0 1.5rem; margin-top:3rem; }
         .footer-grid { display:grid; grid-template-columns:2fr 1.5fr 1.5fr 1.2fr 1fr; gap:2.5rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,255,255,0.08); }
-        .footer-brand img { height:52px; width:auto; margin-bottom:1rem; }
-        .footer-brand .logo-pia { height:52px; width:auto; margin-top:0.5rem; opacity:0.9; }
+        .footer-brand { display:flex; flex-direction:column; align-items:flex-start; }
+        .footer-brand img { height:48px; width:auto; max-height:48px; max-width:100%; object-fit:contain; aspect-ratio:auto; margin-bottom:1rem; flex-shrink:0; display:block; }
+        .footer-brand .logo-pia { height:48px; width:auto; max-height:48px; max-width:100%; object-fit:contain; aspect-ratio:auto; margin-top:0.5rem; opacity:0.9; flex-shrink:0; display:block; }
         .footer-brand p { font-size:0.85rem; line-height:1.7; }
         .footer-col h4 { font-family:var(--font-head); font-size:0.8rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.9); margin-bottom:1rem; }
         .footer-links { list-style:none; display:flex; flex-direction:column; gap:0.55rem; }
@@ -626,8 +683,8 @@
         .social-btn { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:rgba(255,255,255,0.6); transition:all 0.2s; }
         .social-btn:hover { background:var(--blue-bright); color:#fff; transform:translateY(-2px); }
         .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:1.5rem; font-size:0.75rem; color:rgba(255,255,255,0.3); }
-        .footer-logos { display:flex; gap:1.5rem; align-items:center; }
-        .footer-logos img { height:36px; width:auto; opacity:0.6; }
+        .footer-logos { display:flex; gap:1.5rem; align-items:center; flex-shrink:0; }
+        .footer-logos img { height:36px; width:auto; max-height:36px; max-width:100%; object-fit:contain; aspect-ratio:auto; opacity:0.6; flex-shrink:0; display:block; }
 
         @media(max-width:1024px) { .kpi-row { grid-template-columns:repeat(2,1fr); } .abordaje-grid { grid-template-columns:repeat(2,1fr); } .footer-grid { grid-template-columns: 1fr 1fr 1fr; } }
         @media(max-width:900px) {
@@ -866,13 +923,13 @@
                 <table class="institution-table">
                     <thead>
                         <tr>
-                            <th title="Nombre oficial y siglas de la institución">Institución</th>
-                            <th title="Cumple, Parcial o En proceso (sin cumplir)">Estado</th>
-                            <th title="Avanzado, Intermedio o Básico según el grado de implementación">Nivel</th>
-                            <th title="Ministerios, Secretarías, Gobernaciones u Otras dependencias">Sector</th>
-                            <th title="Indica si la institución ha adoptado buenas prácticas voluntarias de gestión de riesgos">Aplicación de buenas prácticas GRC</th>
-                            <th title="Estado de la verificación de hallazgos por parte de la Contraloría General de Cuentas">Verificación hallazgos CGC</th>
-                            <th></th>
+                            <th title="Nombre oficial y siglas de la institución"><i class="fas fa-building"></i> Institución</th>
+                            <th title="Cumple, Parcial o En proceso (sin cumplir)"><i class="fas fa-traffic-light"></i> Estado</th>
+                            <th title="Avanzado, Intermedio o Básico según el grado de implementación"><i class="fas fa-layer-group"></i> Nivel</th>
+                            <th title="Ministerios, Secretarías, Gobernaciones u Otras dependencias"><i class="fas fa-sitemap"></i> Sector</th>
+                            <th title="Indica si la institución ha adoptado buenas prácticas voluntarias de gestión de riesgos"><i class="fas fa-award"></i> Buenas Prácticas GRC</th>
+                            <th title="Estado de la verificación de hallazgos por parte de la Contraloría General de Cuentas"><i class="fas fa-clipboard-check"></i> Verificación CGC</th>
+                            <th style="text-align:center;"><i class="fas fa-ellipsis-h"></i> Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="catalogoTableBody"></tbody>

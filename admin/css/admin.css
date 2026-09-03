@@ -935,3 +935,266 @@ table tr:hover {
         width: 100% !important;
     }
 }
+
+/* ============================================================
+   PILAR 1: MEJORAS VISUALES Y DE EXPERIENCIA DE USUARIO (UI/UX)
+============================================================ */
+
+/* 1. ANIMACIONES DE CARGA ESQUELETIZADA (SKELETON LOADERS) */
+@keyframes skeleton-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-loader {
+    background: linear-gradient(90deg, rgba(26, 92, 143, 0.06) 25%, rgba(0, 194, 224, 0.22) 37%, rgba(26, 92, 143, 0.06) 63%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    border-radius: 6px;
+    display: inline-block;
+    height: 1.1rem;
+    width: 100%;
+    vertical-align: middle;
+}
+
+.skeleton-box {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(0, 194, 224, 0.16) 37%, rgba(255, 255, 255, 0.05) 63%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    border-radius: 12px;
+}
+
+[data-theme="dark"] .skeleton-loader {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(0, 194, 224, 0.20) 37%, rgba(255, 255, 255, 0.04) 63%);
+    background-size: 200% 100%;
+}
+
+.skeleton-row td {
+    padding: 1rem 0.85rem !important;
+}
+
+/* 2. TABLAS ADAPTATIVAS CON ENCABEZADOS Y COLUMNAS STICKY (ESCRITORIO Y MÓVIL) */
+.table-responsive, .table-container, .crud-table-wrapper, .table-wrapper, [style*="overflow-x: auto"] {
+    position: relative;
+    max-height: 72vh;
+    overflow-x: auto;
+    overflow-y: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    scroll-behavior: smooth;
+}
+
+/* Scrollbar personalizado para tablas */
+.table-responsive::-webkit-scrollbar,
+.table-container::-webkit-scrollbar,
+.table-wrapper::-webkit-scrollbar,
+.crud-table-wrapper::-webkit-scrollbar,
+[style*="overflow-x: auto"]::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+.table-responsive::-webkit-scrollbar-thumb,
+.table-container::-webkit-scrollbar-thumb,
+.table-wrapper::-webkit-scrollbar-thumb,
+.crud-table-wrapper::-webkit-scrollbar-thumb,
+[style*="overflow-x: auto"]::-webkit-scrollbar-thumb {
+    background: rgba(0, 194, 224, 0.35);
+    border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-track,
+.table-container::-webkit-scrollbar-track,
+.table-wrapper::-webkit-scrollbar-track,
+.crud-table-wrapper::-webkit-scrollbar-track,
+[style*="overflow-x: auto"]::-webkit-scrollbar-track {
+    background: rgba(26, 92, 143, 0.05);
+}
+
+/* Encabezados Congelados (Sticky Headers) */
+table thead tr th,
+.table thead tr th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface-card);
+    box-shadow: 0 2px 6px rgba(5, 17, 31, 0.08);
+}
+
+/* Congelar primera columna (ID / Nombre / Institución) en Escritorio y Móviles */
+table tbody tr td:first-child,
+table thead tr th:first-child,
+.table tbody tr td:first-child,
+.table thead tr th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 11;
+    background: var(--surface-card);
+    border-right: 2px solid var(--border) !important;
+    box-shadow: 4px 0 10px rgba(5, 17, 31, 0.08);
+}
+
+table thead tr th:first-child,
+.table thead tr th:first-child {
+    z-index: 20; /* Intersección: Encabezado sticky + primera columna sticky */
+    top: 0;
+}
+
+/* Mantener el fondo uniforme al pasar el ratón (hover) sobre celdas congeladas */
+table tbody tr:hover td:first-child,
+.table tbody tr:hover td:first-child {
+    background: var(--surface) !important;
+}
+
+[data-theme="dark"] table tbody tr:hover td:first-child,
+[data-theme="dark"] .table tbody tr:hover td:first-child {
+    background: rgba(0, 194, 224, 0.1) !important;
+}
+
+/* 3. MICRO-INTERACCIONES Y ANIMACIONES DE MODAL & TOASTS */
+
+/* Modales enriquecidos con animaciones de entrada fluidas */
+.modal-overlay, .crud-modal-overlay {
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-box, .modal-content, .crud-modal-content {
+    animation: modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes modalSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Botones y elementos interactivos */
+button, .btn-primary, .btn-secondary, .btn-danger, .badge, .logo-card, .indicator-card {
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
+}
+
+button:hover:not(:disabled),
+.btn-primary:hover:not(:disabled),
+.indicator-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 194, 224, 0.18);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Filas de tabla interactivas */
+table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+table tbody tr:hover {
+    background-color: rgba(0, 194, 224, 0.05) !important;
+}
+
+/* SISTEMA DE TOASTS ENRIQUECIDOS (CON BARRA DE TIEMPO Y BOTÓN DESHACER) */
+#toastContainer {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 420px;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #0C2033;
+    color: #E8EDF5;
+    border: 1px solid rgba(0, 194, 224, 0.3);
+    border-radius: 12px;
+    padding: 0.9rem 1.1rem;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: hidden;
+    animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.toast.toast-exiting {
+    animation: toastOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes toastIn {
+    0% { opacity: 0; transform: translateX(40px) scale(0.95); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toastOut {
+    0% { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(40px) scale(0.9); }
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.toast-info .toast-icon { color: #00C2E0; }
+.toast-success .toast-icon { color: #22C55E; }
+.toast-error .toast-icon { color: #EF4444; }
+.toast-warning .toast-icon { color: #F5A623; }
+
+.toast-content {
+    flex: 1;
+    line-height: 1.35;
+}
+
+.toast-title {
+    font-weight: 700;
+    margin-bottom: 2px;
+    font-size: 0.9rem;
+}
+
+.toast-undo-btn {
+    background: rgba(0, 194, 224, 0.15);
+    color: #00C2E0;
+    border: 1px solid rgba(0, 194, 224, 0.4);
+    border-radius: 6px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.toast-undo-btn:hover {
+    background: #00C2E0;
+    color: #05111F;
+}
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #00C2E0;
+    width: 100%;
+    animation: toastTimer 4s linear forwards;
+}
+
+.toast-success .toast-progress { background: #22C55E; }
+.toast-error .toast-progress { background: #EF4444; }
+.toast-warning .toast-progress { background: #F5A623; }
+
+@keyframes toastTimer {
+    from { width: 100%; }
+    to { width: 0%; }
+}

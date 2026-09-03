@@ -12,6 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet CSS & JS para Mapa Interactivo de Geolocalización -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
     <style>
     /* ============================================================
@@ -87,9 +90,25 @@
     padding: 0.75rem 0;
     gap: 1.5rem;
 }
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+.logo-area a {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
 .gov-logo { 
-    height: 56px; 
-    width: auto; 
+    height: 52px; 
+    width: auto;
+    max-height: 52px;
+    max-width: 100%;
+    object-fit: contain;
+    aspect-ratio: auto;
     flex-shrink: 0; 
     display: block; 
 }
@@ -1364,7 +1383,17 @@
         padding-bottom: 2.5rem; 
         border-bottom: 1px solid rgba(255,255,255,0.08); 
     }
-    .footer-brand img { height: 52px; width: auto; margin-bottom: 1rem; }
+    .footer-brand img {
+        height: 48px;
+        width: auto;
+        max-height: 48px;
+        max-width: 100%;
+        object-fit: contain;
+        aspect-ratio: auto;
+        margin-bottom: 1rem;
+        flex-shrink: 0;
+        display: block;
+    }
     .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
     .footer-col h4 {
         font-family: var(--font-head);
@@ -1420,10 +1449,32 @@
         padding-top: 1.5rem;
         font-size: 0.75rem; color: rgba(255,255,255,0.3);
     }
-    .footer-logos { display: flex; gap: 1.5rem; align-items: center; }
-    .footer-logos img { height: 36px; width: auto;   opacity: 0.6; }
-    .logo-gobierno { height: 36px; }
-    .logo-canales { height: 36px; }
+    .footer-logos { display: flex; gap: 1.5rem; align-items: center; flex-shrink: 0; }
+    .footer-logos img {
+        height: 36px;
+        width: auto;
+        max-height: 36px;
+        max-width: 100%;
+        object-fit: contain;
+        aspect-ratio: auto;
+        opacity: 0.6;
+        flex-shrink: 0;
+        display: block;
+    }
+    .logo-gobierno {
+        height: 36px;
+        max-height: 36px;
+        width: auto;
+        object-fit: contain;
+        aspect-ratio: auto;
+    }
+    .logo-canales {
+        height: 36px;
+        max-height: 36px;
+        width: auto;
+        object-fit: contain;
+        aspect-ratio: auto;
+    }
 
     /* ============================================================
        VIGILANDO SECTION
@@ -2274,6 +2325,16 @@
             border-color: var(--cyan);
         }
 
+        .cnc-table-scroll-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 68vh;
+            position: relative;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            scroll-behavior: smooth;
+        }
+
         .cnc-table {
             width: 100%;
             border-collapse: collapse;
@@ -2290,10 +2351,37 @@
             text-transform: uppercase;
             letter-spacing: 0.04em;
             text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .cnc-table th:first-child { border-top-left-radius: 12px; }
         .cnc-table th:last-child { border-top-right-radius: 12px; }
+
+        .cnc-table td:first-child,
+        .cnc-table th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            background: var(--navy-mid);
+            border-right: 2px solid rgba(0, 194, 224, 0.3) !important;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cnc-table td:first-child {
+            background: var(--surface-card);
+            font-weight: 700;
+            color: var(--text-main);
+            border-right: 2px solid var(--border) !important;
+        }
+
+        .cnc-table th:first-child {
+            z-index: 20;
+            top: 0;
+            background: var(--navy-mid);
+        }
 
         .cnc-table td {
             padding: 0.85rem 1rem;
@@ -2303,6 +2391,10 @@
 
         .cnc-table tr:hover td {
             background: rgba(0, 194, 224, 0.04);
+        }
+
+        .cnc-table tr:hover td:first-child {
+            background: var(--surface) !important;
         }
 
         .badge-prot-yes {
@@ -2609,6 +2701,106 @@
         .btn-speak-term:hover {
             background: var(--cyan);
             color: var(--navy);
+        }
+
+        /* RESPONSIVE OPTIMIZATIONS FOR DASHBOARD & MAP */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1.25rem 0.85rem;
+                border-radius: 18px;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            .kpi-card {
+                padding: 1rem 0.85rem;
+            }
+            .kpi-value {
+                font-size: 1.6rem;
+            }
+            .kpi-label {
+                font-size: 0.72rem;
+            }
+            .kpi-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            .charts-row-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .chart-card {
+                padding: 1.1rem;
+            }
+            .chart-wrapper-inner {
+                height: 240px;
+            }
+            .map-collapsible-header {
+                padding: 1rem !important;
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+            .map-collapsible-header > div:last-child {
+                align-self: flex-end;
+            }
+            .map-collapsible-body {
+                padding: 0.85rem !important;
+            }
+            #cncProtocolLeafletMap {
+                height: 380px !important;
+            }
+            .table-cnc-wrap {
+                padding: 1rem;
+                border-radius: 16px;
+            }
+            .cnc-table-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.8rem;
+            }
+            .cnc-table-search {
+                width: 100%;
+                flex: none;
+            }
+            .cnc-filter-pills {
+                width: 100%;
+            }
+            .cnc-filter-pill {
+                flex: 1 1 auto;
+                text-align: center;
+                padding: 0.4rem 0.6rem;
+            }
+            .maya-guide-container {
+                padding: 1.25rem 1rem;
+                border-radius: 18px;
+            }
+            .lang-selector-bar {
+                gap: 0.4rem;
+                margin-bottom: 1.25rem;
+            }
+            .lang-pill-btn {
+                padding: 0.45rem 0.85rem;
+                font-size: 0.78rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            .kpi-card {
+                padding: 0.75rem 0.65rem;
+            }
+            .kpi-value {
+                font-size: 1.35rem;
+            }
+            #cncProtocolLeafletMap {
+                height: 320px !important;
+            }
         }
 </style>
 </head>
@@ -3011,6 +3203,60 @@
                 </div>
             </div>
 
+            <!-- Componente Desplegable: Mapa Interactivo de Geolocalización de Dependencias con Protocolo CNC -->
+            <div class="map-collapsible-card" style="margin: 1.5rem 0; background: var(--navy-mid); border: 1px solid rgba(0, 194, 224, 0.25); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-md);">
+                <div class="map-collapsible-header" id="btnToggleProtocolMap" style="padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(0, 194, 224, 0.06); transition: background 0.2s;" onclick="toggleProtocolMap()">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 1.25rem;">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-family: var(--font-head); font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                                Mapa Interactivo de Dependencias con Protocolos de Actuación y Canales de Denuncia
+                                <span style="background: var(--green); color: #000; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; font-family: var(--font-body);" id="mapProtBadgeCount">32 Verificadas</span>
+                            </h3>
+                            <p style="margin: 0.2rem 0 0; font-size: 0.83rem; color: var(--text-light);">
+                                Geolocalización interactiva en tiempo real de sedes e instituciones del Ejecutivo con protocolos de actuación adoptados y canales de denuncia
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 0.84rem; color: var(--cyan); font-weight: 600;" id="labelToggleMap">Desplegar Mapa</span>
+                        <i class="fas fa-chevron-down" id="chevronToggleMap" style="color: var(--cyan); transition: transform 0.3s; font-size: 1rem;"></i>
+                    </div>
+                </div>
+
+                <div class="map-collapsible-body" id="protocolMapBody" style="display: none; padding: 1.25rem; border-top: 1px solid rgba(0,194,224,0.15); background: rgba(5,17,31,0.6);">
+                    <!-- Barra de Controles e Interactividad del Mapa -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; background: rgba(255,255,255,0.03); padding: 0.85rem 1.1rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                            <button type="button" class="btn-map-filter active" id="btnMapFilterWithProt" onclick="filterMapMarkers('prot')" style="padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(34,197,94,0.4); background: rgba(34,197,94,0.2); color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;">
+                                <i class="fas fa-check-circle" style="color: var(--green);"></i> Con Protocolo CNC (<span id="mapCountProt">32</span>)
+                            </button>
+                            <button type="button" class="btn-map-filter" id="btnMapFilterAll" onclick="filterMapMarkers('all')" style="padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;">
+                                <i class="fas fa-layer-group"></i> Ver Todas las Sedes (<span id="mapCountTotal">63</span>)
+                            </button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; max-width: 320px; width: 100%;">
+                            <div style="position: relative; width: 100%;">
+                                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.82rem;"></i>
+                                <input type="text" id="mapSearchInput" oninput="searchMapMarkers(this.value)" placeholder="Buscar dependencia o ubicación..." style="width: 100%; padding: 7px 12px 7px 34px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 0.82rem; font-family: var(--font-body);" aria-label="Buscar en mapa">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Div del Mapa Leaflet -->
+                    <div id="cncProtocolLeafletMap" style="height: 480px; width: 100%; border-radius: 16px; border: 1px solid rgba(0,194,224,0.2); overflow: hidden; position: relative; z-index: 10;"></div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.85rem; font-size: 0.8rem; color: var(--text-light); flex-wrap: wrap; gap: 0.5rem;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fas fa-info-circle" style="color:var(--cyan);"></i> Haz clic en un marcador para desplegar ficha corta, dirección y acceso directo a canales.
+                        </span>
+                        <span style="color: rgba(255,255,255,0.5);"><i class="fas fa-globe-americas"></i> Coordenadas Geográficas de Guatemala</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tabla Interactiva de Cumplimiento CNC por Institución -->
             <div class="table-cnc-wrap">
                 <div class="cnc-table-controls">
@@ -3037,7 +3283,7 @@
                     </div>
                 </div>
 
-                <div style="overflow-x:auto;">
+                <div class="cnc-table-scroll-container">
                     <table class="cnc-table">
                         <thead>
                             <tr>
@@ -3064,14 +3310,17 @@
         <div class="section-header">
             <div class="section-tag"><i class="fas fa-language"></i> Accesibilidad e Inclusión</div>
             <h2 class="section-title">Guía Multilingüe de Denuncia Segura</h2>
-            <p class="section-sub">Información accesible en idiomas mayas para conocer cómo presentar denuncias sobre irregularidades de forma confidencial, segura y guiada por voz.</p>
+            <p class="section-sub">Información accesible en idiomas mayas e inglés para conocer cómo presentar denuncias sobre irregularidades de forma confidencial, segura y guiada por voz.</p>
         </div>
 
         <div class="maya-guide-container">
-            <!-- Barra de Selección de Idioma Maya -->
+            <!-- Barra de Selección de Idioma -->
             <div class="lang-selector-bar" id="mayaLangBar">
                 <button class="lang-pill-btn active" data-lang="es">
                     <i class="fas fa-globe"></i> Español <span class="lang-badge">Nacional</span>
+                </button>
+                <button class="lang-pill-btn" data-lang="en">
+                    <i class="fas fa-globe-americas"></i> English <span class="lang-badge">International</span>
                 </button>
                 <button class="lang-pill-btn" data-lang="kiche">
                     <i class="fas fa-comments"></i> K’iche’ <span class="lang-badge">Quiché / Totonicapán</span>
@@ -4574,8 +4823,297 @@ function initCncDashboard(data) {
         });
     }
 
-    // 3. Configurar Toggle de Despliegue/Ocultamiento del Dashboard
+    // 3. Inicializar Mapa Interactivo de Geolocalización
+    initProtocolMap(data);
+
+    // 4. Configurar Toggle de Despliegue/Ocultamiento del Dashboard
     setupDashboardToggle(data);
+}
+
+/* ============================================================
+   MAPA INTERACTIVO DE GEOLOCALIZACIÓN CNC (LEAFLET)
+============================================================ */
+let protocolLeafletMap = null;
+let leafletMarkersGroup = null;
+let currentMapFilter = 'prot'; // 'prot' or 'all'
+let globalDirectorioData = [];
+
+const knownCoordsMap = {
+    'MAGA': [14.588, -90.528],
+    'MINECO': [14.636, -90.512],
+    'MICIVI': [14.586, -90.526],
+    'MICUDE': [14.643, -90.513],
+    'MIDES': [14.608, -90.518],
+    'MINDEF': [14.628, -90.485],
+    'MINEDUC': [14.596, -90.510],
+    'MEM': [14.615, -90.550],
+    'MINFIN': [14.631, -90.514],
+    'MINGOB': [14.634, -90.513],
+    'MINEX': [14.594, -90.508],
+    'MSPAS': [14.618, -90.548],
+    'MINTRAB': [14.635, -90.515],
+    'MARN': [14.582, -90.525],
+    'SAAS': [14.640, -90.511],
+    'SBS': [14.611, -90.553],
+    'SCEP': [14.639, -90.513],
+    'SVET': [14.643, -90.513],
+    'SECCATID': [14.602, -90.511],
+    'SGP': [14.641, -90.511],
+    'SENABED': [14.588, -90.506],
+    'SENACYT': [14.634, -90.515],
+    'SOSEP': [14.642, -90.513],
+    'SEPREM': [14.639, -90.514],
+    'SESAN': [14.635, -90.513],
+    'STCNS': [14.642, -90.514],
+    'AMSCLAE': [14.743, -91.157],
+    'CODISRA': [14.633, -90.514],
+    'COPADEH': [14.583, -90.524],
+    'CONJUVE': [14.610, -90.552],
+    'IGSNS': [14.641, -90.515],
+    'INEES': [14.640, -90.516],
+    'VPRG': [14.641, -90.513],
+    'SIE': [14.639, -90.512],
+    'SCSPR': [14.619, -90.516],
+    'GAE': [14.641, -90.512],
+    'SEGEPLAN': [14.637, -90.515],
+    'AMSA': [14.502, -90.589],
+    'CNC': [14.640, -90.510],
+    'DEMI': [14.633, -90.512],
+    'ONSEC': [14.632, -90.516]
+};
+
+const deptCoordsList = [
+    { name: 'Baja Verapaz', coords: [15.103, -90.318] },
+    { name: 'Chimaltenango', coords: [14.662, -90.820] },
+    { name: 'El Progreso', coords: [14.853, -90.069] },
+    { name: 'Escuintla', coords: [14.305, -90.785] },
+    { name: 'Jalapa', coords: [14.634, -89.988] },
+    { name: 'Jutiapa', coords: [14.281, -89.895] },
+    { name: 'Petén', coords: [16.924, -89.894] },
+    { name: 'Quetzaltenango', coords: [14.834, -91.518] },
+    { name: 'Quiché', coords: [15.030, -91.148] },
+    { name: 'Sacatepéquez', coords: [14.558, -90.733] },
+    { name: 'San Marcos', coords: [14.963, -91.794] },
+    { name: 'Suchitepéquez', coords: [14.534, -91.503] },
+    { name: 'Zacapa', coords: [14.972, -89.530] },
+    { name: 'Huehuetenango', coords: [15.319, -91.471] },
+    { name: 'Alta Verapaz', coords: [15.472, -90.372] },
+    { name: 'Chiquimula', coords: [14.798, -89.545] },
+    { name: 'Santa Rosa', coords: [14.276, -90.298] },
+    { name: 'Retalhuleu', coords: [14.535, -91.677] },
+    { name: 'Izabal', coords: [15.727, -88.594] },
+    { name: 'Sololá', coords: [14.773, -91.183] },
+    { name: 'Totonicapán', coords: [14.911, -91.361] },
+    { name: 'Guatemala', coords: [14.638, -90.513] }
+];
+
+function getInstCoords(inst, idx) {
+    const name = inst.institucion;
+    let base = null;
+    const key = Object.keys(knownCoordsMap).find(k => name.includes(k));
+    if (key) {
+        base = knownCoordsMap[key];
+    } else {
+        const deptMatch = deptCoordsList.find(d => name.includes(d.name) || (inst.direccion && inst.direccion.includes(d.name)));
+        if (deptMatch) {
+            base = deptMatch.coords;
+        } else {
+            base = [14.636, -90.512];
+        }
+    }
+    const jitterLat = ((idx * 7) % 17 - 8) * 0.0018;
+    const jitterLng = ((idx * 11) % 17 - 8) * 0.0018;
+    return [base[0] + jitterLat, base[1] + jitterLng];
+}
+
+function initProtocolMap(data) {
+    if (!data || !data.length) return;
+    globalDirectorioData = data;
+
+    const withProtCount = data.filter(i => i['Protocolo de actuación'] === true).length;
+    const badgeEl = document.getElementById('mapProtBadgeCount');
+    const protCountEl = document.getElementById('mapCountProt');
+    const totalCountEl = document.getElementById('mapCountTotal');
+
+    if (badgeEl) badgeEl.textContent = `${withProtCount} Verificadas`;
+    if (protCountEl) protCountEl.textContent = withProtCount;
+    if (totalCountEl) totalCountEl.textContent = data.length;
+
+    const mapContainer = document.getElementById('cncProtocolLeafletMap');
+    if (!mapContainer || typeof L === 'undefined') return;
+
+    if (!protocolLeafletMap) {
+        try {
+            protocolLeafletMap = L.map('cncProtocolLeafletMap', {
+                center: [15.0, -90.5],
+                zoom: 7,
+                zoomControl: true,
+                scrollWheelZoom: false,
+                tap: true
+            });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(protocolLeafletMap);
+
+            leafletMarkersGroup = L.layerGroup().addTo(protocolLeafletMap);
+        } catch (e) {
+            console.error('Error creating Leaflet instance:', e);
+        }
+    }
+
+    renderMapMarkers();
+}
+
+function renderMapMarkers(searchQuery = '') {
+    if (!protocolLeafletMap || typeof L === 'undefined') return;
+    if (!leafletMarkersGroup) {
+        leafletMarkersGroup = L.layerGroup().addTo(protocolLeafletMap);
+    }
+    leafletMarkersGroup.clearLayers();
+
+    if (!globalDirectorioData || !globalDirectorioData.length) return;
+
+    const q = (searchQuery || '').toLowerCase().trim();
+
+    globalDirectorioData.forEach((inst, idx) => {
+        const hasProt = inst['Protocolo de actuación'] === true;
+
+        if (currentMapFilter === 'prot' && !hasProt) return;
+
+        if (q) {
+            const matchName = inst.institucion.toLowerCase().includes(q);
+            const matchDir = (inst.direccion || '').toLowerCase().includes(q);
+            const matchTipo = (inst.tipo || '').toLowerCase().includes(q);
+            if (!matchName && !matchDir && !matchTipo) return;
+        }
+
+        const coords = getInstCoords(inst, idx);
+
+        const markerHtml = hasProt ?
+            `<div style="width:34px; height:34px; border-radius:50%; background:rgba(34,197,94,0.95); border:2px solid #ffffff; box-shadow:0 0 14px rgba(34,197,94,0.85); display:flex; align-items:center; justify-content:center; color:#000; font-size:15px; cursor:pointer;" title="${inst.institucion}">
+                <i class="fas fa-shield-alt"></i>
+            </div>` :
+            `<div style="width:28px; height:28px; border-radius:50%; background:rgba(245,166,35,0.9); border:2px solid #ffffff; box-shadow:0 0 10px rgba(245,166,35,0.7); display:flex; align-items:center; justify-content:center; color:#000; font-size:12px; cursor:pointer;" title="${inst.institucion}">
+                <i class="fas fa-clock"></i>
+            </div>`;
+
+        const icon = L.divIcon({
+            className: hasProt ? 'custom-leaflet-marker-prot' : 'custom-leaflet-marker-pending',
+            html: markerHtml,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
+            popupAnchor: [0, -17]
+        });
+
+        const safeName = inst.institucion.replace(/'/g, "\\'");
+
+        const popupContent = `
+            <div style="font-family: 'DM Sans', sans-serif; color: #05111F; min-width: 230px; padding: 4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:6px;">
+                    <span style="background: ${hasProt ? '#22C55E' : '#F5A623'}; color: ${hasProt ? '#000' : '#000'}; font-size:10px; font-weight:800; padding:2px 8px; border-radius:12px; text-transform:uppercase;">
+                        ${hasProt ? '✓ Protocolo CNC' : 'En Proceso'}
+                    </span>
+                    <span style="font-size:11px; color:#5E7A8E; font-weight:700;">${inst.tipo || 'Ejecutivo'}</span>
+                </div>
+                <h4 style="margin: 0 0 6px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; color: #05111F; line-height:1.3;">
+                    ${inst.institucion}
+                </h4>
+                <p style="margin: 0 0 8px; font-size: 11px; color: #4A5568; line-height:1.4;">
+                    <i class="fas fa-map-marker-alt" style="color:#1A5C8F; margin-right:3px;"></i> ${inst.direccion || 'Ciudad de Guatemala'}
+                </p>
+                <div style="font-size:11px; color:#2D3748; margin-bottom:10px; border-top:1px solid #E2E8F0; padding-top:6px; display:flex; flex-direction:column; gap:3px;">
+                    <div><i class="fas fa-phone-alt" style="color:#0093AA; width:14px;"></i> ${inst.telefono || '1514'}</div>
+                    <div><i class="fas fa-envelope" style="color:#0093AA; width:14px;"></i> ${inst.correo || 'No reportado'}</div>
+                </div>
+                <button onclick="window._openModal('${safeName}')" style="width:100%; padding:8px 10px; background:#05111F; color:#00C2E0; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:background 0.2s;">
+                    <i class="fas fa-broadcast-tower"></i> Ver Canales e Información
+                </button>
+            </div>
+        `;
+
+        const marker = L.marker(coords, { icon: icon }).bindPopup(popupContent);
+        leafletMarkersGroup.addLayer(marker);
+    });
+}
+
+function toggleProtocolMap() {
+    const mapBody = document.getElementById('protocolMapBody');
+    const label = document.getElementById('labelToggleMap');
+    const chevron = document.getElementById('chevronToggleMap');
+
+    if (!mapBody) return;
+
+    const isHidden = mapBody.style.display === 'none' || getComputedStyle(mapBody).display === 'none';
+    if (isHidden) {
+        mapBody.style.display = 'block';
+        if (label) label.textContent = 'Ocultar Mapa';
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+
+        if (!protocolLeafletMap) {
+            initProtocolMap(globalDirectorioData);
+        } else {
+            renderMapMarkers();
+        }
+
+        const resizeMap = () => {
+            if (protocolLeafletMap) {
+                protocolLeafletMap.invalidateSize(true);
+            }
+        };
+
+        requestAnimationFrame(resizeMap);
+        setTimeout(resizeMap, 60);
+        setTimeout(resizeMap, 200);
+        setTimeout(resizeMap, 500);
+    } else {
+        mapBody.style.display = 'none';
+        if (label) label.textContent = 'Desplegar Mapa';
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+function filterMapMarkers(type) {
+    currentMapFilter = type;
+    const btnProt = document.getElementById('btnMapFilterWithProt');
+    const btnAll = document.getElementById('btnMapFilterAll');
+
+    if (type === 'prot') {
+        if (btnProt) {
+            btnProt.classList.add('active');
+            btnProt.style.background = 'rgba(34,197,94,0.2)';
+            btnProt.style.borderColor = 'rgba(34,197,94,0.4)';
+            btnProt.style.color = '#fff';
+        }
+        if (btnAll) {
+            btnAll.classList.remove('active');
+            btnAll.style.background = 'rgba(255,255,255,0.05)';
+            btnAll.style.borderColor = 'rgba(255,255,255,0.2)';
+            btnAll.style.color = 'var(--text-light)';
+        }
+    } else {
+        if (btnAll) {
+            btnAll.classList.add('active');
+            btnAll.style.background = 'rgba(0,194,224,0.2)';
+            btnAll.style.borderColor = 'rgba(0,194,224,0.4)';
+            btnAll.style.color = '#fff';
+        }
+        if (btnProt) {
+            btnProt.classList.remove('active');
+            btnProt.style.background = 'rgba(255,255,255,0.05)';
+            btnProt.style.borderColor = 'rgba(255,255,255,0.2)';
+            btnProt.style.color = 'var(--text-light)';
+        }
+    }
+
+    const searchInput = document.getElementById('mapSearchInput');
+    renderMapMarkers(searchInput ? searchInput.value : '');
+}
+
+function searchMapMarkers(val) {
+    renderMapMarkers(val);
 }
 
 function setupDashboardToggle(data) {
@@ -4599,6 +5137,9 @@ function setupDashboardToggle(data) {
             // Renderizar gráficos cuando el contenedor se hace visible
             setTimeout(() => {
                 renderCncCharts(data);
+                if (protocolLeafletMap) {
+                    protocolLeafletMap.invalidateSize(true);
+                }
             }, 50);
         } else {
             container.style.display = 'none';
@@ -4702,6 +5243,31 @@ const mayaLangData = {
             { termEs: 'Denuncia', maya: 'Denuncia Confidencial', speech: 'Denuncia: Reporte formal sobre actos o irregularidades en el Estado.' },
             { termEs: 'Servidor Público', maya: 'Servidor Público', speech: 'Servidor público: Persona que trabaja e imparte servicios en las dependencias del Estado.' },
             { termEs: 'Transparencia', maya: 'Transparencia', speech: 'Transparencia: Acceso público y abierto a la información del gobierno.' }
+        ]
+    },
+    en: {
+        name: 'English',
+        badge: 'International / English',
+        title: 'Listen to the information summary in English',
+        subtitle: 'Official synthesized voice guide on how to safely submit corruption and irregularity reports.',
+        speechText: 'Welcome to the Multilingual Safe Reporting Guide of the National Commission against Corruption. To submit an administrative complaint regarding any corruption or lack of ethics in the Executive Branch, follow four key steps: First, identify the incident or irregularity. Second, choose your preferred channel such as line 1514 or the Vigilando platform. Third, describe the details and attach evidence if available. Fourth, keep your unique tracking code. Your report is 100% confidential and protected.',
+        steps: [
+            { num: 1, title: 'Incident Identification', native: 'Step 1: Identification', desc: 'Identify any potential irregularity, act of corruption, or breach of ethics within executive institutions.' },
+            { num: 2, title: 'Channel Selection', native: 'Step 2: Channel Selection', desc: 'Select your preferred mechanism: Hotline 1514, probity email, online form, or in-person desk.' },
+            { num: 3, title: 'Details & Evidence', native: 'Step 3: Details & Proof', desc: 'Provide clear information about the event and attach supporting documents or photos if available.' },
+            { num: 4, title: 'Confidential Tracking Code', native: 'Step 4: Follow-up', desc: 'Save your unique tracking code to safely and anonymously check the status of your report.' }
+        ],
+        guarantees: [
+            { icon: 'fa-user-secret', title: '100% Confidential & Anonymous', desc: 'You are not required to provide personal information if you fear for your safety.' },
+            { icon: 'fa-shield-alt', title: 'Whistleblower Protection', desc: 'Ethical and legal guarantees to protect public servants and citizens who report.' },
+            { icon: 'fa-clock', title: '24/7 Online Availability', desc: 'Continuous reception of reports through the official Vigilando la Integridad platform.' }
+        ],
+        glossary: [
+            { termEs: 'Corruption', maya: 'Corruption', speech: 'Corruption: Abuse of entrusted public power for private gain.' },
+            { termEs: 'Probity', maya: 'Probity & Integrity', speech: 'Probity: Adherence to highest principles, honesty, and transparency in public service.' },
+            { termEs: 'Report', maya: 'Confidential Complaint', speech: 'Complaint: Formal report regarding illegal acts or irregularities in government.' },
+            { termEs: 'Public Servant', maya: 'Public Servant', speech: 'Public servant: Person employed in government agencies providing public services.' },
+            { termEs: 'Transparency', maya: 'Transparency', speech: 'Transparency: Open and public access to government information and decision-making.' }
         ]
     },
     kiche: {
@@ -4925,11 +5491,17 @@ function startMayaSpeech() {
 
     mayaUtterance = new SpeechSynthesisUtterance(data.speechText);
     mayaUtterance.rate = 0.92;
-    mayaUtterance.lang = 'es-GT';
 
     const voices = window.speechSynthesis.getVoices();
-    const esVoice = voices.find(v => v.lang.includes('es') || v.lang.includes('ES'));
-    if (esVoice) mayaUtterance.voice = esVoice;
+    if (currentMayaLangKey === 'en') {
+        mayaUtterance.lang = 'en-US';
+        const enVoice = voices.find(v => v.lang.includes('en') || v.lang.includes('EN'));
+        if (enVoice) mayaUtterance.voice = enVoice;
+    } else {
+        mayaUtterance.lang = 'es-GT';
+        const esVoice = voices.find(v => v.lang.includes('es') || v.lang.includes('ES'));
+        if (esVoice) mayaUtterance.voice = esVoice;
+    }
 
     const waveAnim = document.getElementById('audioWaveAnim');
     const stopBtn = document.getElementById('btnStopMayaSpeech');
@@ -4981,7 +5553,16 @@ window.speakSingleTerm = function(text) {
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
     utt.rate = 0.9;
-    utt.lang = 'es-GT';
+    const voices = window.speechSynthesis.getVoices();
+    if (currentMayaLangKey === 'en') {
+        utt.lang = 'en-US';
+        const enVoice = voices.find(v => v.lang.includes('en') || v.lang.includes('EN'));
+        if (enVoice) utt.voice = enVoice;
+    } else {
+        utt.lang = 'es-GT';
+        const esVoice = voices.find(v => v.lang.includes('es') || v.lang.includes('ES'));
+        if (esVoice) utt.voice = esVoice;
+    }
     window.speechSynthesis.speak(utt);
 };
 cargarDatosYIniciar();

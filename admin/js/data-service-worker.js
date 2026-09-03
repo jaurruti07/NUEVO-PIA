@@ -2,7 +2,7 @@
 // y redirigirlas al Data Service sin modificar el código frontend
 
 const CACHE_NAME = 'pia-data-cache-v1';
-const JSON_PATTERN = //(data_\w+|data\.json|\w+\/data_\w+)\.json$/i;
+const JSON_PATTERN = /\/(data_\w+|data\.json|\w+\/data_\w+)\.json$/i;
 
 // Datos mock basados en los JSON actuales (se pueden actualizar desde el módulo admin)
 const MOCK_DATA = {

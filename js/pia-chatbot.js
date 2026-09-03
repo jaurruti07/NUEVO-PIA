@@ -83,6 +83,12 @@
                         </div>
                     </div>
                     <div class="pia-cb-header-actions">
+                        <button class="pia-cb-action-btn" id="piaCbKbBtn" title="Base de Conocimiento y Entrenamiento IA">
+                            <i class="fas fa-book-open"></i>
+                        </button>
+                        <button class="pia-cb-action-btn" id="piaCbSettingsBtn" title="Configuración de Parámetros de la IA">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
                         <button class="pia-cb-action-btn" id="piaCbThemeBtn" title="Cambiar tema claro/oscuro">
                             <i class="fas fa-moon"></i>
                         </button>
@@ -95,6 +101,116 @@
                         <button class="pia-cb-action-btn" id="piaCbCloseBtn" title="Cerrar chat">
                             <i class="fas fa-times"></i>
                         </button>
+                    </div>
+                </div>
+
+                <!-- OVERLAY PANEL 1: BASE DE CONOCIMIENTO IA -->
+                <div id="piaCbKbOverlay" class="pia-cb-overlay-panel">
+                    <div class="pia-cb-overlay-header">
+                        <h3 class="pia-cb-overlay-title"><i class="fas fa-book-open" style="color:#00C2E0;"></i> Base de Conocimiento IA</h3>
+                        <button type="button" id="piaCbKbCloseBtn" style="background:none; border:none; color:#fff; font-size:1.1rem; cursor:pointer;" aria-label="Cerrar">&times;</button>
+                    </div>
+                    <div class="pia-cb-overlay-body">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                            <input type="text" id="piaCbKbSearch" class="pia-cb-form-input" placeholder="Buscar artículos..." style="flex:1;">
+                            <button type="button" id="piaCbKbAddToggleBtn" class="pia-cb-btn-primary" style="white-space:nowrap; padding:6px 10px;">
+                                <i class="fas fa-plus"></i> Nuevo
+                            </button>
+                        </div>
+
+                        <!-- Formulario para Agregar Nuevo Conocimiento -->
+                        <form id="piaCbKbAddForm" style="display:none; background:rgba(0,194,224,0.06); padding:12px; border-radius:10px; border:1px solid rgba(0,194,224,0.25); margin-top:6px;">
+                            <h4 style="margin:0 0 8px 0; font-size:0.82rem; color:#00C2E0; font-weight:700;"><i class="fas fa-plus-circle"></i> Agregar Conocimiento a Lupita</h4>
+                            <div class="pia-cb-form-group" style="margin-bottom:6px;">
+                                <label class="pia-cb-form-label">Título / Pregunta Frecuente</label>
+                                <input type="text" id="piaCbKbTitle" class="pia-cb-form-input" required placeholder="Ej: ¿Cómo consultar viáticos de ministros?">
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
+                                <div class="pia-cb-form-group">
+                                    <label class="pia-cb-form-label">Categoría</label>
+                                    <select id="piaCbKbCategory" class="pia-cb-form-select">
+                                        <option value="General">General</option>
+                                        <option value="Denuncias">Denuncias</option>
+                                        <option value="Probidad">Probidad</option>
+                                        <option value="Directorio">Directorio</option>
+                                        <option value="Vehículos">Vehículos</option>
+                                        <option value="Estadísticas">Estadísticas</option>
+                                        <option value="Riesgos">Riesgos</option>
+                                    </select>
+                                </div>
+                                <div class="pia-cb-form-group">
+                                    <label class="pia-cb-form-label">Ruta / Enlace</label>
+                                    <input type="text" id="piaCbKbLink" class="pia-cb-form-input" value="/" placeholder="/directorio/">
+                                </div>
+                            </div>
+                            <div class="pia-cb-form-group" style="margin-bottom:6px;">
+                                <label class="pia-cb-form-label">Respuesta Explicativa Oficial</label>
+                                <textarea id="piaCbKbContent" class="pia-cb-form-textarea" rows="3" required placeholder="Redacte la explicación oficial para los ciudadanos..."></textarea>
+                            </div>
+                            <div class="pia-cb-form-group" style="margin-bottom:8px;">
+                                <label class="pia-cb-form-label">Palabras Clave (Separadas por comas)</label>
+                                <input type="text" id="piaCbKbKeywords" class="pia-cb-form-input" placeholder="viaticos, gastos, viajes, ministros">
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:6px;">
+                                <button type="button" id="piaCbKbCancelBtn" style="background:none; border:none; color:var(--pia-cb-subtext-light); font-size:0.78rem; cursor:pointer;">Cancelar</button>
+                                <button type="submit" class="pia-cb-btn-primary" style="padding:5px 12px; font-size:0.78rem;"><i class="fas fa-save"></i> Guardar Artículo</button>
+                            </div>
+                        </form>
+
+                        <div id="piaCbKbList" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+                            <!-- Cargando lista de conocimiento... -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OVERLAY PANEL 2: CONFIGURACIÓN DE IA -->
+                <div id="piaCbSettingsOverlay" class="pia-cb-overlay-panel">
+                    <div class="pia-cb-overlay-header">
+                        <h3 class="pia-cb-overlay-title"><i class="fas fa-sliders-h" style="color:#00C2E0;"></i> Configuración de la IA</h3>
+                        <button type="button" id="piaCbSettingsCloseBtn" style="background:none; border:none; color:#fff; font-size:1.1rem; cursor:pointer;" aria-label="Cerrar">&times;</button>
+                    </div>
+                    <div class="pia-cb-overlay-body">
+                        <form id="piaCbSettingsForm" style="display:flex; flex-direction:column; gap:10px;">
+                            <div class="pia-cb-form-group">
+                                <label class="pia-cb-form-label">Modelo LLM</label>
+                                <select id="piaCbModelSelect" class="pia-cb-form-select">
+                                    <option value="gemini-3.6-flash">gemini-3.6-flash (Recomendado - Ultra Rápido)</option>
+                                    <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Razonamiento Complejo)</option>
+                                    <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (Respuesta Ligera)</option>
+                                </select>
+                            </div>
+
+                            <div class="pia-cb-form-group">
+                                <label class="pia-cb-form-label">Temperatura (<span id="piaCbTempLabel">0.2</span>)</label>
+                                <input type="range" id="piaCbTempSlider" min="0" max="1" step="0.1" value="0.2" class="pia-cb-form-input" oninput="document.getElementById('piaCbTempLabel').textContent=this.value">
+                                <span style="font-size:0.7rem; color:var(--pia-cb-subtext-light);">Valores bajos garantizan respuestas institucionales y precisas.</span>
+                            </div>
+
+                            <div class="pia-cb-form-group">
+                                <label class="pia-cb-form-label">Instrucción del Sistema (System Prompt)</label>
+                                <textarea id="piaCbPromptArea" class="pia-cb-form-textarea" rows="4" style="font-size:0.78rem; font-family:monospace;"></textarea>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <div class="pia-cb-form-group">
+                                    <label class="pia-cb-form-label">Tokens Máx.</label>
+                                    <input type="number" id="piaCbMaxTokensInput" class="pia-cb-form-input" value="1024" min="256" max="2048">
+                                </div>
+                                <div class="pia-cb-form-group">
+                                    <label class="pia-cb-form-label">Estado del Asistente</label>
+                                    <select id="piaCbEnabledSelect" class="pia-cb-form-select">
+                                        <option value="true">🟢 Activo en el Portal</option>
+                                        <option value="false">🔴 Inactivo / Mantenimiento</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:10px; text-align:right;">
+                                <button type="submit" class="pia-cb-btn-primary" style="width:100%; justify-content:center;">
+                                    <i class="fas fa-save"></i> Guardar Parámetros de la IA
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -151,6 +267,114 @@
         document.getElementById('piaCbResetBtn').addEventListener('click', resetConversation);
         document.getElementById('piaCbExportBtn').addEventListener('click', exportConversationTXT);
 
+        // KB & Settings Overlay Listeners
+        const kbBtn = document.getElementById('piaCbKbBtn');
+        if (kbBtn) kbBtn.addEventListener('click', openKbOverlay);
+
+        const kbCloseBtn = document.getElementById('piaCbKbCloseBtn');
+        if (kbCloseBtn) kbCloseBtn.addEventListener('click', closeKbOverlay);
+
+        const kbAddToggleBtn = document.getElementById('piaCbKbAddToggleBtn');
+        if (kbAddToggleBtn) {
+            kbAddToggleBtn.addEventListener('click', () => {
+                const form = document.getElementById('piaCbKbAddForm');
+                if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+
+        const kbCancelBtn = document.getElementById('piaCbKbCancelBtn');
+        if (kbCancelBtn) {
+            kbCancelBtn.addEventListener('click', () => {
+                const form = document.getElementById('piaCbKbAddForm');
+                if (form) form.style.display = 'none';
+            });
+        }
+
+        const kbSearchInput = document.getElementById('piaCbKbSearch');
+        if (kbSearchInput) {
+            kbSearchInput.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase();
+                const filtered = cachedWidgetKb.filter(item =>
+                    item.title.toLowerCase().includes(q) ||
+                    item.content.toLowerCase().includes(q) ||
+                    (item.category || '').toLowerCase().includes(q)
+                );
+                renderWidgetKbList(filtered);
+            });
+        }
+
+        const kbAddForm = document.getElementById('piaCbKbAddForm');
+        if (kbAddForm) {
+            kbAddForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('piaCbKbTitle').value;
+                const category = document.getElementById('piaCbKbCategory').value;
+                const link = document.getElementById('piaCbKbLink').value;
+                const content = document.getElementById('piaCbKbContent').value;
+                const keywords = document.getElementById('piaCbKbKeywords').value;
+
+                try {
+                    const saveRes = await fetch('/api/chatbot/knowledge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, category, link, content, keywords })
+                    });
+
+                    if (saveRes.ok) {
+                        const newItem = await saveRes.json();
+                        kbAddForm.reset();
+                        kbAddForm.style.display = 'none';
+                        await fetchWidgetKb();
+
+                        // Notify chat
+                        appendMessage('bot', `✅ **Nuevo conocimiento registrado:**\n*${newItem.title}*\nLa asistente Lupita ha sido entrenada con este nuevo artículo.`);
+                        closeKbOverlay();
+                    } else {
+                        alert('Error al guardar artículo en la base de conocimiento');
+                    }
+                } catch (err) {
+                    console.error('Error saving KB item:', err);
+                    alert('Error de conexión al guardar el conocimiento');
+                }
+            });
+        }
+
+        const settingsBtn = document.getElementById('piaCbSettingsBtn');
+        if (settingsBtn) settingsBtn.addEventListener('click', openSettingsOverlay);
+
+        const settingsCloseBtn = document.getElementById('piaCbSettingsCloseBtn');
+        if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettingsOverlay);
+
+        const settingsForm = document.getElementById('piaCbSettingsForm');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const model = document.getElementById('piaCbModelSelect').value;
+                const temperature = parseFloat(document.getElementById('piaCbTempSlider').value);
+                const systemPrompt = document.getElementById('piaCbPromptArea').value.trim();
+                const maxTokens = parseInt(document.getElementById('piaCbMaxTokensInput').value, 10);
+                const enabled = document.getElementById('piaCbEnabledSelect').value === 'true';
+
+                try {
+                    const updateRes = await fetch('/api/chatbot/settings', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model, temperature, systemPrompt, maxTokens, enabled })
+                    });
+
+                    if (updateRes.ok) {
+                        closeSettingsOverlay();
+                        appendMessage('bot', `⚙️ **Configuración de IA actualizada con éxito.**\nModelo: \`${model}\` | Temp: \`${temperature}\` | Estado: \`${enabled ? '🟢 Activo' : '🔴 Inactivo'}\``);
+                    } else {
+                        alert('Error al guardar parámetros de la IA');
+                    }
+                } catch (err) {
+                    console.error('Error updating chatbot settings:', err);
+                    alert('Error de conexión al actualizar configuración');
+                }
+            });
+        }
+
         sendBtn.addEventListener('click', handleUserSendMessage);
 
         textareaInput.addEventListener('keydown', (e) => {
@@ -172,6 +396,100 @@
                 closeChatbot();
             }
         });
+    }
+
+    let cachedWidgetKb = [];
+
+    // KB Overlay Methods
+    async function openKbOverlay() {
+        const overlay = document.getElementById('piaCbKbOverlay');
+        if (!overlay) return;
+        overlay.classList.add('open');
+        await fetchWidgetKb();
+    }
+
+    function closeKbOverlay() {
+        const overlay = document.getElementById('piaCbKbOverlay');
+        if (overlay) overlay.classList.remove('open');
+        const form = document.getElementById('piaCbKbAddForm');
+        if (form) form.style.display = 'none';
+    }
+
+    async function fetchWidgetKb() {
+        try {
+            const res = await fetch('/api/chatbot/knowledge');
+            if (res.ok) {
+                cachedWidgetKb = await res.json();
+                renderWidgetKbList(cachedWidgetKb);
+            }
+        } catch (e) {
+            console.error('Error fetching chatbot knowledge:', e);
+        }
+    }
+
+    function renderWidgetKbList(items) {
+        const container = document.getElementById('piaCbKbList');
+        if (!container) return;
+
+        if (!items || items.length === 0) {
+            container.innerHTML = '<div style="font-size:0.8rem; color:var(--pia-cb-subtext-light); text-align:center; padding:10px;">No hay artículos registrados.</div>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => `
+            <div class="pia-cb-kb-item-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
+                    <strong style="font-size:0.82rem; color:#00C2E0;">${escapeHTML(item.title)}</strong>
+                    <span style="font-size:0.68rem; padding:2px 6px; background:rgba(0,194,224,0.15); color:#00C2E0; border-radius:10px; font-weight:700;">${escapeHTML(item.category || 'General')}</span>
+                </div>
+                <p style="font-size:0.75rem; margin:2px 0; color:var(--pia-cb-subtext-light); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHTML(item.content)}</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                    <span style="font-size:0.68rem; color:var(--pia-cb-subtext-light);"><i class="fas fa-link"></i> ${escapeHTML(item.link || '/')}</span>
+                    <button type="button" onclick="window.PIA_CHATBOT.deleteKbItem('${item.id}')" style="background:none; border:none; color:#EF4444; font-size:0.75rem; cursor:pointer;" title="Eliminar artículo"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function deleteWidgetKbItem(id) {
+        if (!confirm('¿Desea eliminar este artículo de la base de conocimiento?')) return;
+        try {
+            const res = await fetch(`/api/chatbot/knowledge/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await fetchWidgetKb();
+            }
+        } catch (e) {
+            console.error('Error deleting KB item:', e);
+        }
+    }
+
+    // Settings Overlay Methods
+    async function openSettingsOverlay() {
+        const overlay = document.getElementById('piaCbSettingsOverlay');
+        if (!overlay) return;
+        overlay.classList.add('open');
+
+        try {
+            const res = await fetch('/api/chatbot/settings');
+            if (res.ok) {
+                const settings = await res.json();
+                if (document.getElementById('piaCbModelSelect')) document.getElementById('piaCbModelSelect').value = settings.model || 'gemini-3.6-flash';
+                if (document.getElementById('piaCbTempSlider')) {
+                    document.getElementById('piaCbTempSlider').value = settings.temperature !== undefined ? settings.temperature : 0.2;
+                    if (document.getElementById('piaCbTempLabel')) document.getElementById('piaCbTempLabel').textContent = settings.temperature;
+                }
+                if (document.getElementById('piaCbPromptArea')) document.getElementById('piaCbPromptArea').value = settings.systemPrompt || '';
+                if (document.getElementById('piaCbMaxTokensInput')) document.getElementById('piaCbMaxTokensInput').value = settings.maxTokens || 1024;
+                if (document.getElementById('piaCbEnabledSelect')) document.getElementById('piaCbEnabledSelect').value = settings.enabled !== false ? 'true' : 'false';
+            }
+        } catch (e) {
+            console.error('Error fetching settings:', e);
+        }
+    }
+
+    function closeSettingsOverlay() {
+        const overlay = document.getElementById('piaCbSettingsOverlay');
+        if (overlay) overlay.classList.remove('open');
     }
 
     function toggleChatbot() {
@@ -485,7 +803,8 @@
     // Expose global methods for onclick handlers
     window.PIA_CHATBOT = {
         rateMessage,
-        copyMessageText
+        copyMessageText,
+        deleteKbItem: deleteWidgetKbItem
     };
 
     // Auto init on DOM Ready

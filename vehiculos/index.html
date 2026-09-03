@@ -81,14 +81,106 @@
         }
         .site-header.scrolled { box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
 
+        /* ============================================================
+           PILAR 1: MEJORAS VISUALES Y DE EXPERIENCIA DE USUARIO (UI/UX)
+        ============================================================ */
+        @keyframes skeleton-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .skeleton-loader {
+            background: linear-gradient(90deg, rgba(26, 92, 143, 0.06) 25%, rgba(0, 194, 224, 0.22) 37%, rgba(26, 92, 143, 0.06) 63%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.4s ease infinite;
+            border-radius: 6px;
+            display: inline-block;
+            height: 1.1rem;
+            width: 100%;
+        }
+
+        .table-responsive, .table-container, .table-wrap, .comparison-table-wrap, [style*="overflow-x: auto"] {
+            position: relative;
+            max-height: 72vh;
+            overflow-x: auto;
+            overflow-y: auto;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            scroll-behavior: smooth;
+        }
+
+        /* Encabezados Congelados (Sticky Headers) */
+        table thead tr th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--surface-card);
+            box-shadow: 0 2px 6px rgba(5, 17, 31, 0.08);
+        }
+
+        /* Congelar primera columna (Placa / Marca / Institución) en Escritorio y Móviles */
+        table tbody tr td:first-child,
+        table thead tr th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            background: var(--surface-card);
+            border-right: 2px solid var(--border) !important;
+            box-shadow: 4px 0 10px rgba(5, 17, 31, 0.08);
+        }
+
+        table thead tr th:first-child {
+            z-index: 20; /* Intersección superior izquierda */
+            top: 0;
+        }
+
+        table tbody tr:hover td:first-child {
+            background: var(--surface) !important;
+        }
+
+        /* Micro-interacciones y animaciones */
+        button, .btn-capsula, .veh-card, .modal-content {
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+        }
+        button:hover:not(:disabled), .veh-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 194, 224, 0.18);
+        }
+        table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        table tbody tr:hover {
+            background-color: rgba(0, 194, 224, 0.05) !important;
+        }
+
         .navbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0.75rem 0;
             gap: 1.5rem;
         }
 
-        .logo-area a { display: flex; align-items: center; }
-        .gov-logo { height: 56px; width: auto; }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .logo-area a {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .gov-logo {
+            height: 52px;
+            width: auto;
+            max-height: 52px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
 
         .nav-menu {
             list-style: none;
@@ -420,21 +512,32 @@
         }
         .result-card-modern.visible {
             display: block;
-            animation: fadeSlideDown 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: cardPopEntrance 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            will-change: transform, opacity, filter;
         }
         .result-card-modern.visible:hover {
-            transform: translateY(-6px);
+            transform: translateY(-6px) scale(1.01);
             border-color: rgba(0, 194, 224, 0.35);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 194, 224, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 194, 224, 0.2);
         }
-        @keyframes fadeSlideDown {
-            from {
+        @keyframes cardPopEntrance {
+            0% {
                 opacity: 0;
-                transform: translateY(-32px) scale(0.98);
+                transform: translateY(-45px) scale(0.85);
+                filter: blur(8px);
             }
-            to {
+            55% {
+                opacity: 1;
+                transform: translateY(10px) scale(1.035);
+                filter: blur(0px);
+            }
+            75% {
+                transform: translateY(-4px) scale(0.99);
+            }
+            100% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
+                filter: blur(0px);
             }
         }
 
@@ -1343,10 +1446,14 @@
 
         .table-wrap {
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: 72vh;
+            position: relative;
             border-radius: var(--radius-xl);
             border: 1px solid var(--border);
             background: var(--surface-card);
             box-shadow: var(--shadow-sm);
+            scroll-behavior: smooth;
         }
         .table-wrap table {
             width: 100%;
@@ -1367,6 +1474,28 @@
             white-space: nowrap;
             cursor: pointer;
             user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--navy);
+        }
+        .table-wrap thead th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: var(--navy);
+            border-right: 2px solid rgba(0, 194, 224, 0.3) !important;
+        }
+        .table-wrap tbody td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            background: var(--surface-card);
+            border-right: 2px solid var(--border) !important;
+            font-weight: 700;
+        }
+        .table-wrap tbody tr:hover td:first-child {
+            background: var(--surface) !important;
         }
         .table-wrap thead th i {
             margin-left: 4px;
@@ -1738,7 +1867,16 @@
             align-items: center;
             margin-bottom: 0.5rem;
         }
-        .footer-brand img { height: 52px; width: auto; }
+        .footer-brand img {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
         .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
         .footer-col h4 {
             font-family: var(--font-head);
@@ -1802,11 +1940,18 @@
             display: flex;
             gap: 1.5rem;
             align-items: center;
+            flex-shrink: 0;
         }
         .footer-logos img {
-            height: 3cm;
+            height: 36px;
             width: auto;
+            max-height: 36px;
+            max-width: 100%;
             object-fit: contain;
+            aspect-ratio: auto;
+            opacity: 0.6;
+            flex-shrink: 0;
+            display: block;
         }
 
         @media (max-width: 1100px) {
@@ -1925,7 +2070,7 @@
             .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
             .footer-bottom { flex-direction: column; align-items: center; text-align: center; }
             .footer-logos { justify-content: center; }
-            .footer-logos img { height: 2.5cm; }
+            .footer-logos img { height: 32px; max-height: 32px; }
             .denuncia-grid { grid-template-columns: 1fr; }
             .denuncia-actions { flex-direction: column; align-items: center; }
             .btn-denuncia { width: 100%; justify-content: center; }

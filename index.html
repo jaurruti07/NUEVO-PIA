@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <style>
         /* ============================================================
            DESIGN TOKENS (unificados)
@@ -79,9 +80,24 @@
             display: flex;
             align-items: center;
             gap: 14px;
+            flex-shrink: 0;
         }
-        .logo-area a { display: flex; align-items: center; }
-        .gov-logo { height: 56px; width: auto; }
+        .logo-area a {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .gov-logo {
+            height: 52px;
+            width: auto;
+            max-height: 52px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
 
         .pia-wordmark {
             display: flex;
@@ -221,8 +237,34 @@
             padding-bottom: 2.5rem;
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .footer-brand img { height: 52px; width: auto; margin-bottom: 1rem; }
-        .footer-brand .logo-pia { height: 52px; width: auto; margin-top: 0.5rem; opacity: 0.9; }
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .footer-brand img {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+            display: block;
+        }
+        .footer-brand .logo-pia {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+            flex-shrink: 0;
+            display: block;
+        }
         .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
         .footer-col h4 {
             font-family: var(--font-head);
@@ -252,23 +294,34 @@
             padding-top: 1.5rem;
             font-size: 0.75rem; color: rgba(255,255,255,0.3);
         }
-        .footer-logos { display: flex; gap: 1.5rem; align-items: center; }
-        .footer-logos img { height: 36px; width: auto; opacity: 0.6; }
+        .footer-logos { display: flex; gap: 1.5rem; align-items: center; flex-shrink: 0; }
+        .footer-logos img {
+            height: 36px;
+            width: auto;
+            max-height: 36px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            opacity: 0.6;
+            flex-shrink: 0;
+            display: block;
+        }
 
         /* ============================================================
            RESPONSIVE HEADER/FOOTER
         ============================================================ */
-        @media (max-width: 680px) {
+        @media (max-width: 992px) {
             .menu-toggle { display: flex; }
             .nav-menu {
                 display: none;
                 position: absolute;
                 top: 100%; left: 0; right: 0;
-                background: rgba(5,17,31,0.97);
+                background: rgba(5,17,31,0.98);
                 flex-direction: column;
                 padding: 1rem 1.5rem;
-                border-top: 1px solid rgba(0,194,224,0.1);
+                border-top: 1px solid rgba(0,194,224,0.15);
                 gap: 0.25rem;
+                box-shadow: 0 14px 30px rgba(0,0,0,0.6);
             }
             .nav-menu.open { display: flex; }
             .nav-menu > li { width: 100%; }
@@ -308,6 +361,12 @@
             }
             .submenu li a:hover { border-left: none; }
             .footer-grid {
+                grid-template-columns: 2fr 1fr 1fr !important;
+                gap: 2rem;
+            }
+        }
+        @media (max-width: 680px) {
+            .footer-grid {
                 grid-template-columns: 1fr !important;
                 gap: 2rem;
             }
@@ -317,6 +376,7 @@
             }
             .footer-logos { justify-content: center; }
             .pia-name { display: none; }
+            .gov-logo { height: 44px; max-height: 44px; }
         }
 
         /* ============================================================
@@ -730,6 +790,403 @@
             box-shadow: 0 4px 12px rgba(0,194,224,0.3);
         }
 
+        /* ============================================================
+           CARRUSEL COVERFLOW MAGNÉTICO 3D (PLATAFORMAS)
+        ============================================================ */
+        .depth-carousel {
+            position: relative;
+            width: 100%;
+            height: 520px;
+            min-height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+            touch-action: pan-y;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: grab;
+            margin: 2rem 0 1rem;
+            overflow: hidden;
+        }
+        .depth-carousel:active { cursor: grabbing; }
+        .depth-carousel:focus-visible {
+            outline: 2px solid rgba(0, 194, 224, 0.6);
+            outline-offset: 4px;
+            border-radius: 16px;
+        }
+        .depth-carousel__stage {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+        }
+        .depth-carousel__card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 320px;
+            height: 410px;
+            border-radius: 22px;
+            transform-origin: center center;
+            overflow: hidden;
+            background: linear-gradient(150deg, #0d2238 0%, #061527 60%, #030c17 100%);
+            border: 1.5px solid rgba(0, 194, 224, 0.28);
+            box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+            will-change: transform, opacity;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            text-decoration: none;
+            color: #ffffff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Variedad de tonalidades azul oscuro para cada plataforma */
+        .depth-carousel__card[data-theme="blue-1"] {
+            background: radial-gradient(circle at 85% 15%, rgba(0, 194, 224, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #0c233c 0%, #061527 55%, #030c17 100%);
+            border-color: rgba(0, 194, 224, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-1"] .depth-card-badge {
+            background: rgba(0, 194, 224, 0.15);
+            border-color: rgba(0, 194, 224, 0.4);
+            color: #00c2e0;
+        }
+        .depth-carousel__card[data-theme="blue-1"] .btn-capsula {
+            background: rgba(0, 194, 224, 0.15);
+            border-color: rgba(0, 194, 224, 0.45);
+            color: #38d6f0;
+        }
+
+        .depth-carousel__card[data-theme="blue-2"] {
+            background: radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #10294a 0%, #081a33 55%, #040e1c 100%);
+            border-color: rgba(56, 189, 248, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-2"] .depth-card-badge {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }
+        .depth-carousel__card[data-theme="blue-2"] .btn-capsula {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.45);
+            color: #7dd3fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-3"] {
+            background: radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #092c3a 0%, #051b25 55%, #020f16 100%);
+            border-color: rgba(45, 212, 191, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-3"] .depth-card-badge {
+            background: rgba(45, 212, 191, 0.15);
+            border-color: rgba(45, 212, 191, 0.4);
+            color: #2dd4bf;
+        }
+        .depth-carousel__card[data-theme="blue-3"] .btn-capsula {
+            background: rgba(45, 212, 191, 0.15);
+            border-color: rgba(45, 212, 191, 0.45);
+            color: #5eead4;
+        }
+
+        .depth-carousel__card[data-theme="blue-4"] {
+            background: radial-gradient(circle at 85% 15%, rgba(129, 140, 248, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #152248 0%, #0c1530 55%, #050a1b 100%);
+            border-color: rgba(129, 140, 248, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-4"] .depth-card-badge {
+            background: rgba(129, 140, 248, 0.15);
+            border-color: rgba(129, 140, 248, 0.4);
+            color: #818cf8;
+        }
+        .depth-carousel__card[data-theme="blue-4"] .btn-capsula {
+            background: rgba(129, 140, 248, 0.15);
+            border-color: rgba(129, 140, 248, 0.45);
+            color: #a5b4fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-5"] {
+            background: radial-gradient(circle at 85% 15%, rgba(14, 165, 233, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #0e2744 0%, #07172d 55%, #030d1a 100%);
+            border-color: rgba(14, 165, 233, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-5"] .depth-card-badge {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.4);
+            color: #0ea5e9;
+        }
+        .depth-carousel__card[data-theme="blue-5"] .btn-capsula {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.45);
+            color: #7dd3fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-6"] {
+            background: radial-gradient(circle at 85% 15%, rgba(2, 132, 199, 0.24) 0%, transparent 60%),
+                        linear-gradient(150deg, #0b2b45 0%, #061a2c 55%, #030e19 100%);
+            border-color: rgba(2, 132, 199, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-6"] .depth-card-badge {
+            background: rgba(2, 132, 199, 0.15);
+            border-color: rgba(2, 132, 199, 0.4);
+            color: #38bdf8;
+        }
+        .depth-carousel__card[data-theme="blue-6"] .btn-capsula {
+            background: rgba(2, 132, 199, 0.15);
+            border-color: rgba(2, 132, 199, 0.45);
+            color: #7dd3fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-7"] {
+            background: radial-gradient(circle at 85% 15%, rgba(96, 165, 250, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #12264c 0%, #0a1733 55%, #040c1e 100%);
+            border-color: rgba(96, 165, 250, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-7"] .depth-card-badge {
+            background: rgba(96, 165, 250, 0.15);
+            border-color: rgba(96, 165, 250, 0.4);
+            color: #60a5fa;
+        }
+        .depth-carousel__card[data-theme="blue-7"] .btn-capsula {
+            background: rgba(96, 165, 250, 0.15);
+            border-color: rgba(96, 165, 250, 0.45);
+            color: #93c5fd;
+        }
+
+        .depth-carousel__card[data-theme="blue-8"] {
+            background: radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.24) 0%, transparent 60%),
+                        linear-gradient(150deg, #092e3d 0%, #051c27 55%, #020f16 100%);
+            border-color: rgba(6, 182, 212, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-8"] .depth-card-badge {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.4);
+            color: #06b6d4;
+        }
+        .depth-carousel__card[data-theme="blue-8"] .btn-capsula {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.45);
+            color: #67e8f9;
+        }
+
+        .depth-carousel__card[data-theme="blue-9"] {
+            background: radial-gradient(circle at 85% 15%, rgba(0, 194, 224, 0.25) 0%, transparent 60%),
+                        linear-gradient(150deg, #0d243e 0%, #061628 55%, #020b15 100%);
+            border-color: rgba(0, 194, 224, 0.35);
+        }
+        .depth-carousel__card[data-theme="blue-9"] .depth-card-badge {
+            background: rgba(0, 194, 224, 0.16);
+            border-color: rgba(0, 194, 224, 0.4);
+            color: #00c2e0;
+        }
+        .depth-carousel__card[data-theme="blue-9"] .btn-capsula {
+            background: rgba(0, 194, 224, 0.15);
+            border-color: rgba(0, 194, 224, 0.45);
+            color: #38d6f0;
+        }
+
+        .depth-carousel__card.is-active {
+            border-color: var(--cyan);
+            box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.8), 0 0 0 1.5px rgba(0, 194, 224, 0.6), 0 8px 26px -4px rgba(0, 194, 224, 0.35);
+        }
+        .depth-card-inner {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            padding: 1.85rem 1.6rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .depth-card-inner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            pointer-events: none;
+        }
+        .depth-card-badge {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 194, 224, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.65rem;
+            margin-bottom: 1.1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
+        }
+        .depth-carousel__card.is-active .depth-card-badge {
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(0, 194, 224, 0.35);
+        }
+        .depth-card-inner .logo-card-name {
+            font-family: var(--font-head);
+            font-size: 1.22rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.6rem;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+        }
+        .depth-card-inner .logo-card-desc {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            font-weight: 450;
+            line-height: 1.55;
+            margin-bottom: 1.3rem;
+            flex: 1;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        .depth-card-footer {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .depth-card-footer .btn-capsula {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.62rem 1.35rem;
+            border-radius: 30px;
+            border: 1px solid;
+            font-size: 0.86rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .depth-carousel__card.is-active .btn-capsula {
+            background: var(--cyan) !important;
+            color: #04101e !important;
+            border-color: var(--cyan) !important;
+            box-shadow: 0 4px 16px rgba(0, 194, 224, 0.5);
+            transform: translateY(-1px);
+        }
+        .depth-carousel__tint {
+            position: absolute;
+            inset: 0;
+            background: #05060a;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+        .depth-carousel__arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3000;
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(0, 194, 224, 0.35);
+            border-radius: 999px;
+            background: rgba(5, 17, 31, 0.75);
+            backdrop-filter: blur(8px);
+            color: var(--cyan);
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .depth-carousel__arrow:hover {
+            background: rgba(0, 194, 224, 0.25);
+            border-color: var(--cyan);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 194, 224, 0.4);
+        }
+        .depth-carousel__arrow:active {
+            transform: translateY(-50%) scale(0.92);
+        }
+        .depth-carousel__arrow--prev { left: 20px; }
+        .depth-carousel__arrow--next { right: 20px; }
+        .depth-carousel__dots {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            display: flex;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(5, 17, 31, 0.65);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            backdrop-filter: blur(8px);
+        }
+        .depth-carousel__dot {
+            width: 8px;
+            height: 8px;
+            padding: 0;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            transition: width 0.25s ease, background 0.25s ease;
+        }
+        .depth-carousel__dot.is-active {
+            width: 24px;
+            background: var(--cyan);
+        }
+        @media (max-width: 768px) {
+            .depth-carousel {
+                height: 480px;
+                min-height: 420px;
+                perspective: 950px;
+                margin: 1.25rem 0 0.5rem;
+            }
+            .depth-carousel__card {
+                width: min(290px, 78vw);
+                height: 395px;
+                border-radius: 18px;
+            }
+            .depth-card-inner {
+                padding: 1.4rem 1.2rem !important;
+            }
+            .depth-card-badge {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.4rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .depth-card-inner .logo-card-name {
+                font-size: 1.05rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+            .depth-card-inner .logo-card-desc {
+                font-size: 0.8rem !important;
+                margin-bottom: 0.85rem !important;
+            }
+            .depth-carousel__arrow {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            .depth-carousel__arrow--prev { left: 8px !important; }
+            .depth-carousel__arrow--next { right: 8px !important; }
+            .depth-carousel__dots {
+                bottom: 8px !important;
+                padding: 6px 10px !important;
+                gap: 6px !important;
+            }
+        }
+
         .cta-band {
             position: relative; overflow: hidden;
             background: linear-gradient(135deg, var(--navy), var(--navy-light));
@@ -983,59 +1440,172 @@
            SECCIÓN DE ACCESIBILIDAD MULTILINGÜE Y AUDIO-GUÍA PIA
         ============================================================ */
         .a11y-maya-section {
-            background: linear-gradient(135deg, #091e32, #05111f);
+            background: linear-gradient(135deg, #081d31, #04101d);
             border: 1px solid rgba(0, 194, 224, 0.28);
             border-radius: var(--radius-2xl);
-            padding: 2.8rem 2.2rem;
+            padding: 2.5rem 2rem;
             color: #fff;
             margin: 2.5rem 0 3rem;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
         }
         .a11y-maya-header {
             text-align: center;
-            max-width: 860px;
-            margin: 0 auto 2.2rem;
+            max-width: 820px;
+            margin: 0 auto 1.8rem;
         }
-        .a11y-controls-bar {
+        .a11y-lang-tabs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .a11y-tab-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 30px;
+            padding: 0.55rem 1.25rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .a11y-tab-btn:hover {
+            background: rgba(0, 194, 224, 0.18);
+            color: #ffffff;
+            border-color: rgba(0, 194, 224, 0.4);
+            transform: translateY(-2px);
+        }
+        .a11y-tab-btn.active {
+            background: linear-gradient(135deg, var(--cyan), #00A3C4);
+            color: #05111f;
+            border-color: var(--cyan);
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(0, 194, 224, 0.35);
+        }
+        .a11y-card-single {
             background: rgba(10, 32, 54, 0.85);
-            border: 1px solid rgba(0, 194, 224, 0.35);
+            border: 1px solid rgba(0, 194, 224, 0.32);
             border-radius: 20px;
-            padding: 1.2rem 1.6rem;
+            padding: 2rem 2.2rem;
+            box-shadow: inset 0 0 20px rgba(0, 194, 224, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        .a11y-card-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: inset 0 0 15px rgba(0, 194, 224, 0.08);
+            gap: 1.2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            margin-bottom: 1.2rem;
         }
-        .a11y-controls-left, .a11y-controls-right {
-            display: flex;
+        .a11y-badge-lang {
+            display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            gap: 0.4rem;
+            padding: 0.3rem 0.85rem;
+            border-radius: 20px;
+            background: rgba(0, 194, 224, 0.15);
+            color: var(--cyan);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
         }
-        .a11y-btn-large {
-            background: linear-gradient(135deg, var(--cyan), var(--teal));
-            color: var(--navy);
+        .a11y-card-title {
+            font-family: var(--font-head);
+            font-size: 1.28rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .a11y-btn-play {
+            background: linear-gradient(135deg, var(--cyan), #00a8c6);
+            color: #05111f;
             border: none;
-            padding: 0.65rem 1.3rem;
             border-radius: 30px;
+            padding: 0.65rem 1.4rem;
             font-size: 0.88rem;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 4px 12px rgba(0, 194, 224, 0.25);
+            transition: all 0.22s ease;
+            box-shadow: 0 4px 14px rgba(0, 194, 224, 0.3);
         }
-        .a11y-btn-large:hover {
+        .a11y-btn-play:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(0, 194, 224, 0.4);
-            filter: brightness(1.1);
+            box-shadow: 0 6px 20px rgba(0, 194, 224, 0.45);
+        }
+        .a11y-card-desc {
+            font-size: 0.98rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.92);
+            margin: 0 0 1.2rem;
+        }
+        .a11y-module-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(0, 194, 224, 0.28);
+            border-radius: 20px;
+            padding: 0.45rem 0.95rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .a11y-module-btn:hover {
+            background: rgba(0, 194, 224, 0.22);
+            color: #ffffff;
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+        .a11y-module-btn.active {
+            background: var(--cyan);
+            color: #05111f;
+            font-weight: 700;
+            border-color: var(--cyan);
+            box-shadow: 0 2px 10px rgba(0, 194, 224, 0.35);
+        }
+        .a11y-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .a11y-footer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .a11y-player-status {
+            width: 100%;
+            background: rgba(0, 194, 224, 0.12);
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.84rem;
+            color: #ffffff;
+            margin-bottom: 1.2rem;
         }
         .a11y-btn-opt {
             background: rgba(255, 255, 255, 0.08);
@@ -1056,155 +1626,59 @@
             color: var(--navy);
             border-color: var(--cyan);
         }
-        .a11y-btn-opt.active {
-            background: var(--amber);
-            color: var(--navy);
-            border-color: var(--amber);
-        }
-        .a11y-lang-select {
-            background: #081a2b;
-            color: #ffffff;
-            border: 1px solid var(--cyan);
-            border-radius: 10px;
-            padding: 0.45rem 0.85rem;
-            font-size: 0.85rem;
-            font-family: var(--font-body);
-            font-weight: 700;
-            cursor: pointer;
-            outline: none;
-        }
-        .a11y-player-status {
-            width: 100%;
-            background: rgba(0, 194, 224, 0.12);
-            border: 1px solid rgba(0, 194, 224, 0.3);
-            border-radius: 12px;
-            padding: 0.75rem 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.84rem;
-            color: #ffffff;
-            margin-bottom: 2rem;
-            display: none;
-        }
-        .a11y-topics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        @media (max-width: 850px) {
-            .a11y-topics-grid { grid-template-columns: 1fr; }
-        }
-        .a11y-topic-card {
-            background: rgba(18, 44, 72, 0.65);
-            border: 1px solid rgba(0, 194, 224, 0.22);
-            border-radius: 18px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.25s;
-        }
-        .a11y-topic-card:hover {
-            border-color: var(--cyan);
-            background: rgba(18, 44, 72, 0.9);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 194, 224, 0.15);
-        }
-        .a11y-topic-head {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        .a11y-topic-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: rgba(0, 194, 224, 0.18);
-            color: var(--cyan);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        .a11y-topic-title {
-            font-family: var(--font-head);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-        .a11y-topic-text {
-            font-size: 0.88rem;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.55;
-            margin-bottom: 1.25rem;
-        }
-        .a11y-maya-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-        @media (max-width: 992px) {
-            .a11y-maya-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 580px) {
-            .a11y-maya-grid { grid-template-columns: 1fr; }
-        }
-        .maya-lang-card {
-            background: rgba(22, 50, 80, 0.6);
-            border: 1px solid rgba(0, 194, 224, 0.2);
-            border-radius: 18px;
-            padding: 1.35rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.25s, border-color 0.25s, background 0.25s;
-        }
-        .maya-lang-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--cyan);
-            background: rgba(22, 50, 80, 0.9);
-        }
-        .maya-lang-title {
-            font-family: var(--font-head);
-            font-weight: 800;
-            font-size: 1.05rem;
-            color: var(--cyan);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        .maya-lang-desc {
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.88);
-            line-height: 1.48;
-            margin-bottom: 1.25rem;
-        }
-        .a11y-features-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.12);
-            padding-top: 1.6rem;
-            margin-top: 1rem;
-        }
-        .a11y-feat-badge {
-            background: rgba(0, 194, 224, 0.12);
-            border: 1px solid rgba(0, 194, 224, 0.3);
-            color: #ffffff;
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+
+        /* RESPONSIVE OPTIMIZATIONS FOR INCLUSION / A11Y & COVERFLOW */
+        @media (max-width: 768px) {
+            .a11y-maya-section {
+                padding: 1.5rem 0.5rem;
+            }
+            .a11y-lang-tabs {
+                gap: 0.4rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .a11y-tab-btn {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .a11y-card-single {
+                padding: 1.25rem 1rem;
+                border-radius: 16px;
+            }
+            .a11y-card-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.85rem;
+            }
+            .a11y-card-title {
+                font-size: 1.1rem;
+            }
+            .a11y-btn-play {
+                width: 100%;
+                justify-content: center;
+                padding: 0.75rem 1.2rem;
+            }
+            .a11y-card-desc {
+                font-size: 0.9rem;
+                line-height: 1.55;
+            }
+            .a11y-module-btn {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.75rem;
+            }
+            .a11y-card-footer {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.85rem;
+            }
+            .a11y-footer-controls {
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
@@ -1237,6 +1711,7 @@
             <span style="font-size:0.75rem; color:rgba(255,255,255,0.8); font-weight:600;"><i class="fas fa-language" style="color:var(--cyan);"></i> Guía Multilingüe:</span>
             <select class="a11y-lang-select" id="a11yLangSelectTop" onchange="handleModuleLangChange(this.value)">
                 <option value="es">Español (Oficial)</option>
+                <option value="en">English (Inglés)</option>
                 <option value="kiche">K'iche' (Maya)</option>
                 <option value="qeqchi">Q'eqchi' (Maya)</option>
                 <option value="kaqchikel">Kaqchikel (Maya)</option>
@@ -2552,212 +3027,127 @@ Utiliza los mecanismos oficiales para participar activamente.
             <div class="section-tag" style="justify-content:center; background:rgba(0,194,224,0.15); color:var(--cyan); border-color:rgba(0,194,224,0.3); margin:0 auto 0.8rem;">
                 <i class="fas fa-universal-access"></i> Inclusión Universal y Guiado Auditivo
             </div>
-            <h2 class="section-title on-dark">Accesibilidad Inclusiva y Guiado Multilingüe PIA</h2>
-            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:860px;">
-                El Portal de Integridad Activa garantiza el derecho de acceso a la información y denuncia segura para toda la ciudadanía. Utilice este centro de lectura por voz para conocer el propósito del portal, sus herramientas anticorrupción y guías habladas en idiomas originarios.
+            <h2 class="section-title on-dark">Explicación del Portal en Idiomas Originarios e Inglés</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:800px;">
+                Consulte y escuche la síntesis del Portal de Integridad Activa en Español, Inglés e Idiomas Mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam).
             </p>
         </div>
 
-        <!-- Barra Principal de Controles de Audio y Accesibilidad -->
-        <div class="a11y-controls-bar">
-            <div class="a11y-controls-left">
-                <button type="button" class="a11y-btn-large" id="btnMainAudioGuide" onclick="speakPiaTopic('full')">
-                    <i class="fas fa-volume-high"></i> Escuchar Explicación Completa del Portal PIA
-                </button>
-                <div style="display:flex; align-items:center; gap:0.4rem;">
-                    <span style="font-size:0.8rem; color:rgba(255,255,255,0.7); font-weight:600;">Idioma:</span>
-                    <select class="a11y-lang-select" id="a11yModuleLangSelect" onchange="handleModuleLangChange(this.value)">
-                        <option value="es">Español (Oficial)</option>
-                        <option value="kiche">K'iche' (Maya)</option>
-                        <option value="qeqchi">Q'eqchi' (Maya)</option>
-                        <option value="kaqchikel">Kaqchikel (Maya)</option>
-                        <option value="mam">Mam (Maya)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="a11y-controls-right">
-                <button type="button" class="a11y-btn-opt" id="btnToggleContrast" onclick="toggleA11yContrast()" title="Alternar modo de alto contraste">
-                    <i class="fas fa-circle-half-stroke"></i> Alto Contraste
-                </button>
-                <button type="button" class="a11y-btn-opt" onclick="changeA11yFontSize(1)" title="Aumentar tamaño de texto">
-                    <i class="fas fa-font"></i> A+
-                </button>
-                <button type="button" class="a11y-btn-opt" onclick="changeA11yFontSize(-1)" title="Disminuir tamaño de texto">
-                    <i class="fas fa-font"></i> A-
-                </button>
-                <button type="button" class="a11y-btn-opt" onclick="resetA11yFontSize()" title="Tamaño original">
-                    Normal
-                </button>
-            </div>
-        </div>
-
-        <!-- Banner de Estado de Reproducción de Voz -->
-        <div class="a11y-player-status" id="piaAudioPlayerStatus">
-            <div style="display:flex; align-items:center; gap:0.6rem;">
-                <i class="fas fa-waveform" style="color:var(--cyan); font-size:1.1rem; animation: pulse 1.5s infinite;"></i>
-                <span id="piaAudioStatusText">Reproduciendo guía de audio...</span>
-            </div>
-            <button type="button" class="a11y-btn-opt" onclick="stopPiaSpeech()" style="background:rgba(231,76,60,0.25); border-color:rgba(231,76,60,0.5); color:#ff8a80;">
-                <i class="fas fa-stop"></i> Detener
+        <!-- Pestañas Selectoras de Idioma -->
+        <div class="a11y-lang-tabs" id="a11yLangTabs">
+            <button type="button" class="a11y-tab-btn active" data-lang="es" onclick="selectA11yLang('es')">
+                <i class="fas fa-globe-americas" style="color:var(--cyan);"></i> Español
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="en" onclick="selectA11yLang('en')">
+                <i class="fas fa-language" style="color:var(--cyan);"></i> English
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="kiche" onclick="selectA11yLang('kiche')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> K'iche'
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="qeqchi" onclick="selectA11yLang('qeqchi')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> Q'eqchi'
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="kaqchikel" onclick="selectA11yLang('kaqchikel')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> Kaqchikel
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="mam" onclick="selectA11yLang('mam')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> Mam
             </button>
         </div>
 
-        <!-- Módulos Explicativos Audibles -->
-        <div class="a11y-topics-grid">
-            <!-- Módulo 1 -->
-            <div class="a11y-topic-card">
+        <!-- Tarjeta Única Explicativa Limpia y Profesional -->
+        <div class="a11y-card-single">
+            <div class="a11y-card-top">
                 <div>
-                    <div class="a11y-topic-head">
-                        <div class="a11y-topic-icon"><i class="fas fa-shield-halved"></i></div>
-                        <div class="a11y-topic-title">1. ¿Qué es el Portal PIA y su Propósito?</div>
-                    </div>
-                    <p class="a11y-topic-text">
-                        El Portal de Integridad Activa es la herramienta tecnológica centralizada de la Comisión Nacional contra la Corrupción (CNC) que consolida información pública, datos abiertos y mecanismos de denuncia para prevenir la corrupción y promover la transparencia en el Organismo Ejecutivo.
-                    </p>
+                    <span class="a11y-badge-lang" id="a11yCardLangBadge"><i class="fas fa-check-circle"></i> Español (Oficial)</span>
+                    <h3 class="a11y-card-title" id="a11yCardTitle">Resumen del Portal de Integridad Activa (PIA)</h3>
                 </div>
-                <button type="button" class="a11y-btn-opt" style="width:100%; justify-content:center;" onclick="speakPiaTopic('que_es_pia')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Propósito del PIA
+                <button type="button" class="a11y-btn-play" id="btnPlayA11yAudio" onclick="playCurrentA11yLang()">
+                    <i class="fas fa-volume-high"></i> Escuchar Explicación por Voz
                 </button>
             </div>
 
-            <!-- Módulo 2 -->
-            <div class="a11y-topic-card">
-                <div>
-                    <div class="a11y-topic-head">
-                        <div class="a11y-topic-icon"><i class="fas fa-bullhorn"></i></div>
-                        <div class="a11y-topic-title">2. Canales de Denuncia y Protección</div>
+            <div class="a11y-card-body">
+                <p id="a11yCardText" class="a11y-card-desc">
+                    El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.
+                </p>
+
+                <!-- Selección de Módulos para Lectura por Voz -->
+                <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px dashed rgba(0, 194, 224, 0.3);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.7rem; flex-wrap:wrap; gap:0.5rem;">
+                        <span style="font-size:0.85rem; color:var(--cyan); font-weight:700;"><i class="fas fa-layer-group"></i> Seleccionar Módulo Específico a Escuchar:</span>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span style="font-size:0.75rem; color:rgba(255,255,255,0.7);">Velocidad:</span>
+                            <button type="button" class="a11y-btn-opt" onclick="setA11ySpeechRate(0.85)" title="Lento">0.8x</button>
+                            <button type="button" class="a11y-btn-opt" onclick="setA11ySpeechRate(1.0)" title="Normal">1.0x</button>
+                            <button type="button" class="a11y-btn-opt" onclick="setA11ySpeechRate(1.2)" title="Rápido">1.2x</button>
+                        </div>
                     </div>
-                    <p class="a11y-topic-text">
-                        A través de Canales por la Integridad y Vigilando la Integridad, la ciudadanía puede interponer denuncias administrativas sobre falta de ética, sobornos o irregularidades las 24 horas del día de forma 100% confidencial y protegida.
-                    </p>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="a11yModulePills">
+                        <button type="button" class="a11y-module-btn active" data-mod="full" onclick="selectA11yModule('full')">
+                            <i class="fas fa-shield-alt"></i> Resumen General
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="directorio" onclick="selectA11yModule('directorio')">
+                            <i class="fas fa-folder-open"></i> Directorio
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="vehiculos" onclick="selectA11yModule('vehiculos')">
+                            <i class="fas fa-car-side"></i> Transparencia Vehicular
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="gobierno_numeros" onclick="selectA11yModule('gobierno_numeros')">
+                            <i class="fas fa-chart-line"></i> Gobierno en Números
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="canales_denuncias" onclick="selectA11yModule('canales_denuncias')">
+                            <i class="fas fa-bullhorn"></i> Canales de Denuncia
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="riesgo_mira" onclick="selectA11yModule('riesgo_mira')">
+                            <i class="fas fa-binoculars"></i> Riesgo en la Mira
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="acadeti" onclick="selectA11yModule('acadeti')">
+                            <i class="fas fa-graduation-cap"></i> Acadeti
+                        </button>
+                    </div>
                 </div>
-                <button type="button" class="a11y-btn-opt" style="width:100%; justify-content:center;" onclick="speakPiaTopic('canales_denuncias')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Cómo Denunciar
+            </div>
+
+            <!-- Reproductor de Audio / Estado -->
+            <div class="a11y-player-status" id="piaAudioPlayerStatus" style="display:none;">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <i class="fas fa-waveform" style="color:var(--cyan); font-size:1.1rem; animation: pulse 1.5s infinite;"></i>
+                    <span id="piaAudioStatusText">Reproduciendo guía de audio...</span>
+                </div>
+                <button type="button" class="a11y-btn-opt" onclick="stopPiaSpeech()" style="background:rgba(231,76,60,0.25); border-color:rgba(231,76,60,0.5); color:#ff8a80;">
+                    <i class="fas fa-stop"></i> Detener
                 </button>
             </div>
 
-            <!-- Módulo 3 -->
-            <div class="a11y-topic-card">
-                <div>
-                    <div class="a11y-topic-head">
-                        <div class="a11y-topic-icon"><i class="fas fa-chart-line"></i></div>
-                        <div class="a11y-topic-title">3. Datos Abiertos y Cuentas Claras</div>
-                    </div>
-                    <p class="a11y-topic-text">
-                        Supervise en tiempo real el uso de fondos públicos en "Tu Gobierno en Números" y la asignación de la flota vehicular oficial en "Transparencia Vehicular". Toda la información financiera y de bienes estatales está disponible sin restricciones.
-                    </p>
+            <div class="a11y-card-footer">
+                <div class="a11y-footer-controls">
+                    <span style="font-size:0.8rem; color:rgba(255,255,255,0.7); font-weight:600;"><i class="fas fa-sliders" style="color:var(--cyan);"></i> Herramientas de Accesibilidad:</span>
+                    <button type="button" class="a11y-btn-opt" id="btnToggleContrast" onclick="toggleA11yContrast()" title="Alto Contraste">
+                        <i class="fas fa-circle-half-stroke"></i> Alto Contraste
+                    </button>
+                    <button type="button" class="a11y-btn-opt" onclick="changeA11yFontSize(1)" title="Aumentar texto">
+                        <i class="fas fa-font"></i> A+
+                    </button>
+                    <button type="button" class="a11y-btn-opt" onclick="changeA11yFontSize(-1)" title="Disminuir texto">
+                        <i class="fas fa-font"></i> A-
+                    </button>
+                    <button type="button" class="a11y-btn-opt" onclick="resetA11yFontSize()" title="Tamaño original">
+                        Normal
+                    </button>
                 </div>
-                <button type="button" class="a11y-btn-opt" style="width:100%; justify-content:center;" onclick="speakPiaTopic('datos_abiertos')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Datos Abiertos
-                </button>
-            </div>
-
-            <!-- Módulo 4 -->
-            <div class="a11y-topic-card">
                 <div>
-                    <div class="a11y-topic-head">
-                        <div class="a11y-topic-icon"><i class="fas fa-triangle-exclamation"></i></div>
-                        <div class="a11y-topic-title">4. Monitoreo de Riesgo y Alertas</div>
-                    </div>
-                    <p class="a11y-topic-text">
-                        "Riesgo en la Mira" y la "Radiografía de la Corrupción" analizan patrones de contratación e indicadores de integridad para prevenir irregularidades antes de que afecten el patrimonio nacional.
-                    </p>
+                    <a href="canales-por-la-integridad/#guiaMultilingue" style="font-size:0.82rem; color:var(--cyan); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-external-link-alt"></i> Ver Guía de Denuncia en Idiomas Mayas
+                    </a>
                 </div>
-                <button type="button" class="a11y-btn-opt" style="width:100%; justify-content:center;" onclick="speakPiaTopic('riesgo')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Monitoreo de Riesgo
-                </button>
             </div>
-        </div>
-
-        <!-- Tarjetas en Idiomas Mayas Originarios -->
-        <div style="margin-top:2rem; margin-bottom:1rem; text-align:center;">
-            <h3 style="font-family:var(--font-head); font-size:1.25rem; color:#ffffff; font-weight:700;">
-                <i class="fas fa-headset" style="color:var(--cyan);"></i> Audio-Guías en Idiomas Originarios Mayas
-            </h3>
-            <p style="font-size:0.85rem; color:rgba(255,255,255,0.75); margin-top:0.3rem;">Orientación hablada en idiomas maya sobre el ejercicio del derecho a la información y denuncia pública.</p>
-        </div>
-
-        <div class="a11y-maya-grid">
-            <!-- Card K'iche' -->
-            <div class="maya-lang-card">
-                <div>
-                    <div class="maya-lang-title">
-                        <span>K'iche'</span>
-                        <i class="fas fa-volume-high" style="color:var(--cyan);"></i>
-                    </div>
-                    <p class="maya-lang-desc">"Uq'alajisaxik ri utzilaj chak xaqje' ri jikomal pa ri qatinamit Guatemala."</p>
-                    <p style="font-size:0.78rem; color:rgba(255,255,255,0.75); line-height:1.4;">Orientación por voz en K'iche' sobre el Portal PIA y denuncia de irregularidades.</p>
-                </div>
-                <button type="button" class="a11y-btn-opt" style="margin-top:1rem; width:100%; justify-content:center;" onclick="speakPiaTopic('kiche')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar K'iche'
-                </button>
-            </div>
-
-            <!-- Card Q'eqchi' -->
-            <div class="maya-lang-card">
-                <div>
-                    <div class="maya-lang-title">
-                        <span>Q'eqchi'</span>
-                        <i class="fas fa-volume-high" style="color:var(--cyan);"></i>
-                    </div>
-                    <p class="maya-lang-desc">"Ch'olch'oil li k'anjel, xcha'alil ut xkolbal laawatin sa' xyaalal."</p>
-                    <p style="font-size:0.78rem; color:rgba(255,255,255,0.75); line-height:1.4;">Guía hablada en Q'eqchi' para la búsqueda de información e integridad pública.</p>
-                </div>
-                <button type="button" class="a11y-btn-opt" style="margin-top:1rem; width:100%; justify-content:center;" onclick="speakPiaTopic('qeqchi')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Q'eqchi'
-                </button>
-            </div>
-
-            <!-- Card Kaqchikel -->
-            <div class="maya-lang-card">
-                <div>
-                    <div class="maya-lang-title">
-                        <span>Kaqchikel</span>
-                        <i class="fas fa-volume-high" style="color:var(--cyan);"></i>
-                    </div>
-                    <p class="maya-lang-desc">"Rik'in rutzil qach'ab'al, rutzil rub'anob'al qatinamit ruximik ri jikomal."</p>
-                    <p style="font-size:0.78rem; color:rgba(255,255,255,0.75); line-height:1.4;">Instrucciones guiadas en Kaqchikel para la recepción de alertas y transparencia.</p>
-                </div>
-                <button type="button" class="a11y-btn-opt" style="margin-top:1rem; width:100%; justify-content:center;" onclick="speakPiaTopic('kaqchikel')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Kaqchikel
-                </button>
-            </div>
-
-            <!-- Card Mam -->
-            <div class="maya-lang-card">
-                <div>
-                    <div class="maya-lang-title">
-                        <span>Mam</span>
-                        <i class="fas fa-volume-high" style="color:var(--cyan);"></i>
-                    </div>
-                    <p class="maya-lang-desc">"Tijil qun tzalajeb'il tu'n t-tx'olil tnam xb'aluntej tza'nmi tijil."</p>
-                    <p style="font-size:0.78rem; color:rgba(255,255,255,0.75); line-height:1.4;">Acompañamiento en Mam para presentar alertas ciudadanas confidenciales.</p>
-                </div>
-                <button type="button" class="a11y-btn-opt" style="margin-top:1rem; width:100%; justify-content:center;" onclick="speakPiaTopic('mam')">
-                    <i class="fas fa-play" style="color:var(--cyan);"></i> Escuchar Mam
-                </button>
-            </div>
-        </div>
-
-        <div style="text-align:center; margin-top:2rem; margin-bottom:1.5rem;">
-            <a href="canales-por-la-integridad/#guiaMultilingue" class="btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; border-radius:30px; padding:0.7rem 1.8rem;">
-                <i class="fas fa-language"></i> Ir a la Guía Multilingüe Completa de Denuncia
-            </a>
-        </div>
-
-        <!-- Badges de accesibilidad técnica -->
-        <div class="a11y-features-row">
-            <span class="a11y-feat-badge"><i class="fas fa-eye" style="color:var(--cyan);"></i> Alto Contraste Adaptativo</span>
-            <span class="a11y-feat-badge"><i class="fas fa-text-height" style="color:var(--green);"></i> Escala de Texto Dinámica</span>
-            <span class="a11y-feat-badge"><i class="fas fa-volume-high" style="color:var(--amber);"></i> Lectura por Voz Integrada (TTS)</span>
-            <span class="a11y-feat-badge"><i class="fas fa-keyboard" style="color:var(--cyan);"></i> Navegación Completa por Teclado</span>
-            <span class="a11y-feat-badge"><i class="fas fa-shield-halved" style="color:var(--teal);"></i> Cumplimiento Estándar WCAG 2.1 AA</span>
         </div>
     </section>
 </div>
 
 <!-- ============================================================
-     ACCESO DIRECTO (con botones cápsula y sin logos)
+     ACCESO DIRECTO (Carrusel de Profundidad 3D)
 ============================================================ -->
 <div class="container">
     <section class="section" style="padding-top:0;">
@@ -2766,70 +3156,156 @@ Utiliza los mecanismos oficiales para participar activamente.
             <h2 class="section-title">Accede a nuestras plataformas</h2>
             <p class="section-sub">Cada plataforma cumple una función diferente, pero juntas conforman un ecosistema digital para fortalecer la integridad pública. Puedes ingresar por cualquiera de ellas o recorrerlas según tu necesidad.</p>
         </div>
-        <div class="logos-grid fade-up">
-            <!-- Directorio Acceso al Ejecutivo -->
-            <a href="directorio/" class="logo-card">
-                <i class="fas fa-folder-open"></i>
-                <div class="logo-card-name">Directorio Acceso al Ejecutivo</div>
-                <div class="logo-card-desc">Consolida datos de contacto y mecanismos de acceso a la información.</div>
-                <span class="btn-capsula">Accede</span>
-            </a>
-            <!-- Transparencia CODEDE -->
-            <a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener noreferrer" class="logo-card">
-                <i class="fas fa-file-alt"></i>
-                <div class="logo-card-name">Transparencia CODEDE</div>
-                <div class="logo-card-desc">Información pública de oficio del Organismo Ejecutivo.</div>
-                <span class="btn-capsula">Explora</span>
-            </a>
-            <!-- Tu Gobierno en Números -->
-            <a href="gobierno_en_numeros/" class="logo-card">
-                <i class="fas fa-chart-line"></i>
-                <div class="logo-card-name">Tu Gobierno en Números</div>
-                <div class="logo-card-desc">Tableros de rendición de cuentas con indicadores de gestión.</div>
-                <span class="btn-capsula">Explora</span>
-            </a>
-            <!-- Radiografía de la Corrupción -->
-            <a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener noreferrer" class="logo-card">
-                <i class="fas fa-chart-pie"></i>
-                <div class="logo-card-name">Radiografía de la Corrupción</div>
-                <div class="logo-card-desc">Visualización de datos abiertos sobre denuncias y tendencias.</div>
-                <span class="btn-capsula">Explora</span>
-            </a>
-            <!-- Riesgo en la Mira -->
-            <a href="riesgo/" class="logo-card">
-                <i class="fas fa-crosshairs"></i>
-                <div class="logo-card-name">Riesgo en la Mira</div>
-                <div class="logo-card-desc">Transparencia en la gestión de riesgos institucionales.</div>
-                <span class="btn-capsula">Explora</span>
-            </a>
-            <!-- Transparencia Vehicular -->
-            <a href="vehiculos/" class="logo-card">
-                <i class="fas fa-car-side"></i>
-                <div class="logo-card-name">Transparencia Vehicular</div>
-                <div class="logo-card-desc">Consulta y control transparente del parque vehicular del Estado.</div>
-                <span class="btn-capsula">Explora</span>
-            </a>
-            <!-- Acadeti -->
-            <a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener noreferrer" class="logo-card">
-                <i class="fas fa-graduation-cap"></i>
-                <div class="logo-card-name">Acadeti</div>
-                <div class="logo-card-desc">Plataforma educativa para la formación en integridad.</div>
-                <span class="btn-capsula">Aprende</span>
-            </a>
-            <!-- Canales por la Integridad -->
-            <a href="canales-por-la-integridad/" class="logo-card">
-                <i class="fas fa-bullhorn"></i>
-                <div class="logo-card-name">Canales por la Integridad</div>
-                <div class="logo-card-desc">Directorio interactivo de canales de denuncia administrativa.</div>
-                <span class="btn-capsula">Reporta</span>
-            </a>
-            <!-- Vigilando la Integridad -->
-            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="logo-card">
-                 <i class="fas fa-eye"></i>
-                <div class="logo-card-name">Vigilando la Integridad</div>
-                <div class="logo-card-desc">Canal oficial 24/7 para presentar denuncias de forma segura.</div>
-                <span class="btn-capsula">Reporta</span>
-            </a>
+
+        <!-- Depth Carousel Container -->
+        <div class="depth-carousel" id="depthCarousel" role="group" aria-roledescription="carousel" aria-label="Plataformas de Integridad" tabindex="0">
+            <div class="depth-carousel__stage" id="depthStage">
+                <!-- 1. Directorio Acceso al Ejecutivo -->
+                <a href="directorio/" class="depth-carousel__card" data-theme="blue-1">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="logo-card-name">Directorio Acceso al Ejecutivo</div>
+                        <div class="logo-card-desc">Consolida datos de contacto y mecanismos de acceso a la información.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Accede <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 2. Transparencia CODEDE -->
+                <a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-2">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="logo-card-name">Transparencia CODEDE</div>
+                        <div class="logo-card-desc">Información pública de oficio del Organismo Ejecutivo.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 3. Tu Gobierno en Números -->
+                <a href="gobierno_en_numeros/" class="depth-carousel__card" data-theme="blue-3">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="logo-card-name">Tu Gobierno en Números</div>
+                        <div class="logo-card-desc">Tableros de rendición de cuentas con indicadores de gestión.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 4. Radiografía de la Corrupción -->
+                <a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-4">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="logo-card-name">Radiografía de la Corrupción</div>
+                        <div class="logo-card-desc">Visualización de datos abiertos sobre denuncias y tendencias.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 5. Riesgo en la Mira -->
+                <a href="riesgo/" class="depth-carousel__card" data-theme="blue-5">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-crosshairs"></i>
+                        </div>
+                        <div class="logo-card-name">Riesgo en la Mira</div>
+                        <div class="logo-card-desc">Transparencia en la gestión de riesgos institucionales.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 6. Transparencia Vehicular -->
+                <a href="vehiculos/" class="depth-carousel__card" data-theme="blue-6">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-car-side"></i>
+                        </div>
+                        <div class="logo-card-name">Transparencia Vehicular</div>
+                        <div class="logo-card-desc">Consulta y control transparente del parque vehicular del Estado.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 7. Acadeti -->
+                <a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-7">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="logo-card-name">Acadeti</div>
+                        <div class="logo-card-desc">Plataforma educativa para la formación en integridad.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Aprende <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 8. Canales por la Integridad -->
+                <a href="canales-por-la-integridad/" class="depth-carousel__card" data-theme="blue-8">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="logo-card-name">Canales por la Integridad</div>
+                        <div class="logo-card-desc">Directorio interactivo de canales de denuncia administrativa.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Reporta <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 9. Vigilando la Integridad -->
+                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-9">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="logo-card-name">Vigilando la Integridad</div>
+                        <div class="logo-card-desc">Canal oficial 24/7 para presentar denuncias de forma segura.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Reporta <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+            </div>
+
+            <!-- Arrow Controls -->
+            <button type="button" class="depth-carousel__arrow depth-carousel__arrow--prev" id="depthPrevBtn" aria-label="Anterior plataforma">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="depth-carousel__arrow depth-carousel__arrow--next" id="depthNextBtn" aria-label="Siguiente plataforma">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+
+            <!-- Dots Indicator -->
+            <div class="depth-carousel__dots" id="depthDots" role="tablist" aria-label="Plataformas"></div>
         </div>
     </section>
 </div>
@@ -3121,51 +3597,283 @@ Utiliza los mecanismos oficiales para participar activamente.
         document.documentElement.style.fontSize = '100%';
     }
 
-    const piaAudioTopics = {
-        'full': {
-            title: 'Explicación Completa del Portal PIA',
-            text: 'Bienvenido al Portal de Integridad Activa del Gobierno de Guatemala. El portal P.I.A. es la herramienta oficial de la Comisión Nacional contra la Corrupción creada para promover la transparencia, la rendición de cuentas y la integridad pública. A través de este portal usted puede: Primero, consultar el directorio de Canales por la Integridad y presentar denuncias confidenciales sobre irregularidades administrativas las 24 horas del día. Segundo, fiscalizar los presupuestos, ejecuciones e indicadores financieros en Tu Gobierno en Números y la Transparencia Vehicular. Tercero, explorar alertas de riesgo e informes de anticorrupción. Todo de forma libre, confidencial y accesible para la ciudadanía.'
+    let currentA11yLang = 'es';
+    let currentA11yModule = 'full';
+    let currentSpeechRate = 0.95;
+
+    const piaAudioDatabase = {
+        'es': {
+            langName: 'Español (Oficial)',
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: 'Resumen General del Portal de Integridad Activa (PIA)',
+                    text: 'El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.'
+                },
+                'directorio': {
+                    title: 'Directorio de Acceso al Ejecutivo',
+                    text: 'El módulo Directorio de Acceso al Ejecutivo concentra la información oficial de contacto, ubicación, autoridades y Oficinas de Probidad de más de 65 instituciones, ministerios y secretarías del Organismo Ejecutivo de Guatemala. Permite localizar funcionarios públicos y consultar los enlaces de acceso a la información pública de cada dependencia.'
+                },
+                'vehiculos': {
+                    title: 'Transparencia Vehicular Oficial',
+                    text: 'El módulo de Transparencia Vehicular ofrece la fiscalización ciudadana de la flota de vehículos oficiales del Gobierno de Guatemala. Los ciudadanos pueden verificar números de placa, tipo de vehículo, dependencia asignada y estado de uso, facilitando la detección y denuncia confidencial de cualquier uso indebido de los bienes del Estado.'
+                },
+                'gobierno_numeros': {
+                    title: 'Tu Gobierno en Números - Datos Abiertos',
+                    text: 'Tu Gobierno en Números es la herramienta interactiva de Datos Abiertos que visualiza la asignación y ejecución del presupuesto general de la Nación. Muestra gráficos en tiempo real sobre gastos por dependencia, programas de inversión social y transparencia en las contrataciones públicas.'
+                },
+                'canales_denuncias': {
+                    title: 'Canales por la Integridad y Denuncia Segura',
+                    text: 'Canales por la Integridad es el centro seguro para la recepción de denuncias ciudadanas y alertas sobre actos de corrupción, faltas éticas o irregularidades administrativas. Garantiza protección total al denunciante, confidencialidad las 24 horas y seguimiento activo por la Comisión Nacional contra la Corrupción.'
+                },
+                'riesgo_mira': {
+                    title: 'Riesgo en la Mira y Radiografía de la Corrupción',
+                    text: 'Riesgo en la Mira monitorea indicadores preventivos de transparencia y cumplimiento en contrataciones públicas del Estado. Permite identificar anomalías, sobrecostos o concentración de proveedores antes de que comprometan los fondos públicos.'
+                },
+                'acadeti': {
+                    title: 'Acadeti - Escuela de Probidad e Integridad Pública',
+                    text: 'Acadeti es la plataforma educativa de la Comisión Nacional contra la Corrupción orientada a la formación continua de servidores públicos y ciudadanos en materia de ética pública, prevención de la corrupción, probidad y transparencia.'
+                }
+            }
         },
-        'que_es_pia': {
-            title: '¿Qué es el Portal PIA y su Propósito?',
-            text: 'El Portal de Integridad Activa es la herramienta tecnológica de la Comisión Nacional contra la Corrupción que consolida la transparencia activa de todo el Organismo Ejecutivo. Su propósito es garantizar la supervisión ciudadana, prevenir la corrupción e impulsar estándares éticos en cada institución pública.'
-        },
-        'canales_denuncias': {
-            title: 'Canales de Denuncia y Protección',
-            text: 'A través de Canales por la Integridad y la plataforma Vigilando la Integridad, cualquier ciudadano puede interponer alertas o denuncias administrativas sobre faltas éticas, sobornos o abusos. El trámite es completamente gratuito, confidencial y seguro las 24 horas del día.'
-        },
-        'datos_abiertos': {
-            title: 'Datos Abiertos y Cuentas Claras',
-            text: 'Los módulos de Tu Gobierno en Números y Transparencia Vehicular permiten explorar gráficos interactivos del presupuesto general, gastos de instituciones y la asignación de la flota vehicular del Estado, fomentando la auditoría social de los fondos públicos.'
-        },
-        'riesgo': {
-            title: 'Monitoreo de Riesgo y Alertas Anti-Corrupción',
-            text: 'El módulo Riesgo en la Mira y la Radiografía de la Corrupción aplican indicadores preventivos sobre la contratación pública y la gestión administrativa, permitiendo identificar posibles irregularidades antes de que afecten el patrimonio de Guatemala.'
+        'en': {
+            langName: 'English (Inglés)',
+            ttsLang: 'en-US',
+            modules: {
+                'full': {
+                    title: 'Active Integrity Portal (PIA) Overview',
+                    text: 'The Active Integrity Portal (PIA) is the official digital platform of Guatemala\'s National Commission Against Corruption. It provides citizen access to institutional directories, open data on public budgets and government fleet management, corruption risk indicators, and 24/7 confidential reporting channels to promote transparency and accountability.'
+                },
+                'directorio': {
+                    title: 'Executive Branch Directory',
+                    text: 'The Executive Access Directory consolidates official contact details, addresses, leadership information, and integrity offices across more than 65 ministries, secretariats, and government agencies of Guatemala\'s Executive Branch.'
+                },
+                'vehiculos': {
+                    title: 'Official Vehicle Fleet Transparency',
+                    text: 'The Vehicle Transparency module enables public oversight of the official state vehicle fleet in Guatemala. Citizens can verify license plates, vehicle models, assigned government departments, and usage status to prevent and report improper asset use.'
+                },
+                'gobierno_numeros': {
+                    title: 'Government in Numbers - Open Data',
+                    text: 'Government in Numbers is an interactive Open Data visualization tool monitoring national budget allocation and expenditure. It features real-time charts on spending per agency, social investment programs, and public procurement transparency.'
+                },
+                'canales_denuncias': {
+                    title: 'Integrity Channels & Safe Whistleblowing',
+                    text: 'Integrity Channels is a secure portal for submitting citizen complaints regarding corruption, ethical breaches, or administrative misconduct. It guarantees full whistleblower protection, 24/7 confidentiality, and direct oversight by the National Commission Against Corruption.'
+                },
+                'riesgo_mira': {
+                    title: 'Risk Spotlight & Corruption Radiography',
+                    text: 'Risk Spotlight tracks preventive integrity and compliance metrics within government procurement systems, identifying irregularities, cost overruns, or supplier monopolies before public funds are compromised.'
+                },
+                'acadeti': {
+                    title: 'Acadeti - Public Ethics & Integrity Academy',
+                    text: 'Acadeti is the educational platform of the National Commission Against Corruption, dedicated to training public servants and citizens in anti-corruption principles, public ethics, probity, and open governance.'
+                }
+            }
         },
         'kiche': {
-            title: "Guiado en idioma K'iche'",
-            text: "Uq'alajisaxik ri utzilaj chak xaqje' ri jikomal pa ri qatinamit Guatemala. Utz qach'ab'al rech tob'anik pa le qatinamit."
+            langName: "K'iche' (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Utzilaj Chak pa le Portal PIA (K'iche')",
+                    text: "Ri Portal de Integridad Activa (PIA) rech ri Comisión Nacional contra la Corrupción xutz'aqatisaj ri utzilaj chak rech k'o q'alajisanik pa le qatinamit Guatemala. Chuxe' ri PIA, ri winaq kakwinik kakiriq uq'alajisaxik ri patanib'al rech ri q'atb'al tzij, kakitz'et ri chakub'al xaqje' kakik'am b'i tz'ujonik pa jikomal."
+                },
+                'directorio': {
+                    title: "K'olbal K'iyisamaj rech Tak'alib'al (K'iche')",
+                    text: "Ri K'olbal K'iyisamaj rech Tak'alib'al k'o chi upam ri kimo's, ri kib'i' ri nimak'amalb'e rech ri poponem rech qatinamit Guatemala. Kakwinik kakiriq ri k'olbal rech taqem patanil pa uxak q'alajisanik."
+                },
+                'vehiculos': {
+                    title: "Q'alajisanik rech Ch'ich' rech Q'atb'al Tzij (K'iche')",
+                    text: "Ri chakub'al rech Q'alajisanik rech Ch'ich' kuya' q'alajisanik pa wi' ri ch'ich' rech ri q'atb'al tzij pa Guatemala. Ri winaq kakwinik kakitz'et ri retal ch'ich' ex kakib'an tz'ujonik we k'o uq'asaxik chak pa kijas."
+                },
+                'gobierno_numeros': {
+                    title: "Ri Qatinamit pa Ajlab'al (K'iche')",
+                    text: "Ri Qatinamit pa Ajlab'al k'o q'alajisanik pa wi' ri pwaq rech qatinamit, ri uxak sachoj ex ri cholchak rech patanil. Kuk'ut pa wachb'al ri uxak sachoj rech ri k'iyik amaq'."
+                },
+                'canales_denuncias': {
+                    title: "B'e rech Tz'ujonik rech Jikomal (K'iche')",
+                    text: "Ri B'e rech Tz'ujonik rech Jikomal uya'om rutzilal rech tz'ujonik pa mukche' pa wi' ri elaq' o etzelal rech patanib'al. Kuya' jikomal ex mukch'ab'al chi re ri winaq xk'amow b'i tz'ujonik."
+                },
+                'riesgo_mira': {
+                    title: "Q'atb'al Elq'anem xaqje' Tz'etonem (K'iche')",
+                    text: "Ri Q'atb'al Elq'anem kutz'et ri retal sachoj xaqje' ri loq'oj pa ri patanib'al rech qatinamit rech kuq'atej ri elaq' pwaq chuxe' xq'axik."
+                },
+                'acadeti': {
+                    title: "Acadeti - Tijob'al rech Jikomal (K'iche')",
+                    text: "Ri Acadeti uya'om tijonik xaqje' eta'manik chi rech ri pataninelib'al xaqje' ri winaq pa wi' ri utzilaj ch'ob'onik, jikomal xaqje' q'atenik elaq' pa qatinamit."
+                }
+            }
         },
         'qeqchi': {
-            title: "Guiado en idioma Q'eqchi'",
-            text: "Ch'olch'oil li k'anjel, xcha'alil ut xkolbal laawatin sa' xyaalal. Xkolbal k'anjel sa' li tenamit Guatemala."
+            langName: "Q'eqchi' (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Xyaalalil ut Xcha'alil li Portal PIA (Q'eqchi')",
+                    text: "Li Portal de Integridad Activa (PIA) a'an li xk'anjelil li Comisión Nacional contra la Corrupción re xch'olch'ob'il li yaal ut li yaalil k'anjel sa' li tenamit Guatemala. Sa' li PIA, chixjunil li tenamit truko'q xk'anjelob'al li tenamit, xk'anjelob'al li xch'och' ut tz'aqal k'anjel xbanunkil li yaalil atin sa' mukmuil."
+                },
+                'directorio': {
+                    title: "Xtenamitil li Jolominelib' (Q'eqchi')",
+                    text: "Li tenamitil li jolominelib' xch'oleb' chixjunil li rochochil k'anjel, li c'a'uxb'il xjolom ut xch'olch'ob'il xk'anjelil li rochoch k'anjel sa' Guatemala re xyaalalil k'anjel."
+                },
+                'vehiculos': {
+                    title: "Xyaalalil li B'eleba'aal re Tenamit (Q'eqchi')",
+                    text: "Li Xyaalalil li B'eleba'aal kixk'utub' chixjunil li b'eleba'aal xk'anjelil li tenamit Guatemala. Li tenamit tuko'q xk'e xyaalalil li placas ut xk'anjelil re xramb'al li maak."
+                },
+                'gobierno_numeros': {
+                    title: "Li Tenamit sa' Ajl (Q'eqchi')",
+                    text: "Li Tenamit sa' Ajl k'o sa' tz'aqal tz'ilok re xk'utb'al xch'ina'usil tumin, xk'anjelob'al li tumin re tenamit ut li loq'ok k'anjel xbanunkil."
+                },
+                'canales_denuncias': {
+                    title: "Be re Yehok Maak sa' Yaal (Q'eqchi')",
+                    text: "Li Be re Yehok Maak a'an li mukmuil rochochil re xk'ulb'al li yehok maak pa wi' li elq' ut li xmaa'usil k'anjel, re xk'ebal xyaalalil ut xcolbal li tenamit."
+                },
+                'riesgo_mira': {
+                    title: "Xk'amb'al li C'a'ux pa Yaal (Q'eqchi')",
+                    text: "Li Xk'amb'al li C'a'ux kixk'e xch'ina'usil retalil xkolbal li tumin re tenamit sa' li loq'ok k'anjel re xramb'al li elq' sa' k'anjel."
+                },
+                'acadeti': {
+                    title: "Acadeti - Tz'oleb'aal re Yaalil K'anjel (Q'eqchi')",
+                    text: "Acadeti a'an li tz'oleb'aal re xk'ebal tz'oleb'aal ut na'leb' chi re li k'anjelajel ut tenamit sa' li yaalil atin ut xcha'alil k'anjel."
+                }
+            }
         },
         'kaqchikel': {
-            title: "Guiado en idioma Kaqchikel",
-            text: "Rik'in rutzil qach'ab'al, rutzil rub'anob'al qatinamit ruximik ri jikomal. To'ik samaj pa ri qatinamit."
+            langName: "Kaqchikel (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Rutzil Samaj pa ri Portal PIA (Kaqchikel)",
+                    text: "Ri Portal de Integridad Activa (PIA) richin ri Comisión Nacional contra la Corrupción nuyo'oj rutzil samaj richin ruximik ri jikomal pa ri qatinamit Guatemala. Pa ri PIA, ri winaqi' tikel nkitzet ri samaj richin ri q'atb'al tzij, ri pwaq xq'asax ut nkiya' rutzijol samaj rech jikomal pa rutzilal."
+                },
+                'directorio': {
+                    title: "Ruk'olbal Rutzijol K'amalb'ey (Kaqchikel)",
+                    text: "Ruk'olbal Rutzijol K'amalb'ey k'o chi upam ri ruyo'onem, ri xq'atb'al tzij richin ri taqem samaj pa Guatemala richin ruto'ik ri winaqi' pa ri rutzijol."
+                },
+                'vehiculos': {
+                    title: "Ch'ich' richin Q'atb me Tzij pa Jikomal (Kaqchikel)",
+                    text: "Ri ch'ich' richin Q'atb'al Tzij nuya' rutzijol ri ch'ich' richin ri q'atb'al tzij. Ri winaqi' tikil nkitz'et ri retal ch'ich' richin nkiq'atej ri elaq' samaj."
+                },
+                'gobierno_numeros': {
+                    title: "Ri Qatinamit pa Ajlab'al (Kaqchikel)",
+                    text: "Ri Qatinamit pa Ajlab'al nuk'ut ri pwaq xk'amob'eyij richin ri qatinamit, ri to'ik samaj xaqje' ri sachoj rech taqem loq'oj."
+                },
+                'canales_denuncias': {
+                    title: "Ruk'olbal Ya'oj Tzij pa Mukche' (Kaqchikel)",
+                    text: "Ruk'olbal Ya'oj Tzij nuko'j ri ya'oj tzij pa mukche' richin q'atenik elaq' xaqje' etzelal, nuya' jikomal ex rutzilal chi re ri winaq."
+                },
+                'riesgo_mira': {
+                    title: "Tz'etoj Ruyonal Elaq' (Kaqchikel)",
+                    text: "Ri Tz'etoj Ruyonal Elaq' nuk'am ri retal samaj pa loq'oj richin nuq'atej ri elaq' pwaq richin ri qatinamit Guatemala."
+                },
+                'acadeti': {
+                    title: "Acadeti - Tijob'al richin Jikomal (Kaqchikel)",
+                    text: "Acadeti nuya' tijonik xaqje' etamanik chi ke ri samajel richin q'atb'al tzij xaqje' ri winaqi' pa wi' ri jikomal xaqje' rutzil samaj."
+                }
+            }
         },
         'mam': {
-            title: "Guiado en idioma Mam",
-            text: "Tijil qun tzalajeb'il tu'n t-tx'olil tnam xb'aluntej tza'nmi tijil. Kolb'il tnam tu'n tzalajeb'il."
+            langName: "Mam (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Tzalajeb'il tu'n T-tx'olil Portal PIA (Mam)",
+                    text: "Ju Portal de Integridad Activa (PIA) te ju Comisión Nacional contra la Corrupción nxq'uynen tnam tu'n t-tx'olil tzalajeb'il ex kolb'il te tnam Guatemala. Ju tnam jaku t-sje'n tijil t-tx'olil ajlab'il, t-jak'il ch'iyyb'il ex t-kolil tnam tu'n tzalajeb'il ex yaal."
+                },
+                'directorio': {
+                    title: "T-tx'olil Kavil Kavil te Tnam (Mam)",
+                    text: "Ju T-tx'olil Kavil Kavil xq'uynen chixjunil t-tx'olil ju ak'b'il, t-xakil Kavil Kavil te Guatemala tu'n t-kolb'il ex t-tzalajeb'il tnam."
+                },
+                'vehiculos': {
+                    title: "T-kolil B'eleba'al te Kavil (Mam)",
+                    text: "Ju T-kolil B'eleba'al nxq'uynen t-tx'olil b'eleba'al te Kavil te Guatemala, tu'n t-sje'n tnam ju placa ex tu'n t-kolil ja' t-sje'n elq'."
+                },
+                'gobierno_numeros': {
+                    title: "Ju Tnam sa' Ajlab'il (Mam)",
+                    text: "Ju Tnam sa' Ajlab'il nxq'uynen pwaq te tnam, ju t-jak'il ch'iyyb'il ex ju laq'ob'il t-xakil pwaq te Guatemala."
+                },
+                'canales_denuncias': {
+                    title: "Be te Q'i'n Tzij sa' Kolb'il (Mam)",
+                    text: "Ju Be te Q'i'n Tzij nq'on tzalajeb'il tu'n t-k'ulil q'i'n tzij sa' mukche' tib'aj elq' ex il, nxq'uynen kolb'il te tnam."
+                },
+                'riesgo_mira': {
+                    title: "T-tz'etb'il Elq' sa' Kolb'il (Mam)",
+                    text: "Ju T-tz'etb'il Elq' nxq'uynen t-tx'olil laq'ob'il pwaq tu'n t-kolil pwaq te tnam ch'atx t-elq'ij."
+                },
+                'acadeti': {
+                    title: "Acadeti - Ja te Xnaq'tzb'il Jikomal (Mam)",
+                    text: "Acadeti nq'on xnaq'tzb'il ex t-tx'olil chi e ak'el te Kavil ex tnam tu'n t-tzalajeb'il, jikomal ex t-kolil elq'."
+                }
+            }
         }
     };
 
-    function speakPiaTopic(key) {
+    function selectA11yLang(key) {
+        if (!piaAudioDatabase[key]) return;
+        currentA11yLang = key;
+
+        // Sync top select dropdown
+        const topSelect = document.getElementById('a11yLangSelectTop');
+        if (topSelect) topSelect.value = key;
+
+        // Sync main tab buttons
+        const tabBtns = document.querySelectorAll('#a11yLangTabs .a11y-tab-btn');
+        tabBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-lang') === key);
+        });
+
+        updateA11yCardUI();
+        stopPiaSpeech();
+    }
+
+    function selectA11yModule(modKey) {
+        currentA11yModule = modKey;
+
+        // Sync module pills
+        document.querySelectorAll('#a11yModulePills .a11y-module-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-mod') === modKey);
+        });
+
+        updateA11yCardUI();
+        stopPiaSpeech();
+        speakCurrentA11yTopic();
+    }
+
+    function updateA11yCardUI() {
+        const langData = piaAudioDatabase[currentA11yLang] || piaAudioDatabase['es'];
+        const topic = (langData.modules && langData.modules[currentA11yModule]) 
+            || (langData.modules && langData.modules['full']) 
+            || { title: 'Portal PIA', text: '' };
+
+        const badgeEl = document.getElementById('a11yCardLangBadge');
+        const titleEl = document.getElementById('a11yCardTitle');
+        const textEl = document.getElementById('a11yCardText');
+        const btnPlay = document.getElementById('btnPlayA11yAudio');
+
+        if (badgeEl) badgeEl.innerHTML = `<i class="fas fa-check-circle"></i> ${langData.langName}`;
+        if (titleEl) titleEl.innerText = topic.title;
+        if (textEl) textEl.innerText = topic.text;
+        if (btnPlay) btnPlay.innerHTML = `<i class="fas fa-volume-high"></i> Escuchar en ${langData.langName}`;
+    }
+
+    function setA11ySpeechRate(rate) {
+        currentSpeechRate = rate;
+        if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+            speakCurrentA11yTopic();
+        }
+    }
+
+    function playCurrentA11yLang() {
+        speakCurrentA11yTopic();
+    }
+
+    function speakCurrentA11yTopic() {
         if (!('speechSynthesis' in window)) {
             alert('Su navegador no soporta lectura por voz.');
             return;
         }
-        const topic = piaAudioTopics[key];
+        const langData = piaAudioDatabase[currentA11yLang] || piaAudioDatabase['es'];
+        const topic = (langData.modules && langData.modules[currentA11yModule]) || langData.modules['full'];
         if (!topic) return;
 
         window.speechSynthesis.cancel();
@@ -3174,12 +3882,12 @@ Utiliza los mecanismos oficiales para participar activamente.
         const statusText = document.getElementById('piaAudioStatusText');
         if (playerStatus && statusText) {
             playerStatus.style.display = 'flex';
-            statusText.innerText = 'Escuchando: ' + topic.title;
+            statusText.innerText = 'Escuchando (' + langData.langName + '): ' + topic.title;
         }
 
         const utterance = new SpeechSynthesisUtterance(topic.text);
-        utterance.lang = 'es-GT';
-        utterance.rate = 0.95;
+        utterance.lang = langData.ttsLang || 'es-GT';
+        utterance.rate = currentSpeechRate || 0.95;
 
         utterance.onend = function() {
             if (playerStatus) playerStatus.style.display = 'none';
@@ -3191,6 +3899,17 @@ Utiliza los mecanismos oficiales para participar activamente.
         window.speechSynthesis.speak(utterance);
     }
 
+    function speakPiaTopic(key) {
+        if (piaAudioDatabase[key]) {
+            selectA11yLang(key);
+            speakCurrentA11yTopic();
+        } else if (key && key !== 'full' && (piaAudioDatabase['es'].modules[key])) {
+            selectA11yModule(key);
+        } else {
+            speakCurrentA11yTopic();
+        }
+    }
+
     function stopPiaSpeech() {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
@@ -3200,12 +3919,320 @@ Utiliza los mecanismos oficiales para participar activamente.
     }
 
     function handleModuleLangChange(val) {
-        if (val === 'es') {
-            speakPiaTopic('full');
-        } else if (piaAudioTopics[val]) {
-            speakPiaTopic(val);
-        }
+        selectA11yLang(val);
+        speakCurrentA11yTopic();
     }
+
+    /* ============================================================
+       CARRUSEL COVERFLOW MAGNÉTICO 3D (PLATAFORMAS) INIT
+    ============================================================ */
+    (function initDepthCarousel() {
+        const root = document.getElementById('depthCarousel');
+        const stage = document.getElementById('depthStage');
+        if (!root || !stage) return;
+
+        const cards = Array.from(stage.querySelectorAll('.depth-carousel__card'));
+        const count = cards.length;
+        if (!count) return;
+
+        const dotsContainer = document.getElementById('depthDots');
+        let dots = [];
+        if (dotsContainer) {
+            dotsContainer.innerHTML = '';
+            cards.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = `depth-carousel__dot${i === 0 ? ' is-active' : ''}`;
+                dot.setAttribute('aria-label', `Ir a plataforma ${i + 1}`);
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setFocus(i, true);
+                });
+                dotsContainer.appendChild(dot);
+                dots.push(dot);
+            });
+        }
+
+        const cfg = {
+            count: count,
+            duration: 650,
+            ease: 'power3.out',
+            loop: true,
+            autoplayDelay: 3500
+        };
+
+        let pos = 0;
+        let focusIndex = 0;
+        let currentTween = null;
+        let drag = null;
+        let autoTimer = null;
+        let isHovered = false;
+        let isFocused = false;
+
+        function clamp(v, min, max) {
+            return Math.min(Math.max(v, min), max);
+        }
+
+        function getResponsiveParams() {
+            const w = root.offsetWidth || window.innerWidth;
+            const isSmall = w <= 480;
+            const isMobile = w <= 768;
+            return {
+                isMobile,
+                isSmall,
+                spreadCenter: isSmall ? 105 : (isMobile ? 135 : 220),
+                spreadStep: isSmall ? 55 : (isMobile ? 70 : 125),
+                depthStep: isSmall ? 110 : (isMobile ? 140 : 190),
+                angle: isSmall ? 38 : (isMobile ? 44 : 50),
+                visibleRadius: isSmall ? 2 : (isMobile ? 2.5 : 3.5),
+                scaleActive: isMobile ? 1.02 : 1.06,
+                scaleSide: isSmall ? 0.78 : (isMobile ? 0.82 : 0.86),
+                dragStepPx: isSmall ? 100 : (isMobile ? 130 : 200)
+            };
+        }
+
+        function layout(currentPos) {
+            const params = getResponsiveParams();
+            const { spreadCenter, spreadStep, depthStep, angle, visibleRadius, scaleActive, scaleSide } = params;
+
+            for (let i = 0; i < count; i++) {
+                const el = cards[i];
+                if (!el) continue;
+
+                let d = i - currentPos;
+                if (cfg.loop && count > 1) {
+                    d = ((d % count) + count) % count;
+                    if (d > count / 2) d -= count;
+                }
+
+                const absD = Math.abs(d);
+                const shown = absD <= visibleRadius + 0.5;
+
+                if (!shown) {
+                    el.style.opacity = '0';
+                    el.style.pointerEvents = 'none';
+                    el.style.transform = 'translate(-50%, -50%) scale(0.4)';
+                    continue;
+                }
+
+                const sign = d === 0 ? 0 : (d > 0 ? 1 : -1);
+                
+                // Continuous Coverflow interpolation
+                let tx = 0;
+                let tz = 0;
+                let ry = 0;
+                let cardScale = scaleActive;
+
+                if (absD < 1) {
+                    tx = sign * (absD * spreadCenter);
+                    tz = -absD * depthStep;
+                    ry = -sign * (absD * angle);
+                    cardScale = scaleActive - absD * (scaleActive - scaleSide);
+                } else {
+                    tx = sign * (spreadCenter + (absD - 1) * spreadStep);
+                    tz = -absD * depthStep;
+                    ry = -sign * angle;
+                    cardScale = scaleSide;
+                }
+
+                const opacity = Math.max(0, 1 - (absD - 1.25) * 0.45);
+                const brightness = Math.max(0.3, 1 - absD * 0.2);
+                const zi = Math.round(2000 - absD * 100);
+
+                el.style.transform = `translate(-50%, -50%) translateX(${tx.toFixed(2)}px) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(2)}deg) scale(${cardScale.toFixed(3)})`;
+                el.style.opacity = Math.min(1, opacity).toFixed(3);
+                el.style.filter = absD < 0.08 ? 'none' : `brightness(${brightness.toFixed(3)})`;
+                el.style.zIndex = String(zi);
+                el.style.pointerEvents = absD < 1.2 ? 'auto' : 'none';
+
+                const ov = el.querySelector('.depth-carousel__tint');
+                if (ov) {
+                    ov.style.opacity = absD < 0.1 ? '0' : Math.min(0.8, (absD * 0.25)).toFixed(3);
+                }
+            }
+        }
+
+        function notify(idx) {
+            dots.forEach((dot, i) => {
+                if (i === idx) dot.classList.add('is-active');
+                else dot.classList.remove('is-active');
+            });
+            cards.forEach((card, i) => {
+                if (i === idx) {
+                    card.classList.add('is-active');
+                    card.setAttribute('aria-hidden', 'false');
+                } else {
+                    card.classList.remove('is-active');
+                    card.setAttribute('aria-hidden', 'true');
+                }
+            });
+        }
+
+        function tweenTo(target, animate) {
+            if (currentTween) currentTween.kill();
+            const proxy = { p: pos };
+            const dur = animate ? cfg.duration / 1000 : 0;
+
+            if (window.gsap && dur > 0) {
+                currentTween = gsap.to(proxy, {
+                    p: target,
+                    duration: dur,
+                    ease: cfg.ease,
+                    onUpdate: () => {
+                        pos = proxy.p;
+                        layout(pos);
+                    },
+                    onComplete: () => {
+                        if (count > 0) pos = ((pos % count) + count) % count;
+                        layout(pos);
+                    }
+                });
+            } else {
+                pos = target;
+                if (count > 0) pos = ((pos % count) + count) % count;
+                layout(pos);
+            }
+        }
+
+        function setFocus(rawIndex, animate = true) {
+            if (!count) return;
+            const idx = cfg.loop ? ((rawIndex % count) + count) % count : clamp(rawIndex, 0, count - 1);
+            let delta = idx - pos;
+            if (cfg.loop && count > 1) {
+                delta = ((delta % count) + count) % count;
+                if (delta > count / 2) delta -= count;
+            }
+            tweenTo(pos + delta, animate);
+            if (idx !== focusIndex) {
+                focusIndex = idx;
+                notify(idx);
+            }
+        }
+
+        function navigateBy(step) {
+            setFocus(focusIndex + step, true);
+        }
+
+        // ResizeObserver
+        if ('ResizeObserver' in window) {
+            const ro = new ResizeObserver(() => {
+                layout(pos);
+            });
+            ro.observe(root);
+        }
+
+        // Pointer Drag & Touch
+        root.addEventListener('pointerdown', (e) => {
+            if (count < 2) return;
+            if (currentTween) currentTween.kill();
+            drag = {
+                x: e.clientX,
+                y: e.clientY,
+                startPos: pos,
+                lastX: e.clientX,
+                lastT: performance.now(),
+                v: 0,
+                moved: false,
+                id: e.pointerId
+            };
+        });
+
+        root.addEventListener('pointermove', (e) => {
+            if (!drag) return;
+            const params = getResponsiveParams();
+            const dx = e.clientX - drag.x;
+            const dy = e.clientY - drag.y;
+
+            if (!drag.moved && (Math.abs(dx) > 5 || Math.abs(dy) > 10)) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    drag.moved = true;
+                    try { root.setPointerCapture(drag.id); } catch(err){}
+                } else {
+                    drag = null;
+                    return;
+                }
+            }
+            if (!drag.moved) return;
+
+            const now = performance.now();
+            const dt = Math.max(now - drag.lastT, 1);
+            drag.v = (e.clientX - drag.lastX) / dt;
+            drag.lastX = e.clientX;
+            drag.lastT = now;
+            pos = drag.startPos - dx / params.dragStepPx;
+            layout(pos);
+        });
+
+        function onPointerEnd() {
+            if (!drag) return;
+            const wasMoved = drag.moved;
+            const finalV = drag.v || 0;
+            drag = null;
+            if (!wasMoved) return;
+
+            // Magnetic snap with velocity assist
+            let targetIdx = Math.round(pos - finalV * 0.18);
+            setFocus(targetIdx, true);
+        }
+
+        root.addEventListener('pointerup', onPointerEnd);
+        root.addEventListener('pointercancel', onPointerEnd);
+
+        // Keyboard
+        root.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateBy(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateBy(1);
+            }
+        });
+
+        // Card Clicks
+        cards.forEach((card, i) => {
+            card.addEventListener('click', (e) => {
+                if (drag && drag.moved) {
+                    e.preventDefault();
+                    return;
+                }
+                if (i !== focusIndex) {
+                    e.preventDefault();
+                    setFocus(i, true);
+                }
+            });
+        });
+
+        // Navigation Controls
+        const prevBtn = document.getElementById('depthPrevBtn');
+        const nextBtn = document.getElementById('depthNextBtn');
+        if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateBy(-1); });
+        if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateBy(1); });
+
+        // Autoplay
+        function startAutoplay() {
+            stopAutoplay();
+            autoTimer = setInterval(() => {
+                if (!isHovered && !isFocused) {
+                    navigateBy(1);
+                }
+            }, cfg.autoplayDelay);
+        }
+
+        function stopAutoplay() {
+            if (autoTimer) clearInterval(autoTimer);
+            autoTimer = null;
+        }
+
+        root.addEventListener('mouseenter', () => { isHovered = true; });
+        root.addEventListener('mouseleave', () => { isHovered = false; });
+        root.addEventListener('focusin', () => { isFocused = true; });
+        root.addEventListener('focusout', () => { isFocused = false; });
+
+        notify(0);
+        layout(0);
+        startAutoplay();
+    })();
 
     cargarDatos();
 </script>

@@ -42,3 +42,4 @@ if ('serviceWorker' in navigator) {
   
   // Exponer función globalmente
   window.updateMockData = updateMockData;
+}

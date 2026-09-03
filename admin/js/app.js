@@ -2,6 +2,7 @@
 import { initDatabaseManager } from './database-manager.js';
 import { initUserManager } from './user-manager.js';
 import { initChatbotManager } from './chatbot-manager.js';
+import { initTechnicalGuide } from './technical-guide.js';
 import { validateModuleRecord } from './schema-validator.js';
 
 // Session Inactivity Timer Configuration (30 minutos)
@@ -179,7 +180,7 @@ const ROLE_LABELS = {
 function hasAccessToModule(moduleName) {
     if (!currentUser) return true;
     if (currentUser.role === 'superadmin' || currentUser.username === 'admin' || currentUser.username === 'jaurruti') return true;
-    if (moduleName === 'dashboard' || moduleName === 'audit' || moduleName === 'chatbot') return true;
+    if (moduleName === 'dashboard' || moduleName === 'audit' || moduleName === 'chatbot' || moduleName === 'guide') return true;
     if (moduleName === 'users' || moduleName === 'roles' || moduleName === 'security' || moduleName === 'database') {
         return currentUser.role === 'superadmin' || currentUser.username === 'admin';
     }
@@ -195,7 +196,7 @@ function updateSidebarPermissions() {
     document.querySelectorAll('[data-module]').forEach(btn => {
         const mod = btn.dataset.module;
         const parent = btn.closest('li') || btn;
-        if (mod === 'dashboard' || mod === 'audit' || mod === 'chatbot') {
+        if (mod === 'dashboard' || mod === 'audit' || mod === 'chatbot' || mod === 'guide') {
             parent.style.display = 'block';
         } else if (mod === 'users' || mod === 'roles' || mod === 'security' || mod === 'database') {
             parent.style.display = isSuper ? 'block' : 'none';
@@ -305,6 +306,11 @@ window.navigateTo = async function(module) {
         return;
     }
 
+    if (module === 'guide') {
+        initTechnicalGuide();
+        return;
+    }
+
     // Dynamic CRUD Module (canales, directorio, tableros, riesgo, vehiculos, portal)
     renderCrudView(module);
     await fetchAndRenderTable(module);
@@ -351,6 +357,7 @@ function renderDashboardView() {
                     <button onclick="navigateTo('vehiculos')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-car"></i> Transparencia Vehicular</button>
                     <button onclick="navigateTo('vehiculos_instituciones')" style="padding: 0.6rem 1rem; background: #5a189a; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-building"></i> Criterios Vehiculares</button>
                     <button onclick="navigateTo('audit')" style="padding: 0.6rem 1rem; background: #163250; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-shield-alt"></i> Bitácora de Auditoría</button>
+                    <button onclick="navigateTo('guide')" style="padding: 0.6rem 1rem; background: #05111F; color: #00C2E0; border: 1px solid rgba(0,194,224,0.3); font-weight: 700; border-radius: 8px;"><i class="fas fa-book-open"></i> Guía Técnica</button>
                 </div>
             </div>
             <div style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
@@ -527,6 +534,14 @@ function renderAuditView() {
 
 async function loadAuditData() {
     try {
+        const tbody = document.getElementById('auditTableBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr class="skeleton-row"><td colspan="6" style="padding:1rem;"><div class="skeleton-loader" style="width:90%;"></div></td></tr>
+                <tr class="skeleton-row"><td colspan="6" style="padding:1rem;"><div class="skeleton-loader" style="width:75%;"></div></td></tr>
+                <tr class="skeleton-row"><td colspan="6" style="padding:1rem;"><div class="skeleton-loader" style="width:85%;"></div></td></tr>
+            `;
+        }
         const res = await fetch('/api/audit', { headers: getHeaders() });
         if (!res.ok) throw new Error('Error al obtener registros de auditoría');
         auditLogsData = await res.json();
@@ -806,6 +821,9 @@ function renderCrudView(module) {
 
 async function fetchAndRenderTable(module) {
     try {
+        if (typeof window.renderSkeletonTable === 'function') {
+            window.renderSkeletonTable('crudTable', 5, 5);
+        }
         const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders() });
         if (!res.ok) throw new Error('Error al cargar módulo');
         currentModuleData = await res.json();

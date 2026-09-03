@@ -86,8 +86,28 @@
             gap: 1.5rem;
         }
 
-        .logo-area a { display: flex; align-items: center; }
-        .gov-logo { height: 56px; width: auto; }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .logo-area a {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .gov-logo {
+            height: 52px;
+            width: auto;
+            max-height: 52px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
 
         .nav-menu {
             list-style: none;
@@ -1450,7 +1470,17 @@
             padding-bottom: 2.5rem;
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .footer-brand img { height: 52px; width: auto; margin-bottom: 1rem; }
+        .footer-brand img {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+            display: block;
+        }
         .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
         .footer-col h4 {
             font-family: var(--font-head);
@@ -1514,11 +1544,18 @@
             display: flex;
             gap: 1.5rem;
             align-items: center;
+            flex-shrink: 0;
         }
         .footer-logos img {
-            height: 3cm;
+            height: 36px;
             width: auto;
+            max-height: 36px;
+            max-width: 100%;
             object-fit: contain;
+            aspect-ratio: auto;
+            opacity: 0.6;
+            flex-shrink: 0;
+            display: block;
         }
 
         /* ============================================================
@@ -1801,7 +1838,7 @@
             .glosario-tab-btn { font-size: 0.72rem; padding: 0.4rem 1rem; }
             .footer-bottom { flex-direction: column; align-items: center; text-align: center; }
             .footer-logos { justify-content: center; }
-            .footer-logos img { height: 2.5cm; }
+            .footer-logos img { height: 32px; max-height: 32px; }
         }
         @media (max-width: 400px) {
             .modal-actions-row { flex-direction: column; }

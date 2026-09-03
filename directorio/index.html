@@ -81,14 +81,106 @@
         }
         .site-header.scrolled { box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
 
+        /* ============================================================
+           PILAR 1: MEJORAS VISUALES Y DE EXPERIENCIA DE USUARIO (UI/UX)
+        ============================================================ */
+        @keyframes skeleton-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .skeleton-loader {
+            background: linear-gradient(90deg, rgba(26, 92, 143, 0.06) 25%, rgba(0, 194, 224, 0.22) 37%, rgba(26, 92, 143, 0.06) 63%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.4s ease infinite;
+            border-radius: 6px;
+            display: inline-block;
+            height: 1.1rem;
+            width: 100%;
+        }
+
+        .table-responsive, .table-container, .table-wrapper, [style*="overflow-x: auto"] {
+            position: relative;
+            max-height: 72vh;
+            overflow-x: auto;
+            overflow-y: auto;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            scroll-behavior: smooth;
+        }
+
+        /* Encabezados Congelados (Sticky Headers) */
+        table thead tr th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--surface-card);
+            box-shadow: 0 2px 6px rgba(5, 17, 31, 0.08);
+        }
+
+        /* Congelar primera columna (Institución / Nombre) en Escritorio y Móviles */
+        table tbody tr td:first-child,
+        table thead tr th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            background: var(--surface-card);
+            border-right: 2px solid var(--border) !important;
+            box-shadow: 4px 0 10px rgba(5, 17, 31, 0.08);
+        }
+
+        table thead tr th:first-child {
+            z-index: 20; /* Intersección superior izquierda */
+            top: 0;
+        }
+
+        table tbody tr:hover td:first-child {
+            background: var(--surface) !important;
+        }
+
+        /* Micro-interacciones y animaciones */
+        button, .btn-capsula, .inst-card {
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+        }
+        button:hover:not(:disabled), .inst-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 194, 224, 0.18);
+        }
+        table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        table tbody tr:hover {
+            background-color: rgba(0, 194, 224, 0.05) !important;
+        }
+
         .navbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0.75rem 0;
             gap: 1.5rem;
         }
 
-        .logo-area a { display: flex; align-items: center; }
-        .gov-logo { height: 56px; width: auto; }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .logo-area a {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .gov-logo {
+            height: 52px;
+            width: auto;
+            max-height: 52px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
 
         .nav-menu {
             list-style: none;
@@ -1332,7 +1424,17 @@
             padding-bottom: 2.5rem;
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .footer-brand img { height: 52px; width: auto; margin-bottom: 1rem; }
+        .footer-brand img {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+            display: block;
+        }
         .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
         .footer-col h4 {
             font-family: var(--font-head);
@@ -1352,8 +1454,18 @@
             padding-top: 1.5rem;
             font-size: 0.75rem; color: rgba(255,255,255,0.3);
         }
-        .footer-logos { display: flex; gap: 1.5rem; align-items: center; }
-        .footer-logos img { height: 36px; width: auto; opacity: 0.6; }
+        .footer-logos { display: flex; gap: 1.5rem; align-items: center; flex-shrink: 0; }
+        .footer-logos img {
+            height: 36px;
+            width: auto;
+            max-height: 36px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            opacity: 0.6;
+            flex-shrink: 0;
+            display: block;
+        }
 
         /* ============================================================
            MODAL
