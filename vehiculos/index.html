@@ -1110,7 +1110,7 @@
 
         .repo-detail-stats {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 0.8rem;
             margin-bottom: 1.8rem;
         }
@@ -2243,6 +2243,28 @@
             color: #16a34a;
             border: 1px solid rgba(34,197,94,0.3);
         }
+        .badge-status-check.proceso,
+        .comp-capsule-proceso,
+        .comp-legend .capsule-proceso {
+            background: #FACC15 !important;
+            color: #000000 !important;
+            border: 1px solid #EAB308 !important;
+            font-weight: 700 !important;
+        }
+        .badge-status-check.proceso i,
+        .comp-capsule-proceso i,
+        .comp-legend .capsule-proceso i {
+            color: #000000 !important;
+        }
+        .comp-capsule-proceso {
+            padding: 0.2rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            line-height: 1;
+        }
         .badge-status-check.fail {
             background: rgba(239,68,68,0.12);
             color: #dc2626;
@@ -2865,8 +2887,11 @@
     <div class="container">
         <div class="section-header">
             <div class="tag"><span></span> Cumplimiento institucional</div>
-            <h2>Semáforo del <em>parque vehicular</em> del Estado</h2>
-            <p>Cada institución es evaluada según la Normativa 2024 para el uso adecuado de vehículos oficiales. Este semáforo refleja el porcentaje de placas que cumplen íntegramente con la normativa.</p>
+            <h2>Semáforo de cumplimiento</h2>
+            <p>Cada institución es evaluada según los lineamientos en la materia para el uso adecuado de vehículos oficiales. El semáforo refleja el cumplimiento general de los mismos criterios que se evalúan de manera individual abajo.</p>
+            <p style="margin-top:0.45rem; font-size:0.9rem; color:var(--cyan); font-weight:600; line-height:1.4;">
+                <i class="fas fa-file-contract" style="margin-right:6px;"></i> Lineamiento técnico para fortalecer la implementación de las disposiciones relativas a la asignación y uso de vehículos pertenecientes al Organismo Ejecutivo.
+            </p>
         </div>
 
         <div class="semaphore-grid">
@@ -2878,12 +2903,12 @@
                 </div>
                 <div style="margin-top:0.85rem; font-size:0.88rem; color:var(--text-muted); line-height:1.5;">
                     <div style="font-weight:700; color:var(--text-main); margin-bottom:0.35rem;">
-                        <i class="fas fa-info-circle" style="color:var(--cyan);"></i> Basado en el cumplimiento de criterios evaluados
+                        <i class="fas fa-check-double" style="color:var(--cyan);"></i> Criterios Evaluados de cumplimiento institucional
                     </div>
                     <div style="font-size:0.82rem; display:flex; flex-direction:column; gap:0.25rem;">
-                        <span>🟢 <strong>Cumple:</strong> Dependencias que cumplen con los 7 criterios evaluados (100.00%).</span>
-                        <span>🟡 <strong>En proceso:</strong> Dependencias con más de un criterio cumplido (entre 1 y 6 criterios).</span>
-                        <span>🔴 <strong>No cumple:</strong> Dependencias que no tienen ningún criterio cumplido (0/7).</span>
+                        <span>🟢 <strong>Cumple:</strong> Instituciones que cumplen con los 7 criterios evaluados (100.00%).</span>
+                        <span>🟡 <strong>En proceso:</strong> Instituciones con criterios en desarrollo o cumplimiento parcial (entre 1 y 6 criterios).</span>
+                        <span>🔴 <strong>No cumple:</strong> Instituciones que no registran criterios cumplidos (0/7).</span>
                     </div>
                 </div>
             </div>
@@ -2895,11 +2920,11 @@
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
                     <span class="global-pct" id="globalPct">0.00%</span>
-                    <span style="font-weight:600; color:var(--text-muted);">cumplimiento institucional promedio (7 variables)</span>
+                    <span style="font-weight:600; color:var(--text-muted);">Distribución de criterios cumplidos por cada institución del Organismo Ejecutivo.</span>
                 </div>
                 <div class="semaphore-legend">
                     <span><span class="dot green"></span> Cumple (7/7)</span>
-                    <span><span class="dot amber"></span> En proceso (1-6)</span>
+                    <span class="comp-capsule-proceso"><i class="fas fa-clock" style="font-size:0.7rem;"></i> En proceso (1-6)</span>
                     <span><span class="dot red"></span> No cumple (0/7)</span>
                 </div>
             </div>
@@ -2910,9 +2935,9 @@
         <div class="criterios-dashboard-card" style="margin-top:2rem; margin-bottom:2rem; background:var(--surface-card); border:1px solid var(--border); border-radius:20px; padding:1.8rem; box-shadow:var(--shadow-md);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.2rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
                 <div>
-                    <div class="tag"><span></span> Lineamiento Técnico 2024</div>
-                    <h3 style="font-family:var(--font-head); font-size:1.35rem; font-weight:800; color:var(--text-main); margin:0.2rem 0;">Criterios Evaluados de Cumplimiento Institucional</h3>
-                    <p style="color:var(--text-muted); font-size:0.88rem; margin:0;">Análisis del nivel de cumplimiento y criterios con mayor nivel de incumplimiento en el Organismo Ejecutivo.</p>
+                    <div class="tag"><span></span> Lineamiento Técnico</div>
+                    <h3 style="font-family:var(--font-head); font-size:1.35rem; font-weight:800; color:var(--text-main); margin:0.2rem 0;">Criterios Evaluados de cumplimiento institucional</h3>
+                    <p style="color:var(--text-muted); font-size:0.88rem; margin:0;">Distribución de criterios cumplidos por cada institución del Organismo Ejecutivo.</p>
                 </div>
                 <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
                     <button class="btn-sm outline" onclick="exportCriteriosReportPDF()"><i class="fas fa-file-pdf"></i> Reporte Criterios PDF</button>
@@ -2952,28 +2977,6 @@
                         <div class="repo-detail-stat"><div class="num green" id="detailCumple">7</div><div class="lbl">Cumple</div></div>
                         <div class="repo-detail-stat"><div class="num amber" id="detailProceso">0</div><div class="lbl">En proceso</div></div>
                         <div class="repo-detail-stat"><div class="num red" id="detailNoCumple">0</div><div class="lbl">No cumple</div></div>
-                        <div class="repo-detail-stat"><div class="num blue" id="detailTotalPlacas">0</div><div class="lbl">Placas flotilla</div></div>
-                    </div>
-
-                    <div class="distro-section-detail" id="distroSection">
-                        <h5 style="margin-bottom:0.8rem; font-family:var(--font-head); font-weight:700;">Estado de los 7 Criterios del Lineamiento Técnico</h5>
-                        <div id="distroRows">
-                            <div class="distro-row">
-                                <span class="distro-label"><span class="dot green"></span> Cumple</span>
-                                <div class="distro-bar-track"><div class="distro-fill green" id="distroCumple" style="width:100%;"></div></div>
-                                <span class="distro-value" id="distroCumpleVal">7 Criterios</span>
-                            </div>
-                            <div class="distro-row">
-                                <span class="distro-label"><span class="dot amber"></span> En proceso</span>
-                                <div class="distro-bar-track"><div class="distro-fill amber" id="distroProceso" style="width:0%;"></div></div>
-                                <span class="distro-value" id="distroProcesoVal">0 Criterios</span>
-                            </div>
-                            <div class="distro-row">
-                                <span class="distro-label"><span class="dot red"></span> No cumple</span>
-                                <div class="distro-bar-track"><div class="distro-fill red" id="distroNoCumple" style="width:0%;"></div></div>
-                                <span class="distro-value" id="distroNoCumpleVal">0 Criterios</span>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="composition-bar" style="margin-top:1.2rem;">
@@ -2985,7 +2988,7 @@
                         </div>
                         <div class="comp-legend">
                             <span><span class="dot green"></span> Cumple</span>
-                            <span><span class="dot amber"></span> En proceso</span>
+                            <span class="comp-capsule-proceso"><i class="fas fa-clock" style="font-size:0.7rem;"></i> En proceso</span>
                             <span><span class="dot red"></span> No cumple</span>
                         </div>
                     </div>
@@ -2995,7 +2998,7 @@
 
                     <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border); text-align:center;">
                         <button class="btn-repo-detail-primary" id="btnOpenRepoDetailModal" onclick="openRepoDetailModal()">
-                            <i class="fas fa-id-card"></i> Ver Perfil Institucional Completo (Documentación y Flotilla)
+                            <i class="fas fa-id-card"></i> Ver Perfil Institucional Completo (Criterios y Documentación)
                         </button>
                     </div>
                 </div>
@@ -3008,8 +3011,8 @@
     <div class="container">
         <div class="section-header">
             <div class="tag" style="color:var(--cyan);"><span></span> Marco legal</div>
-            <h2>Normativa 2024 para el uso adecuado de <em>vehículos oficiales</em></h2>
-            <p>En 2024 el Presidente de la República emitió disposiciones específicas cuya observancia es objeto de auditoría social y verificación por la Contraloría General de Cuentas.</p>
+            <h2>Normativa y lineamientos que regulan el uso y asignación de vehículos</h2>
+            <p>En 2024 se realizó una reforma a la ley de Tránsito, el Decreto 33-2024 donde regula aspectos específicos sobre la identificación de vehículos gubernamentales, asimismo, publicó el Oficio Circular No. 02-2024 del Señor Presidente “Directrices Presidenciales aplicables a la asignación y uso de vehículos oficiales del Organismo Ejecutivo”, derivado de esto se creó el Lineamiento técnico para fortalecer la implementación de las disposiciones relativas a la asignación y uso de vehículos pertenecientes al Organismo Ejecutivo. Los criterios en común en esos documentos.</p>
         </div>
         <div class="legal-grid">
             <div class="legal-card">
@@ -3096,13 +3099,13 @@
                     <!-- 7. Criterio evaluado -->
                     <select id="catalogFilterCriterio" class="custom-select-styled" aria-label="Criterio evaluado">
                         <option value="">📋 Criterio Evaluado</option>
-                        <option value="procedimiento_asignacion">1. Procedimiento asignación y uso</option>
+                        <option value="procedimiento_asignacion">1. Procedimiento para la asignación y uso de vehículos</option>
                         <option value="registro_interno">2. Registro interno de vehículos</option>
-                        <option value="publicacion_registro">3. Publicación registro institucional</option>
+                        <option value="publicacion_registro">3. Publicación del registro institucional</option>
                         <option value="canal_auditoria">4. Canal de auditoría social</option>
-                        <option value="identificacion_logotipo">5. Identificación logotipo oficial</option>
-                        <option value="disposicion_excepcional">6. Disposición uso excepcional</option>
-                        <option value="justificacion_seguridad">7. Excepciones por seguridad</option>
+                        <option value="identificacion_logotipo">5. Identificación mediante logotipo oficial</option>
+                        <option value="disposicion_excepcional">6. Disposición para el uso excepción al autorizado</option>
+                        <option value="justificacion_seguridad">7. Disposición para justificar excepciones por motivos de seguridad</option>
                     </select>
                 </div>
 
@@ -3140,197 +3143,6 @@
         </div>
 
         <div class="pagination-wrap" id="catalogPagination"></div>
-    </div>
-</section>
-
-<!-- ============================================================
-     SECCIÓN DE COMPARATIVA INSTITUCIONAL Y SPIDER CHART
-============================================================ -->
-<section class="comparison-section" id="comparisonSection">
-    <div class="container">
-        <div class="section-header">
-            <div class="tag"><span></span> Comparativa Institucional</div>
-            <h2>Análisis Comparativo de <em>Indicadores Vehiculares</em></h2>
-            <p>Selecciona dos instituciones para contrastar visualmente sus indicadores de transparencia vehicular y cumplimiento normativo mediante un gráfico de telaraña (Spider Chart).</p>
-        </div>
-
-        <!-- Barra de Selección de Instituciones -->
-        <div class="comparison-controls-card">
-            <div class="compare-selectors-grid">
-                <div class="compare-select-group">
-                    <label for="compareInstA" class="compare-select-label inst-a">
-                        <i class="fas fa-building"></i> Institución A (Referencia Principal)
-                    </label>
-                    <select id="compareInstA" class="compare-select" aria-label="Seleccionar Institución A">
-                        <!-- Opciones cargadas dinámicamente -->
-                    </select>
-                </div>
-
-                <div style="text-align:center;">
-                    <button type="button" id="btnSwapCompare" class="btn-swap-compare" title="Intercambiar Instituciones" aria-label="Intercambiar Instituciones">
-                        <i class="fas fa-exchange-alt"></i>
-                    </button>
-                </div>
-
-                <div class="compare-select-group">
-                    <label for="compareInstB" class="compare-select-label inst-b">
-                        <i class="fas fa-building"></i> Institución B (Comparativa)
-                    </label>
-                    <select id="compareInstB" class="compare-select" aria-label="Seleccionar Institución B">
-                        <!-- Opciones cargadas dinámicamente -->
-                    </select>
-                </div>
-            </div>
-
-            <!-- Accesos Rápidos de Comparación (Presets) -->
-            <div class="compare-preset-pills">
-                <span style="font-size:0.78rem; font-weight:700; color:var(--text-main); margin-right:0.2rem;">
-                    <i class="fas fa-bolt" style="color:var(--cyan);"></i> Comparativas Sugeridas:
-                </span>
-                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MAGA', 'MINECO')">MAGA vs MINECO</button>
-                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MEM', 'CIV')">MEM vs CIV</button>
-                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MINFIN', 'MSPAS')">MINFIN vs MSPAS</button>
-                <button type="button" class="compare-preset-pill" onclick="setComparisonPreset('MCD', 'MARN')">MCD vs MARN</button>
-            </div>
-        </div>
-
-        <!-- Cuadrícula Principal de Comparación con Spider Chart -->
-        <div class="comparison-main-grid">
-            <!-- Tarjeta Institución A -->
-            <div class="compare-inst-card card-a" id="compareCardA">
-                <div>
-                    <div class="compare-card-badge"><i class="fas fa-landmark"></i> Institución A</div>
-                    <div class="compare-inst-title" id="cardATitle">Cargando...</div>
-                    <div class="compare-inst-sub" id="cardASub">—</div>
-
-                    <div class="compare-kpi-ring">
-                        <div class="compare-kpi-val" id="cardAPercent">0%</div>
-                        <div class="compare-kpi-lbl">Cumplimiento Normativo</div>
-                    </div>
-
-                    <div class="compare-metrics-list">
-                        <div class="compare-metric-item">
-                            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Criterios Aprobados:</span>
-                            <strong id="cardAPassCount">0/7</strong>
-                        </div>
-                        <div class="compare-metric-item">
-                            <span><i class="fas fa-car" style="color:var(--blue-bright);"></i> Flota Registrada:</span>
-                            <strong id="cardAFleetTotal">0 vehículos</strong>
-                        </div>
-                        <div class="compare-metric-item">
-                            <span><i class="fas fa-shield-alt"></i> Estado General:</span>
-                            <div id="cardAStatusTag" style="display:inline-block;">—</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="button" class="btn-sm outline" style="margin-top:1.25rem; width:100%; text-align:center; justify-content:center;" id="btnCardADetail">
-                    <i class="fas fa-id-card"></i> Ver Ficha Completa A
-                </button>
-            </div>
-
-            <!-- Contenedor del Gráfico Radar / Spider Chart -->
-            <div class="compare-spider-container">
-                <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                    <span style="font-size:0.85rem; font-weight:800; color:var(--text-main); text-transform:uppercase; letter-spacing:0.04em; display:inline-flex; align-items:center;">
-                        <i class="fas fa-spider" style="color:var(--cyan); margin-right:0.4rem;"></i> Gráfico Spider de Indicadores
-                        <span class="spider-info-wrapper" tabindex="0" aria-label="Información de las 7 dimensiones">
-                            <i class="fas fa-info-circle spider-info-icon"></i>
-                            <div class="spider-info-tooltip">
-                                <div class="spider-tooltip-title"><i class="fas fa-list-check"></i> 7 Dimensiones Evaluadas</div>
-                                <ul class="spider-tooltip-list">
-                                    <li><strong>1. Asignación:</strong> Manual de uso y normativa interna formalizada</li>
-                                    <li><strong>2. Registro Interno:</strong> Inventario de unidades vehiculares actualizado</li>
-                                    <li><strong>3. Publicación:</strong> Información pública y accesible sobre la flota</li>
-                                    <li><strong>4. Canal Auditoría:</strong> Mecanismos para denuncias o reportes ciudadanos</li>
-                                    <li><strong>5. Logotipo Oficial:</strong> Rotulación clara y visible en unidades autorizadas</li>
-                                    <li><strong>6. Uso Excepcional:</strong> Regulación para uso fuera de jornada o comisiones</li>
-                                    <li><strong>7. Motivos Seguridad:</strong> Justificación documentada para vehículos de seguridad</li>
-                                </ul>
-                            </div>
-                        </span>
-                    </span>
-                    <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">
-                        Escala 0% - 100%
-                    </span>
-                </div>
-                <div class="spider-chart-wrap">
-                    <canvas id="spiderChartCanvas"></canvas>
-                </div>
-            </div>
-
-            <!-- Tarjeta Institución B -->
-            <div class="compare-inst-card card-b" id="compareCardB">
-                <div>
-                    <div class="compare-card-badge"><i class="fas fa-landmark"></i> Institución B</div>
-                    <div class="compare-inst-title" id="cardBTitle">Cargando...</div>
-                    <div class="compare-inst-sub" id="cardBSub">—</div>
-
-                    <div class="compare-kpi-ring">
-                        <div class="compare-kpi-val" id="cardBPercent">0%</div>
-                        <div class="compare-kpi-lbl">Cumplimiento Normativo</div>
-                    </div>
-
-                    <div class="compare-metrics-list">
-                        <div class="compare-metric-item">
-                            <span><i class="fas fa-check-circle" style="color:var(--green);"></i> Criterios Aprobados:</span>
-                            <strong id="cardBPassCount">0/7</strong>
-                        </div>
-                        <div class="compare-metric-item">
-                            <span><i class="fas fa-car" style="color:var(--amber);"></i> Flota Registrada:</span>
-                            <strong id="cardBFleetTotal">0 vehículos</strong>
-                        </div>
-                        <div class="compare-metric-item">
-                            <span><i class="fas fa-shield-alt"></i> Estado General:</span>
-                            <div id="cardBStatusTag" style="display:inline-block;">—</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="button" class="btn-sm outline" style="margin-top:1.25rem; width:100%; text-align:center; justify-content:center;" id="btnCardBDetail">
-                    <i class="fas fa-id-card"></i> Ver Ficha Completa B
-                </button>
-            </div>
-        </div>
-
-        <!-- Tarjeta de Resumen Comparativo & Hallazgos Clave -->
-        <div id="compareSummaryCard" style="background:var(--navy-mid); color:#fff; border-radius:18px; padding:1.25rem 1.75rem; margin-bottom:2rem; border:1px solid rgba(0,194,224,0.25); box-shadow:var(--shadow-md);">
-            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
-                <i class="fas fa-lightbulb" style="color:var(--amber); font-size:1.3rem;"></i>
-                <h4 style="margin:0; font-family:var(--font-head); font-size:1.05rem; color:#fff;" id="compareSummaryTitle">Resumen del Análisis Comparativo</h4>
-            </div>
-            <p style="margin:0; font-size:0.88rem; color:rgba(255,255,255,0.88); line-height:1.5;" id="compareSummaryText">
-                Cargando análisis comparativo entre instituciones...
-            </p>
-        </div>
-
-        <!-- Tabla Detallada Criterio por Criterio -->
-        <div class="comparison-details-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
-                <h3 style="margin:0; font-size:1.15rem; font-family:var(--font-head); color:var(--text-main);">
-                    Desglose Criterio por Criterio
-                </h3>
-                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">
-                    Evaluación directa de los 7 criterios del catálogo oficial
-                </span>
-            </div>
-
-            <div class="comparison-table-wrap">
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th style="width:40%;">Criterio Normativo Evaluado</th>
-                            <th style="text-align:center; width:22%;" id="thInstAHeader">Institución A</th>
-                            <th style="text-align:center; width:16%;">Comparativa</th>
-                            <th style="text-align:center; width:22%;" id="thInstBHeader">Institución B</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparisonCriteriaTableBody">
-                        <!-- Filas inyectadas por JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -3629,7 +3441,6 @@
         populateCatalogFilters();
         populateCatalogFiltersExtended();
         renderCatalog();
-        populateComparisonSelects();
 
         setupSearchEvents();
         setupVoiceAndCamera();
@@ -4198,11 +4009,19 @@
         filtered.sort((a, b) => (order[a.sector] || 99) - (order[b.sector] || 99) || a.nombre.localeCompare(b.nombre));
 
         list.innerHTML = filtered.map(inst => {
-            const stats = getInstitutionCompliance(inst.nombre);
+            let passCount = 0;
+            if (inst.criterios) {
+                Object.values(inst.criterios).forEach(c => {
+                    if (c && (c.cumple === true || c.estado === 'cumple')) passCount++;
+                });
+            } else {
+                passCount = 7;
+            }
+            const badgeClass = passCount === 7 ? 'pass' : (passCount > 0 ? 'proceso' : 'fail');
             const isActive = inst.nombre === (document.getElementById('detailName').textContent || '');
             return `<div class="repo-item ${isActive ? 'active' : ''}" data-inst="${inst.nombre}" onclick="selectInstitution('${inst.nombre}')">
                 <span class="name">${inst.nombre}</span>
-                <span class="count">${stats.total}</span>
+                <span class="badge-status-check ${badgeClass}" style="font-size:0.72rem; padding:0.18rem 0.5rem; white-space:nowrap;">${passCount}/7</span>
             </div>`;
         }).join('');
         if (filtered.length > 0 && !document.querySelector('.repo-item.active')) {
@@ -4214,21 +4033,49 @@
         const stats = getInstitutionCompliance(instName);
         const inst = catalogInstituciones.find(i => i.nombre === instName);
 
-        // Compute 7 criteria status breakdown for this institution
+        // Compute 7 criteria status breakdown for this institution according to official lineamiento técnico
         let criteriaStats = { cumple: 0, proceso: 0, nocumple: 0 };
         const criteriosKeys = [
-            { key: 'procedimiento_asignacion', label: '1. Procedimiento de asignación' },
-            { key: 'registro_interno', label: '2. Registro interno' },
-            { key: 'publicacion_registro', label: '3. Publicación del registro' },
-            { key: 'canal_auditoria', label: '4. Canal de auditoría social' },
-            { key: 'identificacion_logotipo', label: '5. Identificación con logotipo' },
-            { key: 'disposicion_excepcional', label: '6. Disposición de uso excepcional' },
-            { key: 'justificacion_seguridad', label: '7. Justificación por seguridad' }
+            {
+                key: 'procedimiento_asignacion',
+                label: 'Procedimiento para la asignación y uso de vehículos',
+                desc: 'Reglamento o procedimiento para la asignación y uso de vehículos dentro de la institución.'
+            },
+            {
+                key: 'registro_interno',
+                label: 'Registro interno de vehículos',
+                desc: 'Inventario de vehículos dentro de la Institución.'
+            },
+            {
+                key: 'publicacion_registro',
+                label: 'Publicación del registro institucional',
+                desc: 'Disponibilidad del registro interno para consulta de la ciudadanía.'
+            },
+            {
+                key: 'canal_auditoria',
+                label: 'Canal de auditoría social',
+                desc: 'Mecanismos para la denuncia administrativa de irregularidades.'
+            },
+            {
+                key: 'identificacion_logotipo',
+                label: 'Identificación mediante logotipo oficial',
+                desc: 'Colocación del logotipo oficial en laterales y luneta de los vehículos.'
+            },
+            {
+                key: 'disposicion_excepcional',
+                label: 'Disposición para el uso excepción al autorizado',
+                desc: 'Disposición que justifica el uso del distintivo de “USO EXCEPCIONAL AUTORIZADO”'
+            },
+            {
+                key: 'justificacion_seguridad',
+                label: 'Disposición para justificar excepciones por motivos de seguridad',
+                desc: 'Disposición que justifica la no identificación mediante logotipo oficial por motivos de seguridad.'
+            }
         ];
 
         let miniListHTML = '';
         if (inst && inst.criterios) {
-            criteriosKeys.forEach(c => {
+            criteriosKeys.forEach((c, idx) => {
                 const crit = inst.criterios[c.key];
                 let estado = 'nocumple';
                 let stateLabel = 'No cumple';
@@ -4252,9 +4099,16 @@
                 criteriaStats[estado]++;
 
                 miniListHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); padding:0.45rem 0.75rem; border-radius:8px; border:1px solid var(--border); font-size:0.78rem;">
-                        <span style="color:var(--text-main); font-weight:500; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:70%;">${c.label}</span>
-                        <span class="badge-status-check ${stateClass}" style="font-size:0.72rem; padding:0.2rem 0.55rem; gap:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; background:var(--surface); padding:0.55rem 0.75rem; border-radius:8px; border:1px solid var(--border); font-size:0.78rem; gap:0.6rem;">
+                        <div style="flex:1; min-width:0;">
+                            <div style="color:var(--text-main); font-weight:700; font-size:0.8rem; line-height:1.25; margin-bottom:0.15rem;">
+                                ${idx + 1}. ${c.label}
+                            </div>
+                            <div style="color:var(--text-muted); font-size:0.72rem; line-height:1.25;">
+                                ${c.desc}
+                            </div>
+                        </div>
+                        <span class="badge-status-check ${stateClass}" style="font-size:0.72rem; padding:0.2rem 0.55rem; gap:4px; white-space:nowrap; flex-shrink:0;">
                             <i class="fas ${stateIcon}"></i> ${stateLabel}
                         </span>
                     </div>
@@ -4283,21 +4137,6 @@
             proceso: (criteriaStats.proceso / totalCriteria) * 100,
             nocumple: (criteriaStats.nocumple / totalCriteria) * 100
         };
-
-        const distroCumple = document.getElementById('distroCumple');
-        if (distroCumple) distroCumple.style.width = pcts.cumple + '%';
-        const distroCumpleVal = document.getElementById('distroCumpleVal');
-        if (distroCumpleVal) distroCumpleVal.textContent = `${criteriaStats.cumple} Criterios (${Math.round(pcts.cumple)}%)`;
-
-        const distroProceso = document.getElementById('distroProceso');
-        if (distroProceso) distroProceso.style.width = pcts.proceso + '%';
-        const distroProcesoVal = document.getElementById('distroProcesoVal');
-        if (distroProcesoVal) distroProcesoVal.textContent = `${criteriaStats.proceso} Criterios (${Math.round(pcts.proceso)}%)`;
-
-        const distroNoCumple = document.getElementById('distroNoCumple');
-        if (distroNoCumple) distroNoCumple.style.width = pcts.nocumple + '%';
-        const distroNoCumpleVal = document.getElementById('distroNoCumpleVal');
-        if (distroNoCumpleVal) distroNoCumpleVal.textContent = `${criteriaStats.nocumple} Criterios (${Math.round(pcts.nocumple)}%)`;
 
         const compCumple = document.getElementById('compCumple');
         if (compCumple) compCumple.style.width = pcts.cumple + '%';
@@ -4559,13 +4398,13 @@ let currentSelectedInstName = '';
 
 function computeCriteriaStats() {
     const criteriosKeys = [
-        { key: 'procedimiento_asignacion', label: '1. Procedimiento para asignación y uso de vehículos', icon: 'fa-file-signature' },
-        { key: 'registro_interno', label: '2. Registro interno de vehículos', icon: 'fa-list-ol' },
-        { key: 'publicacion_registro', label: '3. Publicación del registro institucional', icon: 'fa-globe' },
-        { key: 'canal_auditoria', label: '4. Canal de auditoría social', icon: 'fa-bullhorn' },
-        { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', icon: 'fa-shield-alt' },
-        { key: 'disposicion_excepcional', label: '6. Disposición para uso excepcional autorizado', icon: 'fa-user-check' },
-        { key: 'justificacion_seguridad', label: '7. Justificación de excepciones por seguridad', icon: 'fa-lock' }
+        { key: 'procedimiento_asignacion', label: '1. Procedimiento para la asignación y uso de vehículos', desc: 'Reglamento o procedimiento para la asignación y uso de vehículos dentro de la institución.', icon: 'fa-file-signature' },
+        { key: 'registro_interno', label: '2. Registro interno de vehículos', desc: 'Inventario de vehículos dentro de la Institución.', icon: 'fa-list-ol' },
+        { key: 'publicacion_registro', label: '3. Publicación del registro institucional', desc: 'Disponibilidad del registro interno para consulta de la ciudadanía.', icon: 'fa-globe' },
+        { key: 'canal_auditoria', label: '4. Canal de auditoría social', desc: 'Mecanismos para la denuncia administrativa de irregularidades.', icon: 'fa-bullhorn' },
+        { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', desc: 'Colocación del logotipo oficial en laterales y luneta de los vehículos.', icon: 'fa-shield-alt' },
+        { key: 'disposicion_excepcional', label: '6. Disposición para el uso excepción al autorizado', desc: 'Disposición que justifica el uso del distintivo de “USO EXCEPCIONAL AUTORIZADO”', icon: 'fa-user-check' },
+        { key: 'justificacion_seguridad', label: '7. Disposición para justificar excepciones por motivos de seguridad', desc: 'Disposición que justifica la no identificación mediante logotipo oficial por motivos de seguridad.', icon: 'fa-lock' }
     ];
 
     const totalInst = catalogInstituciones.length || 1;
@@ -4648,9 +4487,9 @@ function renderCriteriosDashboard() {
     });
 
     let html = `
-        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-bottom:1rem; font-size:0.85rem; font-weight:600;">
+        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-bottom:1rem; font-size:0.85rem; font-weight:600; align-items:center;">
             <span style="display:flex; align-items:center; gap:0.4rem;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--green);"></span> Cumple</span>
-            <span style="display:flex; align-items:center; gap:0.4rem;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--amber);"></span> En Proceso</span>
+            <span class="comp-capsule-proceso"><i class="fas fa-clock" style="font-size:0.75rem;"></i> En proceso</span>
             <span style="display:flex; align-items:center; gap:0.4rem;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--danger);"></span> No Cumple</span>
         </div>
         <div style="max-height: 400px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.8rem;">
@@ -4669,7 +4508,7 @@ function renderCriteriosDashboard() {
                 </div>
                 <div style="display:flex; height:16px; border-radius:8px; overflow:hidden; background:var(--bg-main);">
                     ${stat.cumple > 0 ? `<div style="width:${pCumple}%; background:var(--green);" title="Cumple: ${stat.cumple}"></div>` : ''}
-                    ${stat.proceso > 0 ? `<div style="width:${pProceso}%; background:var(--amber);" title="En Proceso: ${stat.proceso}"></div>` : ''}
+                    ${stat.proceso > 0 ? `<div style="width:${pProceso}%; background:#FACC15;" title="En Proceso: ${stat.proceso}"></div>` : ''}
                     ${stat.nocumple > 0 ? `<div style="width:${pNocumple}%; background:var(--danger);" title="No Cumple: ${stat.nocumple}"></div>` : ''}
                 </div>
             </div>
@@ -4881,13 +4720,13 @@ window.openInstitutionalProfile = function(instName) {
     currentSelectedInstName = inst.nombre;
 
     const criteriosKeys = [
-        { key: 'procedimiento_asignacion', label: '1. Procedimiento para la asignación y uso de vehículos', desc: 'Reglamento o normativo interno aprobado y publicado oficialmente.' },
-        { key: 'registro_interno', label: '2. Registro interno de vehículos', desc: 'Inventario completo y actualizado de la flotilla institucional.' },
-        { key: 'publicacion_registro', label: '3. Publicación del registro institucional', desc: 'Disponibilidad pública del inventario vehicular en el portal de información.' },
-        { key: 'canal_auditoria', label: '4. Canal de auditoría social', desc: 'Módulo o mecanismo habilitado para la fiscalización ciudadana.' },
-        { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', desc: 'Vehículos con rotulación oficial visible según el manual institucional.' },
-        { key: 'disposicion_excepcional', label: '6. Disposición para el uso excepcional autorizado', desc: 'Normativa administrativa para autorizaciones fuera de jornada ordinaria.' },
-        { key: 'justificacion_seguridad', label: '7. Disposición para justificar excepciones por motivos de seguridad', desc: 'Matriz formal de justificación para vehículos exceptuados por seguridad.' }
+        { key: 'procedimiento_asignacion', label: '1. Procedimiento para la asignación y uso de vehículos', desc: 'Reglamento o procedimiento para la asignación y uso de vehículos dentro de la institución.' },
+        { key: 'registro_interno', label: '2. Registro interno de vehículos', desc: 'Inventario de vehículos dentro de la Institución.' },
+        { key: 'publicacion_registro', label: '3. Publicación del registro institucional', desc: 'Disponibilidad del registro interno para consulta de la ciudadanía.' },
+        { key: 'canal_auditoria', label: '4. Canal de auditoría social', desc: 'Mecanismos para la denuncia administrativa de irregularidades.' },
+        { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', desc: 'Colocación del logotipo oficial en laterales y luneta de los vehículos.' },
+        { key: 'disposicion_excepcional', label: '6. Disposición para el uso excepción al autorizado', desc: 'Disposición que justifica el uso del distintivo de “USO EXCEPCIONAL AUTORIZADO”' },
+        { key: 'justificacion_seguridad', label: '7. Disposición para justificar excepciones por motivos de seguridad', desc: 'Disposición que justifica la no identificación mediante logotipo oficial por motivos de seguridad.' }
     ];
 
     let passCount = 0;
@@ -4926,7 +4765,22 @@ window.openInstitutionalProfile = function(instName) {
     if (listEl) {
         listEl.innerHTML = criteriosKeys.map(c => {
             const critData = inst.criterios && inst.criterios[c.key] ? inst.criterios[c.key] : { cumple: true, docUrl: '#' };
-            const meets = !!(critData.cumple === true || critData.estado === 'cumple');
+            let stateClass = 'fail';
+            let stateLabel = 'No cumple';
+            let stateIcon = 'fa-times-circle';
+
+            if (critData) {
+                if (critData.estado === 'proceso' || critData.estado === 'parcial' || critData.proceso || critData.en_proceso) {
+                    stateClass = 'proceso';
+                    stateLabel = 'En proceso';
+                    stateIcon = 'fa-clock';
+                } else if (critData.cumple === true || critData.estado === 'cumple') {
+                    stateClass = 'pass';
+                    stateLabel = 'Cumple';
+                    stateIcon = 'fa-check-circle';
+                }
+            }
+
             return `
                 <div class="criterio-check-row">
                     <div style="flex:1;">
@@ -4934,8 +4788,8 @@ window.openInstitutionalProfile = function(instName) {
                         <div style="font-size:0.82rem; color:var(--text-muted);">${c.desc}</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
-                        <span class="badge-status-check ${meets ? 'pass' : 'fail'}">
-                            <i class="fas ${meets ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${meets ? 'Cumple' : 'No cumple'}
+                        <span class="badge-status-check ${stateClass}">
+                            <i class="fas ${stateIcon}"></i> ${stateLabel}
                         </span>
                         ${critData.docUrl ? `<a href="${critData.docUrl}" target="_blank" rel="noopener" class="btn-doc-link"><i class="fas fa-external-link-alt"></i> Consultar documento</a>` : '<span style="font-size:0.78rem; color:var(--text-muted);">Sin doc</span>'}
                     </div>
@@ -5050,13 +4904,13 @@ window.exportCurrentInstPDF = function() {
     const instVehicles = vehicles.filter(v => v.department === inst.nombre || v.instName === inst.nombre);
 
     const criteriosKeys = [
-        { key: 'procedimiento_asignacion', num: '1', label: 'Procedimiento para asignación y uso de vehículos', desc: 'Reglamento o normativo interno aprobado y publicado oficialmente.' },
-        { key: 'registro_interno', num: '2', label: 'Registro interno de vehículos', desc: 'Inventario completo y actualizado de la flotilla institucional.' },
-        { key: 'publicacion_registro', num: '3', label: 'Publicación del registro institucional', desc: 'Disponibilidad pública del inventario vehicular en el portal de información.' },
-        { key: 'canal_auditoria', num: '4', label: 'Canal de auditoría social', desc: 'Módulo o mecanismo habilitado para la fiscalización ciudadana.' },
-        { key: 'identificacion_logotipo', num: '5', label: 'Identificación mediante logotipo oficial', desc: 'Vehículos con rotulación oficial visible según manual institucional.' },
-        { key: 'disposicion_excepcional', num: '6', label: 'Disposición para uso excepcional autorizado', desc: 'Normativa administrativa para autorizaciones fuera de jornada ordinaria.' },
-        { key: 'justificacion_seguridad', num: '7', label: 'Excepciones por motivos de seguridad', desc: 'Matriz formal de justificación para vehículos exceptuados por seguridad.' }
+        { key: 'procedimiento_asignacion', num: '1', label: 'Procedimiento para la asignación y uso de vehículos', desc: 'Reglamento o procedimiento para la asignación y uso de vehículos dentro de la institución.' },
+        { key: 'registro_interno', num: '2', label: 'Registro interno de vehículos', desc: 'Inventario de vehículos dentro de la Institución.' },
+        { key: 'publicacion_registro', num: '3', label: 'Publicación del registro institucional', desc: 'Disponibilidad del registro interno para consulta de la ciudadanía.' },
+        { key: 'canal_auditoria', num: '4', label: 'Canal de auditoría social', desc: 'Mecanismos para la denuncia administrativa de irregularidades.' },
+        { key: 'identificacion_logotipo', num: '5', label: 'Identificación mediante logotipo oficial', desc: 'Colocación del logotipo oficial en laterales y luneta de los vehículos.' },
+        { key: 'disposicion_excepcional', num: '6', label: 'Disposición para el uso excepción al autorizado', desc: 'Disposición que justifica el uso del distintivo de “USO EXCEPCIONAL AUTORIZADO”' },
+        { key: 'justificacion_seguridad', num: '7', label: 'Disposición para justificar excepciones por motivos de seguridad', desc: 'Disposición que justifica la no identificación mediante logotipo oficial por motivos de seguridad.' }
     ];
 
     let passCount = 0;
@@ -5324,13 +5178,13 @@ window.exportCurrentInstExcel = function() {
         const exportData = [
             { 'Institución': inst.nombre, 'Siglas': inst.siglas, 'Sector': inst.sector, 'Cumplimiento %': stats.cumplePct },
             {},
-            { 'Criterio': '1. Procedimiento de asignación y uso', 'Estado': inst.criterios?.procedimiento_asignacion?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '1. Procedimiento para la asignación y uso de vehículos', 'Estado': inst.criterios?.procedimiento_asignacion?.cumple ? 'Cumple' : 'No cumple' },
             { 'Criterio': '2. Registro interno de vehículos', 'Estado': inst.criterios?.registro_interno?.cumple ? 'Cumple' : 'No cumple' },
             { 'Criterio': '3. Publicación del registro institucional', 'Estado': inst.criterios?.publicacion_registro?.cumple ? 'Cumple' : 'No cumple' },
             { 'Criterio': '4. Canal de auditoría social', 'Estado': inst.criterios?.canal_auditoria?.cumple ? 'Cumple' : 'No cumple' },
             { 'Criterio': '5. Identificación mediante logotipo oficial', 'Estado': inst.criterios?.identificacion_logotipo?.cumple ? 'Cumple' : 'No cumple' },
-            { 'Criterio': '6. Disposición para uso excepcional autorizado', 'Estado': inst.criterios?.disposicion_excepcional?.cumple ? 'Cumple' : 'No cumple' },
-            { 'Criterio': '7. Excepciones por motivos de seguridad', 'Estado': inst.criterios?.justificacion_seguridad?.cumple ? 'Cumple' : 'No cumple' }
+            { 'Criterio': '6. Disposición para el uso excepción al autorizado', 'Estado': inst.criterios?.disposicion_excepcional?.cumple ? 'Cumple' : 'No cumple' },
+            { 'Criterio': '7. Disposición para justificar excepciones por motivos de seguridad', 'Estado': inst.criterios?.justificacion_seguridad?.cumple ? 'Cumple' : 'No cumple' }
         ];
 
         const ws = XLSX.utils.json_to_sheet(exportData);
@@ -5384,355 +5238,6 @@ window.exportCriteriosReportExcel = function() {
         XLSX.writeFile(wb, `reporte_criterios_cumplimiento_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 };
-
-/* ============================================================
-   LÓGICA DE COMPARATIVA INSTITUCIONAL Y SPIDER CHART (RADAR)
-============================================================ */
-
-const CRITERIA_KEYS_COMPARISON = [
-    { key: 'procedimiento_asignacion', label: '1. Procedimiento para asignación y uso de vehículos', short: 'Asignación', desc: 'Existencia de manual de uso y normativa interna formalizada' },
-    { key: 'registro_interno', label: '2. Registro interno de vehículos', short: 'Registro Interno', desc: 'Inventario de unidades vehiculares debidamente actualizado' },
-    { key: 'publicacion_registro', label: '3. Publicación del registro institucional', short: 'Publicación', desc: 'Información pública accesible sobre la flota' },
-    { key: 'canal_auditoria', label: '4. Canal o vía de auditoría social', short: 'Canal Auditoría', desc: 'Mecanismos para denuncias o reportes ciudadanos' },
-    { key: 'identificacion_logotipo', label: '5. Identificación mediante logotipo oficial', short: 'Logotipo Oficial', desc: 'Rotulación clara y visible en unidades autorizadas' },
-    { key: 'disposicion_excepcional', label: '6. Disposición para uso excepcional autorizado', short: 'Uso Excepcional', desc: 'Regulación para uso fuera de jornada o comisiones' },
-    { key: 'justificacion_seguridad', label: '7. Excepciones por motivos de seguridad', short: 'Motivos Seguridad', desc: 'Justificación documentada para vehículos de seguridad' }
-];
-
-let spiderChartInstance = null;
-
-function populateComparisonSelects() {
-    const selectA = document.getElementById('compareInstA');
-    const selectB = document.getElementById('compareInstB');
-    if (!selectA || !selectB) return;
-
-    if (!catalogData || !catalogData.length) return;
-
-    selectA.innerHTML = '';
-    selectB.innerHTML = '';
-
-    catalogData.forEach(inst => {
-        const optionA = document.createElement('option');
-        optionA.value = inst.nombre;
-        optionA.textContent = `${inst.nombre} (${inst.siglas || '—'})`;
-
-        const optionB = document.createElement('option');
-        optionB.value = inst.nombre;
-        optionB.textContent = `${inst.nombre} (${inst.siglas || '—'})`;
-
-        selectA.appendChild(optionA);
-        selectB.appendChild(optionB);
-    });
-
-    if (catalogData.length > 0) {
-        const magaIndex = catalogData.findIndex(i => (i.siglas && i.siglas.toUpperCase() === 'MAGA') || i.nombre.toLowerCase().includes('agricultura'));
-        const minecoIndex = catalogData.findIndex(i => (i.siglas && i.siglas.toUpperCase() === 'MINECO') || i.nombre.toLowerCase().includes('economía'));
-
-        selectA.selectedIndex = magaIndex >= 0 ? magaIndex : 0;
-        selectB.selectedIndex = minecoIndex >= 0 ? minecoIndex : (catalogData.length > 1 ? 1 : 0);
-    }
-
-    selectA.addEventListener('change', updateComparisonView);
-    selectB.addEventListener('change', updateComparisonView);
-
-    const btnSwap = document.getElementById('btnSwapCompare');
-    if (btnSwap) {
-        btnSwap.addEventListener('click', () => {
-            const tempVal = selectA.value;
-            selectA.value = selectB.value;
-            selectB.value = tempVal;
-            updateComparisonView();
-        });
-    }
-
-    updateComparisonView();
-}
-
-window.setComparisonPreset = function(siglaA, siglaB) {
-    const selectA = document.getElementById('compareInstA');
-    const selectB = document.getElementById('compareInstB');
-    if (!selectA || !selectB || !catalogData) return;
-
-    const instA = catalogData.find(i => (i.siglas && i.siglas.toUpperCase() === siglaA.toUpperCase()) || i.nombre.toUpperCase().includes(siglaA.toUpperCase()));
-    const instB = catalogData.find(i => (i.siglas && i.siglas.toUpperCase() === siglaB.toUpperCase()) || i.nombre.toUpperCase().includes(siglaB.toUpperCase()));
-
-    if (instA) selectA.value = instA.nombre;
-    if (instB) selectB.value = instB.nombre;
-
-    updateComparisonView();
-
-    const compSection = document.getElementById('comparisonSection');
-    if (compSection) {
-        compSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-};
-
-function updateComparisonView() {
-    const selectA = document.getElementById('compareInstA');
-    const selectB = document.getElementById('compareInstB');
-    if (!selectA || !selectB || !catalogData || !catalogData.length) return;
-
-    const nameA = selectA.value;
-    const nameB = selectB.value;
-
-    const instA = catalogData.find(i => i.nombre === nameA) || catalogData[0];
-    const instB = catalogData.find(i => i.nombre === nameB) || (catalogData[1] || catalogData[0]);
-
-    updateInstCard('A', instA);
-    updateInstCard('B', instB);
-
-    renderSpiderChart(instA, instB);
-    renderComparisonTable(instA, instB);
-    renderComparisonSummary(instA, instB);
-}
-
-function updateInstCard(type, inst) {
-    const titleEl = document.getElementById(`card${type}Title`);
-    const subEl = document.getElementById(`card${type}Sub`);
-    const percentEl = document.getElementById(`card${type}Percent`);
-    const passCountEl = document.getElementById(`card${type}PassCount`);
-    const fleetEl = document.getElementById(`card${type}FleetTotal`);
-    const statusEl = document.getElementById(`card${type}StatusTag`);
-    const btnDetail = document.getElementById(`btnCard${type}Detail`);
-    const thHeader = document.getElementById(`thInst${type}Header`);
-
-    const passCount = inst.criteriosPassCount || 0;
-    const percent = Math.round((passCount / 7) * 100);
-
-    if (titleEl) titleEl.textContent = inst.nombre;
-    if (subEl) subEl.textContent = `Siglas: ${inst.siglas || '—'} | Sector: ${inst.sector || 'Público'}`;
-    if (percentEl) percentEl.textContent = `${percent}%`;
-    if (passCountEl) passCountEl.textContent = `${passCount}/7 Cumplidos`;
-    if (fleetEl) fleetEl.textContent = `${inst.total || 0} vehículos`;
-    if (thHeader) thHeader.textContent = inst.siglas && inst.siglas !== '—' ? inst.siglas : inst.nombre.substring(0, 20);
-
-    let statusText = '🔴 No Cumple';
-    let statusClass = 'nocumple';
-    if (passCount === 7) {
-        statusText = '🟢 Cumple (100%)';
-        statusClass = 'cumple';
-    } else if (passCount > 0) {
-        statusText = '🟡 En Proceso';
-        statusClass = 'proceso';
-    }
-
-    if (statusEl) {
-        statusEl.innerHTML = `<span class="status-pill ${statusClass}">${statusText}</span>`;
-    }
-
-    if (btnDetail) {
-        btnDetail.onclick = () => {
-            if (typeof openInstitutionalProfile === 'function') {
-                openInstitutionalProfile(inst.nombre);
-            }
-        };
-    }
-}
-
-function renderSpiderChart(instA, instB) {
-    const canvas = document.getElementById('spiderChartCanvas');
-    if (!canvas) return;
-
-    if (spiderChartInstance) {
-        spiderChartInstance.destroy();
-    }
-
-    const labels = CRITERIA_KEYS_COMPARISON.map(c => c.short);
-    const scoresA = CRITERIA_KEYS_COMPARISON.map(c => getCriterionScore(instA, c.key));
-    const scoresB = CRITERIA_KEYS_COMPARISON.map(c => getCriterionScore(instB, c.key));
-
-    const labelA = instA.siglas && instA.siglas !== '—' ? instA.siglas : instA.nombre.substring(0, 18);
-    const labelB = instB.siglas && instB.siglas !== '—' ? instB.siglas : instB.nombre.substring(0, 18);
-
-    spiderChartInstance = new Chart(canvas, {
-        type: 'radar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: labelA,
-                    data: scoresA,
-                    fill: true,
-                    backgroundColor: 'rgba(0, 194, 224, 0.25)',
-                    borderColor: '#00C2E0',
-                    pointBackgroundColor: '#00C2E0',
-                    pointBorderColor: '#ffffff',
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: '#00C2E0',
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    borderWidth: 2.8
-                },
-                {
-                    label: labelB,
-                    data: scoresB,
-                    fill: true,
-                    backgroundColor: 'rgba(245, 166, 35, 0.25)',
-                    borderColor: '#F5A623',
-                    pointBackgroundColor: '#F5A623',
-                    pointBorderColor: '#ffffff',
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: '#F5A623',
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    borderWidth: 2.8
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        font: { family: 'DM Sans', size: 12, weight: 'bold' },
-                        color: '#0C1F30',
-                        usePointStyle: true,
-                        padding: 16
-                    }
-                },
-                tooltip: {
-                    backgroundColor: '#05111F',
-                    titleFont: { family: 'Sora', size: 13, weight: 'bold' },
-                    bodyFont: { family: 'DM Sans', size: 12 },
-                    padding: 10,
-                    cornerRadius: 8,
-                    callbacks: {
-                        label: function(context) {
-                            const val = context.raw;
-                            let text = '🔴 No cumple (0%)';
-                            if (val === 100) text = '🟢 Cumple (100%)';
-                            else if (val === 50) text = '🟡 En Proceso (50%)';
-                            return ` ${context.dataset.label}: ${text}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                r: {
-                    min: 0,
-                    max: 100,
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 25,
-                        display: true,
-                        backdropColor: 'transparent',
-                        color: '#5E7A8E',
-                        font: { size: 10, weight: '600' },
-                        callback: function(val) { return val + '%'; }
-                    },
-                    angleLines: {
-                        color: 'rgba(26, 92, 143, 0.2)',
-                        lineWidth: 1
-                    },
-                    grid: {
-                        color: 'rgba(26, 92, 143, 0.18)',
-                        circular: true
-                    },
-                    pointLabels: {
-                        font: { family: 'Sora', size: 11, weight: '700' },
-                        color: '#0C1F30'
-                    }
-                }
-            }
-        }
-    });
-}
-
-function getCriterionScore(instData, key) {
-    if (!instData || !instData.criterios) return 0;
-    const c = instData.criterios[key];
-    if (!c) return 0;
-    if (c.cumple === true || c.estado === 'cumple') return 100;
-    if (c.estado === 'proceso' || c.estado === 'parcial' || c.proceso || c.en_proceso) return 50;
-    return 0;
-}
-
-function getCriterionBadge(score) {
-    if (score === 100) return '<span class="status-pill cumple"><i class="fas fa-check-circle"></i> Cumple</span>';
-    if (score === 50) return '<span class="status-pill proceso"><i class="fas fa-clock"></i> En proceso</span>';
-    return '<span class="status-pill nocumple"><i class="fas fa-times-circle"></i> No cumple</span>';
-}
-
-function renderComparisonTable(instA, instB) {
-    const tbody = document.getElementById('comparisonCriteriaTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = '';
-
-    CRITERIA_KEYS_COMPARISON.forEach(c => {
-        const scoreA = getCriterionScore(instA, c.key);
-        const scoreB = getCriterionScore(instB, c.key);
-
-        let diffHtml = '';
-        if (scoreA === scoreB) {
-            diffHtml = '<span class="diff-badge equal"><i class="fas fa-equals"></i> Paridad</span>';
-        } else if (scoreA > scoreB) {
-            diffHtml = `<span class="diff-badge win-a"><i class="fas fa-arrow-left"></i> Superior A</span>`;
-        } else {
-            diffHtml = `<span class="diff-badge win-b">Superior B <i class="fas fa-arrow-right"></i></span>`;
-        }
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>
-                <div style="font-weight:700; color:var(--text-main); font-size:0.9rem;">
-                    ${c.label}
-                </div>
-                <div style="font-size:0.76rem; color:var(--text-muted); font-weight:normal;">
-                    ${c.desc}
-                </div>
-            </td>
-            <td style="text-align:center;">
-                ${getCriterionBadge(scoreA)}
-            </td>
-            <td style="text-align:center;">
-                ${diffHtml}
-            </td>
-            <td style="text-align:center;">
-                ${getCriterionBadge(scoreB)}
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function renderComparisonSummary(instA, instB) {
-    const titleEl = document.getElementById('compareSummaryTitle');
-    const textEl = document.getElementById('compareSummaryText');
-    if (!titleEl || !textEl) return;
-
-    const passA = instA.criteriosPassCount || 0;
-    const passB = instB.criteriosPassCount || 0;
-    const percentA = Math.round((passA / 7) * 100);
-    const percentB = Math.round((passB / 7) * 100);
-
-    const sigA = instA.siglas && instA.siglas !== '—' ? instA.siglas : instA.nombre;
-    const sigB = instB.siglas && instB.siglas !== '—' ? instB.siglas : instB.nombre;
-
-    if (instA.nombre === instB.nombre) {
-        titleEl.textContent = `Selección idéntica: ${sigA}`;
-        textEl.textContent = `Has seleccionado la misma institución en ambos paneles. Selecciona dos instituciones distintas para evaluar las brechas de cumplimiento.`;
-        return;
-    }
-
-    let summary = '';
-    if (passA === passB) {
-        titleEl.textContent = `Paridad de Cumplimiento (${percentA}%) entre ${sigA} y ${sigB}`;
-        summary = `Ambas instituciones registran exactamente el mismo nivel de cumplimiento de los criterios evaluados (<strong>${passA} de 7 criterios aprobados</strong>). Su cobertura de transparencia vehicular es idéntica en este ciclo.`;
-    } else if (passA > passB) {
-        const gap = percentA - percentB;
-        titleEl.textContent = `${sigA} supera a ${sigB} por una brecha de +${gap.toFixed(0)}%`;
-        summary = `<strong>${sigA}</strong> registra un <strong>${percentA}%</strong> de cumplimiento (${passA}/7 criterios) frente a un <strong>${percentB}%</strong> de <strong>${sigB}</strong> (${passB}/7 criterios). La mayor diferencia radica en los criterios donde ${sigA} mantiene normativa documentada mientras ${sigB} se encuentra en proceso o sin publicación formal.`;
-    } else {
-        const gap = percentB - percentA;
-        titleEl.textContent = `${sigB} supera a ${sigA} por una brecha de +${gap.toFixed(0)}%`;
-        summary = `<strong>${sigB}</strong> registra un <strong>${percentB}%</strong> de cumplimiento (${passB}/7 criterios) frente a un <strong>${percentA}%</strong> de <strong>${sigA}</strong> (${passA}/7 criterios). La mayor diferencia radica en los criterios donde ${sigB} mantiene normativa documentada mientras ${sigA} se encuentra en proceso o sin publicación formal.`;
-    }
-
-    textEl.innerHTML = summary;
-}
 
 </script>
 <script src="/js/pia-chatbot.js" defer></script>
