@@ -747,7 +747,7 @@ app.post('/api/security-policies', (req, res) => {
 });
 
 // Helper for reserved modules
-const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies'];
+const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
 
 // ==========================================
 // MODULES & CRUD ENDPOINTS
@@ -1696,40 +1696,62 @@ app.post('/api/files/upload', (req, res) => {
 });
 
 // Static file serving
+app.get('/data-service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(path.join(__dirname, 'data-service-worker.js'));
+});
+
 app.use('/img', express.static(path.join(__dirname, 'img')));
 app.use('/uploads', express.static(uploadsDir));
 
 // Explicit module routes to ensure clean page rendering without 301 redirects
+const sendFreshHtml = (filePath, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(filePath);
+};
+
 app.get(['/vehiculos', '/vehiculos/'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'vehiculos', 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'vehiculos', 'index.html'), res);
 });
 
 app.get(['/directorio', '/directorio/'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'directorio', 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'directorio', 'index.html'), res);
 });
 
 app.get(['/canales-por-la-integridad', '/canales-por-la-integridad/'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'canales-por-la-integridad', 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'canales-por-la-integridad', 'index.html'), res);
 });
 
 app.get(['/gobierno_en_numeros', '/gobierno_en_numeros/'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'gobierno_en_numeros', 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'gobierno_en_numeros', 'index.html'), res);
 });
 
 app.get(['/riesgo', '/riesgo/'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'riesgo', 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'riesgo', 'index.html'), res);
 });
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, {
+  setHeaders: (res, pathUrl) => {
+    if (pathUrl.endsWith('.html') || pathUrl.endsWith('.js') || pathUrl.endsWith('.json')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // Route for root index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'index.html'), res);
 });
 
 // Admin panel route
 app.get('/admin*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+  sendFreshHtml(path.join(__dirname, 'admin', 'index.html'), res);
 });
 
 app.listen(PORT, '0.0.0.0', () => {

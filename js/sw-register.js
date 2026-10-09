@@ -1,14 +1,22 @@
-// Service Worker Registration
+// Service Worker Cleanup & Cache Purge to ensure fresh content is displayed
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/data-service-worker.js')
-      .then((registration) => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        registration.update();
-      }, (err) => {
-        console.log('ServiceWorker registration failed: ', err);
-      });
-  });
+  // Unregister any active service worker to prevent stale cached HTML
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach(r => {
+      r.unregister().then(() => {
+        console.log('Obsolete ServiceWorker unregistered:', r.scope);
+      }).catch(() => {});
+    });
+  }).catch(() => {});
+}
+
+// Clear legacy window caches that might be holding old versions of pages
+if (typeof caches !== 'undefined') {
+  caches.keys().then((names) => {
+    names.forEach(name => {
+      caches.delete(name);
+    });
+  }).catch(() => {});
 }
 
 // Transición Suave entre Páginas (View Transitions & Anti-Flicker)

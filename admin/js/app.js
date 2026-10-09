@@ -745,6 +745,141 @@ function exportAuditCsv() {
 
 let currentModule = '';
 let currentModuleData = [];
+window.adminCanalesAuditResults = { zeroChannels: [], contradictions: [] };
+
+function runAdminCanalesAudit(data) {
+    if (!Array.isArray(data) || currentModule !== 'canales') return;
+
+    const zeroChannels = [];
+    const contradictions = [];
+
+    data.forEach((item, idx) => {
+        const nombre = item.institucion || item.nombre_institucion || `Institución #${idx + 1}`;
+        const tel = (item.telefono || '').toString().trim();
+        const mail = (item.correo || '').toString().trim();
+        const form = (item.formulario || (Array.isArray(item.enlaces_solicitud) && item.enlaces_solicitud[0]) || '').toString().trim();
+        const dir = (item.direccion || item.ubicacion || '').toString().trim();
+        const tipocom = (item.tipocom || '').toString().trim();
+        const otro = (item.otro || '').toString().trim();
+
+        let realCount = 0;
+        if (tel) realCount++;
+        if (mail) realCount++;
+        if (form) realCount++;
+        
+        const hasPresencial = dir.length > 0 || (
+            tipocom.toLowerCase().includes('presencial') ||
+            tipocom.toLowerCase().includes('verbal') ||
+            tipocom.toLowerCase().includes('escrita') ||
+            tipocom.toLowerCase().includes('oficina') ||
+            tipocom.toLowerCase().includes('unidad')
+        );
+        if (hasPresencial) realCount++;
+        if (otro) realCount++;
+
+        const declaredCanales = item.canales;
+        const issues = [];
+
+        // 1. Detectar 0 canales
+        if (realCount === 0) {
+            issues.push('0 canales de contacto o denuncia detectados.');
+            zeroChannels.push({ nombre, index: idx, id: item.id, item });
+        }
+
+        // 2. Discrepancia entre canales declarados vs reales
+        if (declaredCanales !== undefined && declaredCanales !== null && Number(declaredCanales) !== realCount) {
+            issues.push(`Declaró ${declaredCanales} canales pero se identificaron ${realCount} vías de contacto registradas.`);
+        }
+
+        // 3. Inconsistencia de formato de correo
+        if (mail && !mail.includes('@')) {
+            issues.push(`Correo registrado con formato atípico ("${mail}").`);
+        }
+
+        // 4. Inconsistencia en teléfono (sin números)
+        if (tel && !/\d/.test(tel)) {
+            issues.push(`Teléfono registrado sin caracteres numéricos ("${tel}").`);
+        }
+
+        if (issues.length > 0) {
+            contradictions.push({
+                id: item.id !== undefined ? item.id : idx + 1,
+                nombre,
+                index: idx,
+                declarado: declaredCanales,
+                calculado: realCount,
+                issues
+            });
+        }
+    });
+
+    window.adminCanalesAuditResults = { zeroChannels, contradictions };
+
+    const banner = document.getElementById('canalesQualityAuditBanner');
+    const countEl = document.getElementById('adminCanalesObsCount');
+
+    if (banner) {
+        if (contradictions.length > 0) {
+            if (countEl) countEl.textContent = contradictions.length;
+            banner.style.display = 'flex';
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+}
+
+window.toggleAdminCanalesAuditModal = function(show) {
+    const modal = document.getElementById('adminCanalesAuditModal');
+    if (!modal) return;
+    if (show) {
+        const body = document.getElementById('adminCanalesAuditBody');
+        const results = window.adminCanalesAuditResults || { contradictions: [] };
+        const contradictions = results.contradictions || [];
+
+        if (body) {
+            let html = `
+                <div style="margin-bottom:1.2rem; font-size:0.88rem; color:#5E7A8E; line-height:1.5;">
+                    A continuación se detallan las instituciones de <strong>Canales por la Integridad</strong> que presentan observaciones técnicas de registro (discrepancias entre los canales declarados y las vías verificadas, o formatos de contacto atípicos):
+                </div>
+            `;
+
+            if (contradictions.length === 0) {
+                html += `
+                    <div style="padding:1.5rem; background:#DCFCE7; border:1px solid #86EFAC; border-radius:12px; color:#15803D; display:flex; align-items:center; gap:0.75rem;">
+                        <i class="fas fa-check-circle" style="font-size:1.3rem;"></i>
+                        <div><strong>¡Excelente!</strong> No se detectaron inconsistencias de calidad ni discrepancias en los registros de canales.</div>
+                    </div>
+                `;
+            } else {
+                html += `<div style="display:flex; flex-direction:column; gap:0.85rem;">`;
+                contradictions.forEach(item => {
+                    html += `
+                        <div style="background:#FFFDF5; border:1px solid #FDE68A; border-left:4px solid #F59E0B; border-radius:10px; padding:1rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:260px;">
+                                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+                                    <span style="font-size:0.75rem; background:#E0F2FE; color:#0369A1; padding:2px 8px; border-radius:10px; font-weight:700;">#${item.id}</span>
+                                    <strong style="color:#05111F; font-size:0.95rem;">${escapeHtml(item.nombre)}</strong>
+                                </div>
+                                <div style="font-size:0.82rem; color:#78350F; margin-top:0.35rem; display:flex; flex-direction:column; gap:0.25rem;">
+                                    ${item.issues.map(iss => `<div><i class="fas fa-exclamation-circle" style="color:#F59E0B; margin-right:4px;"></i> ${escapeHtml(iss)}</div>`).join('')}
+                                </div>
+                            </div>
+                            <button type="button" onclick="window.toggleAdminCanalesAuditModal(false); window.editRecord(${item.id})" style="padding:0.45rem 0.9rem; background:#00C2E0; color:#05111F; font-weight:700; border:none; border-radius:8px; cursor:pointer; font-size:0.8rem; display:inline-flex; align-items:center; gap:0.4rem; white-space:nowrap;">
+                                <i class="fas fa-edit"></i> Corregir
+                            </button>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            body.innerHTML = html;
+        }
+        modal.style.display = 'flex';
+    } else {
+        modal.style.display = 'none';
+    }
+};
 
 function renderCrudView(module) {
     currentModule = module;
@@ -779,6 +914,42 @@ function renderCrudView(module) {
                 </button>
             </div>
         </div>
+
+        ${module === 'canales' ? `
+        <!-- Auditoría de Calidad de Datos (Módulo Canales por la Integridad) -->
+        <div id="canalesQualityAuditBanner" style="display:none; margin-bottom: 1.5rem; background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #F59E0B; border-radius: 14px; padding: 1rem 1.4rem; box-shadow: 0 4px 12px rgba(245,158,11,0.08); align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.9rem; flex: 1; min-width: 280px;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div style="font-size: 0.92rem; color: #78350F; line-height: 1.4;">
+                    <strong style="color: #92400E; font-size: 0.95rem;">Auditoría de Calidad de Datos:</strong>
+                    Se detectaron <span id="adminCanalesObsCount" style="font-weight: 800; color: #B45309;">0</span> registros con observaciones (canales no reportados o discrepancias de datos).
+                </div>
+            </div>
+            <button type="button" id="btnAdminCanalesAuditDetails" onclick="window.toggleAdminCanalesAuditModal(true)" style="padding: 0.55rem 1.15rem; background: #F59E0B; color: #FFF; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(245,158,11,0.25); transition: background 0.2s;">
+                <i class="fas fa-list-check"></i> Ver Inconsistencias
+            </button>
+        </div>
+
+        <!-- Modal de Auditoría de Canales (Admin) -->
+        <div id="adminCanalesAuditModal" style="display:none; position:fixed; inset:0; background:rgba(5,17,31,0.7); backdrop-filter:blur(8px); z-index:1100; align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this) window.toggleAdminCanalesAuditModal(false)">
+            <div style="background:#fff; border-radius:20px; max-width:720px; width:100%; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.3); overflow:hidden;">
+                <div style="padding:1.25rem 1.5rem; border-bottom:1px solid #E8EEF7; display:flex; align-items:center; justify-content:space-between; background:#FFFBEB;">
+                    <h3 style="margin:0; font-family:var(--font-head); font-size:1.15rem; color:#92400E; display:flex; align-items:center; gap:0.5rem;">
+                        <i class="fas fa-clipboard-check" style="color:#D97706;"></i> Auditoría de Registro de Canales
+                    </h3>
+                    <button type="button" onclick="window.toggleAdminCanalesAuditModal(false)" style="background:none; border:none; color:#5E7A8E; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
+                </div>
+                <div id="adminCanalesAuditBody" style="padding:1.5rem; overflow-y:auto; flex:1;"></div>
+                <div style="padding:1rem 1.5rem; border-top:1px solid #E8EEF7; display:flex; justify-content:space-between; align-items:center; background:#F8FAFC;">
+                    <span style="font-size:0.8rem; color:#5E7A8E;"><i class="fas fa-info-circle"></i> Puedes corregir los campos haciendo clic en "Corregir" en cada institución.</span>
+                    <button type="button" onclick="window.toggleAdminCanalesAuditModal(false)" style="padding:0.6rem 1.25rem; background:#163250; color:#fff; border-radius:8px; font-weight:600; border:none; cursor:pointer;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+        ` : ''}
+
         <div style="background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(5,17,31,0.06);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <input type="text" id="crudSearch" placeholder="Buscar registros..." style="padding: 0.6rem 1rem; width: 300px; border: 1px solid rgba(26,92,143,0.2); border-radius: 8px;" />
@@ -839,6 +1010,10 @@ function renderTableRows(data) {
     if (!table) return;
 
     if (recordCount) recordCount.textContent = `${data.length} registros`;
+
+    if (currentModule === 'canales') {
+        runAdminCanalesAudit(currentModuleData && currentModuleData.length ? currentModuleData : data);
+    }
 
     if (!data || data.length === 0) {
         table.innerHTML = `
@@ -931,11 +1106,13 @@ function renderTableRows(data) {
         let bodyHtml = data.map(row => {
             const hasForm = row.formulario && String(row.formulario).startsWith('http');
             const hasProtocol = row['Protocolo de actuación'] === true;
+            const obsItem = (window.adminCanalesAuditResults?.contradictions || []).find(c => String(c.id) === String(row.id));
 
-            return `<tr style="border-bottom: 1px solid #E8EEF7;">
+            return `<tr style="border-bottom: 1px solid #E8EEF7; ${obsItem ? 'background: rgba(254, 243, 199, 0.25);' : ''}">
                 <td style="padding: 0.85rem 1rem; font-weight: 700; color: #1A5C8F;">#${row.id}</td>
                 <td style="padding: 0.85rem 1rem;">
                     <strong style="color:#05111F; font-size: 0.92rem;">${escapeHtml(row.institucion || '')}</strong>
+                    ${obsItem ? `<span title="${escapeHtml(obsItem.issues.join(' | '))}" style="cursor:help; margin-left:6px; color:#D97706; font-size:0.85rem;"><i class="fas fa-exclamation-triangle"></i></span>` : ''}
                     <br><span style="font-size:0.75rem; background:#E0F2FE; color:#0369A1; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtml(row.tipo || 'Ministerios')}</span>
                 </td>
                 <td style="padding: 0.85rem 1rem;">

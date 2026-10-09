@@ -511,22 +511,30 @@
     }
 
     async function fetchConfig() {
+        // Pre-render default suggestion chips immediately so UI is always ready
+        renderSuggestionChips([
+            "¿Cómo presento una denuncia anónima?",
+            "¿Dónde veo el directorio de ministros?",
+            "Verificar placa de vehículo oficial",
+            "Estadísticas del Gobierno en Números"
+        ]);
+
         try {
-            const res = await fetch('/api/chatbot/config');
-            if (res.ok) {
-                const data = await res.json();
-                if (data.faqs && Array.isArray(data.faqs)) {
+            const url = window.location.origin + '/api/chatbot/config';
+            const res = await window.fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            }).catch(() => null);
+
+            if (res && res.ok) {
+                const data = await res.json().catch(() => null);
+                if (data && data.faqs && Array.isArray(data.faqs)) {
                     renderSuggestionChips(data.faqs);
                 }
             }
-        } catch (e) {
-            console.error('Error fetching chatbot config:', e);
-            renderSuggestionChips([
-                "¿Cómo presento una denuncia anónima?",
-                "¿Dónde veo el directorio de ministros?",
-                "Verificar placa de vehículo oficial",
-                "Estadísticas del Gobierno en Números"
-            ]);
+        } catch (_) {
+            // Handled safely without error bubbling
         }
     }
 

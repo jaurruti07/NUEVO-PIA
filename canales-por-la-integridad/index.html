@@ -12,9 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Leaflet CSS & JS para Mapa Interactivo de Geolocalización -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
     <style>
     /* ============================================================
@@ -317,7 +314,87 @@
         font-size: 1rem; color: rgba(255,255,255,0.65); line-height: 1.7;
     }
 
-    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .hero-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .hero-actions-primary {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .hero-actions-secondary {
+        display: flex;
+        gap: 0.85rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .btn-hero-main {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: linear-gradient(135deg, var(--cyan) 0%, #00e5ff 100%);
+        color: var(--navy);
+        font-family: var(--font-head);
+        font-weight: 800;
+        font-size: 1.2rem;
+        padding: 1.25rem 3.4rem;
+        border-radius: 50px;
+        border: 2px solid rgba(255,255,255,0.55);
+        transition: all 0.25s ease;
+        box-shadow: 0 12px 36px rgba(0, 194, 224, 0.55);
+        letter-spacing: 0.02em;
+    }
+    .btn-hero-main:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 16px 48px rgba(0, 194, 224, 0.7);
+        background: linear-gradient(135deg, #00f0ff 0%, #3fe0f5 100%);
+        color: var(--navy);
+    }
+    .btn-hero-sub {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 50, 80, 0.85);
+        color: #E2E8F0;
+        font-family: var(--font-head);
+        font-weight: 600;
+        font-size: 0.86rem;
+        padding: 0.7rem 1.6rem;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 194, 224, 0.3);
+        backdrop-filter: blur(6px);
+        transition: all 0.25s ease;
+    }
+    .btn-hero-sub:hover {
+        background: rgba(26, 92, 143, 0.95);
+        color: #fff;
+        border-color: var(--cyan);
+        transform: translateY(-2px);
+    }
+    .hero-security-notice {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: rgba(5, 17, 31, 0.7);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        margin-top: 1.25rem;
+        color: #E2E8F0;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        backdrop-filter: blur(8px);
+    }
+    .hero-security-notice i {
+        color: var(--green);
+        font-size: 0.95rem;
+    }
     .btn-primary {
         display: inline-flex; align-items: center; gap: 8px;
         background: var(--cyan); color: var(--navy);
@@ -616,6 +693,65 @@
         font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
         text-transform: uppercase; color: var(--blue-bright, #2B82C9);
         display: flex; align-items: center; gap: 6px;
+    }
+    .filter-tooltip {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        background: rgba(43, 130, 201, 0.12);
+        color: var(--blue-bright, #2B82C9);
+        font-size: 0.65rem;
+        cursor: help;
+        transition: all 0.2s;
+        margin-left: auto;
+    }
+    .filter-tooltip:hover {
+        background: var(--blue-bright, #2B82C9);
+        color: #fff;
+        transform: scale(1.08);
+    }
+    .filter-tooltip .tooltip-text {
+        visibility: hidden;
+        opacity: 0;
+        width: 220px;
+        background: #05111F;
+        color: #F8FAFC;
+        text-align: left;
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        position: absolute;
+        z-index: 100;
+        bottom: 135%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.72rem;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: normal;
+        line-height: 1.4;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(0, 194, 224, 0.25);
+        transition: opacity 0.2s, visibility 0.2s;
+        pointer-events: none;
+    }
+    .filter-tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #05111F transparent transparent transparent;
+    }
+    .filter-tooltip:hover .tooltip-text,
+    .filter-tooltip:focus .tooltip-text {
+        visibility: visible;
+        opacity: 1;
     }
     .filter-group select {
         width: 100%; padding: 0.7rem 2.5rem 0.7rem 1.1rem;
@@ -1037,6 +1173,120 @@
     .btn-list-share:hover {
         background: #22C55E;
         color: #fff;
+    }
+
+    /* Estilos específicos de Estado Protocolo en Lista */
+    .protocolo-badge-list {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 50px;
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+    .protocolo-badge-list.emitido {
+        background: rgba(34, 197, 94, 0.14);
+        color: #15803d;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+    .protocolo-badge-list.en-proceso {
+        background: rgba(245, 166, 35, 0.14);
+        color: #b45309;
+        border: 1px solid rgba(245, 166, 35, 0.35);
+    }
+    #directorio.theme-dark .protocolo-badge-list.emitido {
+        background: rgba(34, 197, 94, 0.22);
+        color: #4ade80;
+        border-color: rgba(34, 197, 94, 0.4);
+    }
+    #directorio.theme-dark .protocolo-badge-list.en-proceso {
+        background: rgba(245, 166, 35, 0.22);
+        color: #fbbf24;
+        border-color: rgba(245, 166, 35, 0.4);
+    }
+
+    /* Paginación de Lista (20 en 20) */
+    .dir-list-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sm);
+        margin-top: 1.25rem;
+    }
+    .dir-list-page-info {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+    .dir-list-page-info strong {
+        color: var(--navy);
+        font-weight: 700;
+    }
+    .dir-list-page-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+    .dir-page-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.6rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-main);
+        font-family: var(--font-head);
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .dir-page-btn:hover:not(:disabled) {
+        border-color: var(--blue-bright);
+        color: var(--blue-bright);
+        background: rgba(43, 130, 201, 0.08);
+    }
+    .dir-page-btn.active {
+        background: var(--navy);
+        color: var(--cyan);
+        border-color: var(--navy);
+    }
+    .dir-page-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    #directorio.theme-dark .dir-list-pagination {
+        background: #0F1E2E;
+        border-color: rgba(0, 194, 224, 0.15);
+    }
+    #directorio.theme-dark .dir-list-page-info {
+        color: rgba(255, 255, 255, 0.65);
+    }
+    #directorio.theme-dark .dir-list-page-info strong {
+        color: #fff;
+    }
+    #directorio.theme-dark .dir-page-btn {
+        background: #162638;
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #E2E8F0;
+    }
+    #directorio.theme-dark .dir-page-btn.active {
+        background: var(--cyan);
+        color: var(--navy);
+        border-color: var(--cyan);
     }
 
     #directorio.theme-dark .dir-list-item {
@@ -1998,112 +2248,7 @@
             gap: 0.4rem;
         }
 
-        /* Barra de Alerta de Auditoría de Calidad */
-        .data-val-alert-bar {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            border-radius: 16px;
-            padding: 0.85rem 1.25rem;
-            margin: 1rem 0 1.5rem 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .data-val-alert-bar .data-val-alert-icon {
-            color: var(--amber);
-            font-size: 1.25rem;
-        }
-        .data-val-alert-bar .data-val-alert-text {
-            font-size: 0.83rem;
-            color: var(--text-main);
-            flex: 1;
-        }
-        .btn-val-alert-details {
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            color: #d97706;
-            padding: 0.4rem 0.85rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .btn-val-alert-details:hover {
-            background: #f59e0b;
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
 
-        /* Modal Auditoría */
-        .val-modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(8, 26, 43, 0.75);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-        }
-        .val-modal-card {
-            background: var(--surface-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            max-width: 650px;
-            width: 100%;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            overflow: hidden;
-        }
-        .val-modal-head {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .val-modal-head h3 {
-            margin: 0;
-            font-family: var(--font-head);
-            font-size: 1.1rem;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .val-modal-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-            line-height: 1;
-        }
-        .val-modal-close:hover {
-            color: var(--cyan);
-        }
-        .val-modal-body {
-            padding: 1.5rem;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .val-modal-foot {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--surface);
-        }
 
         .dashboard-container {
             background: var(--surface-card);
@@ -2423,14 +2568,14 @@
             font-weight: 700;
         }
 
-        /* GUÍA MULTILINGÜE MAYA STYLES */
+        /* GUÍA MULTILINGÜE MAYA STYLES - MINIMALISTA Y CLARO */
         .maya-guide-container {
-            background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy) 100%);
-            color: #ffffff;
+            background: #ffffff;
+            color: var(--text-main);
             border-radius: 24px;
-            padding: 2.2rem;
-            border: 1px solid rgba(0, 194, 224, 0.25);
-            box-shadow: 0 20px 50px rgba(5, 17, 31, 0.4);
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 3rem;
             position: relative;
             overflow: hidden;
@@ -2439,11 +2584,11 @@
         .maya-guide-container::before {
             content: '';
             position: absolute;
-            top: -100px;
-            right: -100px;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(0, 194, 224, 0.15) 0%, transparent 70%);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue-bright) 0%, var(--cyan) 100%);
             pointer-events: none;
         }
 
@@ -2453,13 +2598,13 @@
             flex-wrap: wrap;
             margin-bottom: 2rem;
             padding-bottom: 1.25rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 1px solid var(--border);
         }
 
         .lang-pill-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 0.85);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
             padding: 0.6rem 1.2rem;
             border-radius: 40px;
             font-family: var(--font-head);
@@ -2469,27 +2614,38 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
 
-        .lang-pill-btn:hover, .lang-pill-btn.active {
-            background: var(--cyan);
-            color: var(--navy);
-            border-color: var(--cyan);
-            box-shadow: 0 4px 16px rgba(0, 194, 224, 0.4);
+        .lang-pill-btn:hover {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+            background: rgba(43, 130, 201, 0.06);
+        }
+
+        .lang-pill-btn.active {
+            background: var(--navy);
+            color: var(--cyan);
+            border-color: var(--navy);
+            box-shadow: 0 4px 12px rgba(5, 17, 31, 0.15);
         }
 
         .lang-pill-btn .lang-badge {
             font-size: 0.68rem;
             padding: 0.15rem 0.45rem;
             border-radius: 10px;
-            background: rgba(0, 0, 0, 0.25);
+            background: rgba(0, 0, 0, 0.08);
             color: inherit;
         }
 
+        .lang-pill-btn.active .lang-badge {
+            background: rgba(0, 194, 224, 0.2);
+            color: var(--cyan);
+        }
+
         .audio-player-banner {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 194, 224, 0.3);
+            background: #F8FAFC;
+            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 1.25rem 1.75rem;
             margin-bottom: 2rem;
@@ -2511,14 +2667,14 @@
             width: 52px;
             height: 52px;
             border-radius: 16px;
-            background: rgba(0, 194, 224, 0.2);
-            color: var(--cyan);
+            background: rgba(43, 130, 201, 0.1);
+            color: var(--blue-bright);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
             flex-shrink: 0;
-            border: 1px solid rgba(0, 194, 224, 0.4);
+            border: 1px solid rgba(43, 130, 201, 0.25);
         }
 
         .audio-wave-anim {
@@ -2531,7 +2687,7 @@
 
         .audio-wave-bar {
             width: 3px;
-            background: var(--cyan);
+            background: var(--blue-bright);
             border-radius: 3px;
             animation: audioWave 1.2s infinite ease-in-out;
         }
@@ -2547,8 +2703,8 @@
         }
 
         .btn-play-maya {
-            background: var(--cyan);
-            color: var(--navy);
+            background: var(--navy);
+            color: #ffffff;
             border: none;
             padding: 0.75rem 1.6rem;
             border-radius: 50px;
@@ -2560,19 +2716,19 @@
             align-items: center;
             gap: 0.6rem;
             transition: all 0.25s ease;
-            box-shadow: 0 6px 20px rgba(0, 194, 224, 0.35);
+            box-shadow: 0 4px 14px rgba(5, 17, 31, 0.2);
         }
 
         .btn-play-maya:hover {
-            background: #00ddf7;
+            background: var(--blue-bright);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 194, 224, 0.5);
+            box-shadow: 0 6px 18px rgba(43, 130, 201, 0.35);
         }
 
         .btn-stop-maya {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.4);
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
             padding: 0.75rem 1.2rem;
             border-radius: 50px;
             font-family: var(--font-head);
@@ -2586,7 +2742,8 @@
         }
 
         .btn-stop-maya:hover {
-            background: rgba(239, 68, 68, 0.35);
+            background: #FEE2E2;
+            color: #B91C1C;
         }
 
         .maya-steps-grid {
@@ -2597,26 +2754,27 @@
         }
 
         .maya-step-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: #F8FAFC;
+            border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 1.4rem;
+            padding: 1.5rem;
             position: relative;
             transition: all 0.25s ease;
         }
 
         .maya-step-card:hover {
-            border-color: var(--cyan);
-            background: rgba(0, 194, 224, 0.06);
+            border-color: var(--blue-bright);
+            background: #ffffff;
             transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .maya-step-num {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: var(--cyan);
-            color: var(--navy);
+            background: var(--navy);
+            color: var(--cyan);
             font-family: var(--font-head);
             font-weight: 800;
             font-size: 0.85rem;
@@ -2630,21 +2788,21 @@
             font-family: var(--font-head);
             font-size: 1.05rem;
             font-weight: 800;
-            color: #ffffff;
+            color: var(--navy);
             margin-bottom: 0.35rem;
         }
 
         .maya-step-native {
             font-size: 0.82rem;
-            color: var(--cyan);
+            color: var(--blue-bright);
             font-weight: 700;
             margin-bottom: 0.6rem;
         }
 
         .maya-step-desc {
             font-size: 0.86rem;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.5;
+            color: var(--text-muted);
+            line-height: 1.55;
             margin: 0;
         }
 
@@ -2656,19 +2814,26 @@
         }
 
         .glossary-maya-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #F8FAFC;
+            border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 1.1rem;
+            padding: 1.2rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .glossary-maya-card:hover {
+            background: #ffffff;
+            border-color: var(--blue-bright);
+            box-shadow: var(--shadow-sm);
         }
 
         .glossary-term-es {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            color: var(--cyan);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.04em;
             margin-bottom: 0.3rem;
@@ -2678,18 +2843,18 @@
             font-family: var(--font-head);
             font-size: 1.15rem;
             font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 0.5rem;
+            color: var(--navy);
+            margin-bottom: 0.75rem;
         }
 
         .btn-speak-term {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #ffffff;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--navy);
             padding: 0.35rem 0.75rem;
             border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -2699,8 +2864,38 @@
         }
 
         .btn-speak-term:hover {
-            background: var(--cyan);
-            color: var(--navy);
+            background: var(--blue-bright);
+            border-color: var(--blue-bright);
+            color: #ffffff;
+        }
+
+        #directorio.theme-dark .maya-guide-container {
+            background: #0F1E2E;
+            border-color: rgba(0, 194, 224, 0.2);
+            color: #E2E8F0;
+        }
+        #directorio.theme-dark .audio-player-banner,
+        #directorio.theme-dark .maya-step-card,
+        #directorio.theme-dark .glossary-maya-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        #directorio.theme-dark .maya-step-title,
+        #directorio.theme-dark .glossary-term-maya {
+            color: #ffffff;
+        }
+        #directorio.theme-dark .maya-step-desc {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        #directorio.theme-dark .lang-pill-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #E2E8F0;
+        }
+        #directorio.theme-dark .btn-speak-term {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #E2E8F0;
         }
 
         /* RESPONSIVE OPTIMIZATIONS FOR DASHBOARD & MAP */
@@ -2736,21 +2931,6 @@
             }
             .chart-wrapper-inner {
                 height: 240px;
-            }
-            .map-collapsible-header {
-                padding: 1rem !important;
-                flex-direction: column;
-                align-items: flex-start !important;
-                gap: 0.75rem;
-            }
-            .map-collapsible-header > div:last-child {
-                align-self: flex-end;
-            }
-            .map-collapsible-body {
-                padding: 0.85rem !important;
-            }
-            #cncProtocolLeafletMap {
-                height: 380px !important;
             }
             .table-cnc-wrap {
                 padding: 1rem;
@@ -2797,9 +2977,6 @@
             }
             .kpi-value {
                 font-size: 1.35rem;
-            }
-            #cncProtocolLeafletMap {
-                height: 320px !important;
             }
         }
 </style>
@@ -2882,11 +3059,25 @@
         <div class="hero-eyebrow"><span></span>Gobierno de Guatemala · Organismo Ejecutivo</div>
         <h1>Canales por la<br><em>Integridad</em></h1>
         <p class="hero-lema">Tu voz fortalece la integridad</p>
-        <p class="hero-sub">Directorio público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo. Encuentra fácilmente dónde y cómo reportar posibles irregularidades.</p>
+        <p class="hero-sub">Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo. Encuentra fácilmente dónde y cómo reportar posibles irregularidades.</p>
         <div class="hero-actions">
-            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-search"></i> Visitar directorio</a>
-            <a href="#guiaMultilingue" class="btn-primary" style="background:linear-gradient(135deg, var(--cyan) 0%, #0099cc 100%); color:var(--navy); font-weight:800;" id="heroGuiaCTA"><i class="fas fa-shield-alt"></i> Guía de Denuncia Segura</a>
-            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> ¿Qué es Canales por la Integridad?</a>
+            <div class="hero-actions-primary">
+                <a href="#directorio" class="btn-hero-main" id="heroCTA">
+                    <i class="fas fa-search"></i> Consultar canales
+                </a>
+            </div>
+            <div class="hero-actions-secondary">
+                <a href="#guiaMultilingue" class="btn-hero-sub" id="heroGuiaCTA">
+                    <i class="fas fa-shield-alt" style="color:var(--cyan);"></i> Guía de Denuncia Segura
+                </a>
+                <a href="#sobre" class="btn-hero-sub">
+                    <i class="fas fa-info-circle" style="color:var(--cyan);"></i> ¿Qué es Canales por la Integridad?
+                </a>
+            </div>
+            <div class="hero-security-notice" role="status">
+                <i class="fas fa-lock"></i>
+                <span><strong>Tratamiento seguro y confidencial:</strong> Se garantiza la protección de tu identidad y la gestión reservada de cada reporte.</span>
+            </div>
         </div>
     </div>
 </section>
@@ -2919,7 +3110,7 @@
                 <div class="accordion">
                     <div class="accordion-item">
                         <button class="accordion-q">¿Qué es Canales por la Integridad? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Directorio interactivo que reúne los canales de denuncia administrativa del Organismo Ejecutivo.</div>
+                        <div class="accordion-a">Listado interactivo que reúne los canales de denuncia administrativa del Organismo Ejecutivo.</div>
                     </div>
                     <div class="accordion-item">
                         <button class="accordion-q">¿Por qué es importante? <i class="fas fa-chevron-down acc-icon"></i></button>
@@ -2976,8 +3167,8 @@
     <section class="section" id="directorio">
         <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
             <div>
-                <div class="section-tag">Directorio</div>
-                <h2 class="section-title">Directorio de Canales de denuncia del Organismo Ejecutivo</h2>
+                <div class="section-tag">Canales de denuncia</div>
+                <h2 class="section-title">Listado de Canales de denuncia del Organismo Ejecutivo</h2>
             </div>
             <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
                 <div class="view-toggle-group" id="viewToggleGroup" role="group" aria-label="Modo de visualización">
@@ -3009,17 +3200,35 @@
             </div>
             <div class="filter-grid">
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-layer-group"></i> Tipo dependencia</span>
-                    <select id="tipoFilter" aria-label="Filtrar por tipo de dependencia">
-                        <option value="">Todos los tipos de dependencia</option>
+                    <span class="filter-label">
+                        <span><i class="fas fa-layer-group"></i> Tipo institución</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Filtra las instituciones según su clasificación gubernamental: Ministerios, Secretarías, Gobernaciones u Otras dependencias del Organismo Ejecutivo.</span>
+                        </span>
+                    </span>
+                    <select id="tipoFilter" aria-label="Filtrar por tipo de institución">
+                        <option value="">Todos los tipos de institución</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-building"></i> Institución</span>
-                    <select id="institucionFilter" aria-label="Filtrar por institución"><option value="">Todas las instituciones</option></select>
+                    <span class="filter-label">
+                        <span><i class="fas fa-building"></i> Nombre</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Selecciona una entidad específica del listado para consultar exclusivamente sus canales de contacto y denuncia oficiales.</span>
+                        </span>
+                    </span>
+                    <select id="institucionFilter" aria-label="Filtrar por nombre de institución"><option value="">Todas las instituciones</option></select>
                 </div>
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-search"></i> Búsqueda libre</span>
+                    <span class="filter-label">
+                        <span><i class="fas fa-search"></i> Búsqueda libre</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Escribe palabras clave para localizar instituciones por nombre, dirección física, teléfono o correo de recepción.</span>
+                        </span>
+                    </span>
                     <div class="voice-row">
                         <div class="input-clear-wrapper" style="flex:1;">
                             <input type="text" id="searchInput" placeholder="Nombre, correo, dirección…" aria-label="Buscar en canales">
@@ -3029,7 +3238,13 @@
                     </div>
                 </div>
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-star"></i> Favoritos</span>
+                    <span class="filter-label">
+                        <span><i class="fas fa-star"></i> Favoritos</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Activa esta casilla para visualizar únicamente aquellas dependencias que marcaste previamente con una estrella.</span>
+                        </span>
+                    </span>
                     <div class="fav-row">
                         <span>Todos</span>
                         <label class="toggle-sw">
@@ -3083,6 +3298,7 @@
         <!-- VISTA DE LISTA -->
         <div id="listViewWrapper" style="display:none; margin-bottom:2rem;">
             <div class="dir-list-container" id="listContainer"></div>
+            <div id="listPaginationContainer"></div>
         </div>
 
         <div class="export-row">
@@ -3113,33 +3329,7 @@
             </div>
         </div>
 
-        <!-- Alerta de Auditoría de Registro de Canales -->
-        <div id="dataValAlertBar" class="data-val-alert-bar" style="display:none;">
-            <div class="data-val-alert-icon"><i class="fas fa-triangle-exclamation"></i></div>
-            <div class="data-val-alert-text">
-                <strong>Auditoría de Calidad de Datos:</strong> Se detectaron <span id="valAlertCountNum" style="font-weight:800; color:var(--amber);">0</span> registros con observaciones (canales no reportados o discrepancias de datos).
-            </div>
-            <button type="button" class="btn-val-alert-details" onclick="toggleValAlertModal(true)">
-                <i class="fas fa-list-check"></i> Ver Inconsistencias
-            </button>
-        </div>
 
-        <!-- Modal de Auditoría y Control de Errores de Registro -->
-        <div id="valAlertModal" class="val-modal-overlay" style="display:none;" onclick="if(event.target===this) toggleValAlertModal(false)">
-            <div class="val-modal-card">
-                <div class="val-modal-head">
-                    <h3><i class="fas fa-clipboard-check" style="color:var(--amber);"></i> Auditoría de Registro de Canales</h3>
-                    <button type="button" class="val-modal-close" onclick="toggleValAlertModal(false)">&times;</button>
-                </div>
-                <div class="val-modal-body" id="valModalBody">
-                    <!-- Contenido dinámico de inconsistencias -->
-                </div>
-                <div class="val-modal-foot">
-                    <span style="font-size:0.78rem; color:var(--text-muted);"><i class="fas fa-code"></i> Detalles técnicos disponibles en la consola (F12).</span>
-                    <button type="button" class="btn-capsula" onclick="toggleValAlertModal(false)">Entendido</button>
-                </div>
-            </div>
-        </div>
 
         <div class="dashboard-container" id="dashboardContainer" style="display:none;">
             <!-- Grid de Tarjetas KPI -->
@@ -3203,60 +3393,6 @@
                 </div>
             </div>
 
-            <!-- Componente Desplegable: Mapa Interactivo de Geolocalización de Dependencias con Protocolo CNC -->
-            <div class="map-collapsible-card" style="margin: 1.5rem 0; background: var(--navy-mid); border: 1px solid rgba(0, 194, 224, 0.25); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-md);">
-                <div class="map-collapsible-header" id="btnToggleProtocolMap" style="padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(0, 194, 224, 0.06); transition: background 0.2s;" onclick="toggleProtocolMap()">
-                    <div style="display: flex; align-items: center; gap: 0.85rem;">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 1.25rem;">
-                            <i class="fas fa-map-marked-alt"></i>
-                        </div>
-                        <div>
-                            <h3 style="margin: 0; font-family: var(--font-head); font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                                Mapa Interactivo de Dependencias con Protocolos de Actuación y Canales de Denuncia
-                                <span style="background: var(--green); color: #000; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; font-family: var(--font-body);" id="mapProtBadgeCount">32 Verificadas</span>
-                            </h3>
-                            <p style="margin: 0.2rem 0 0; font-size: 0.83rem; color: var(--text-light);">
-                                Geolocalización interactiva en tiempo real de sedes e instituciones del Ejecutivo con protocolos de actuación adoptados y canales de denuncia
-                            </p>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span style="font-size: 0.84rem; color: var(--cyan); font-weight: 600;" id="labelToggleMap">Desplegar Mapa</span>
-                        <i class="fas fa-chevron-down" id="chevronToggleMap" style="color: var(--cyan); transition: transform 0.3s; font-size: 1rem;"></i>
-                    </div>
-                </div>
-
-                <div class="map-collapsible-body" id="protocolMapBody" style="display: none; padding: 1.25rem; border-top: 1px solid rgba(0,194,224,0.15); background: rgba(5,17,31,0.6);">
-                    <!-- Barra de Controles e Interactividad del Mapa -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; background: rgba(255,255,255,0.03); padding: 0.85rem 1.1rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
-                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                            <button type="button" class="btn-map-filter active" id="btnMapFilterWithProt" onclick="filterMapMarkers('prot')" style="padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(34,197,94,0.4); background: rgba(34,197,94,0.2); color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;">
-                                <i class="fas fa-check-circle" style="color: var(--green);"></i> Con Protocolo CNC (<span id="mapCountProt">32</span>)
-                            </button>
-                            <button type="button" class="btn-map-filter" id="btnMapFilterAll" onclick="filterMapMarkers('all')" style="padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;">
-                                <i class="fas fa-layer-group"></i> Ver Todas las Sedes (<span id="mapCountTotal">63</span>)
-                            </button>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; max-width: 320px; width: 100%;">
-                            <div style="position: relative; width: 100%;">
-                                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.82rem;"></i>
-                                <input type="text" id="mapSearchInput" oninput="searchMapMarkers(this.value)" placeholder="Buscar dependencia o ubicación..." style="width: 100%; padding: 7px 12px 7px 34px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 0.82rem; font-family: var(--font-body);" aria-label="Buscar en mapa">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Div del Mapa Leaflet -->
-                    <div id="cncProtocolLeafletMap" style="height: 480px; width: 100%; border-radius: 16px; border: 1px solid rgba(0,194,224,0.2); overflow: hidden; position: relative; z-index: 10;"></div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.85rem; font-size: 0.8rem; color: var(--text-light); flex-wrap: wrap; gap: 0.5rem;">
-                        <span style="display: flex; align-items: center; gap: 0.4rem;">
-                            <i class="fas fa-info-circle" style="color:var(--cyan);"></i> Haz clic en un marcador para desplegar ficha corta, dirección y acceso directo a canales.
-                        </span>
-                        <span style="color: rgba(255,255,255,0.5);"><i class="fas fa-globe-americas"></i> Coordenadas Geográficas de Guatemala</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Tabla Interactiva de Cumplimiento CNC por Institución -->
             <div class="table-cnc-wrap">
                 <div class="cnc-table-controls">
@@ -3277,7 +3413,7 @@
 
                         <div class="cnc-filter-pills" id="cncFilterPillsGroup">
                             <button class="cnc-filter-pill active" data-cnc-filter="all">Todas</button>
-                            <button class="cnc-filter-pill" data-cnc-filter="yes"><i class="fas fa-check-circle" style="color:var(--green);"></i> Cumple CNC</button>
+                            <button class="cnc-filter-pill" data-cnc-filter="yes"><i class="fas fa-check-circle" style="color:var(--green);"></i> Protocolo emitido</button>
                             <button class="cnc-filter-pill" data-cnc-filter="no"><i class="fas fa-clock" style="color:var(--amber);"></i> En proceso</button>
                         </div>
                     </div>
@@ -3343,7 +3479,7 @@
                         <i class="fas fa-volume-up"></i>
                     </div>
                     <div>
-                        <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--cyan); letter-spacing:0.05em; display:flex; align-items:center; gap:0.4rem;">
+                        <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--blue-bright); letter-spacing:0.05em; display:flex; align-items:center; gap:0.4rem;">
                             <i class="fas fa-microphone"></i> Lectura Asistida por Voz (Web Speech)
                             <div class="audio-wave-anim" id="audioWaveAnim" style="display:none;">
                                 <div class="audio-wave-bar"></div>
@@ -3352,10 +3488,10 @@
                                 <div class="audio-wave-bar"></div>
                             </div>
                         </div>
-                        <h4 style="margin:0.2rem 0; font-family:var(--font-head); font-size:1.1rem; color:#fff;" id="mayaAudioTitle">
+                        <h4 style="margin:0.2rem 0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy);" id="mayaAudioTitle">
                             Escuchar resumen informativo en Español
                         </h4>
-                        <p style="margin:0; font-size:0.84rem; color:rgba(255,255,255,0.75);" id="mayaAudioSub">
+                        <p style="margin:0; font-size:0.84rem; color:var(--text-muted);" id="mayaAudioSub">
                             Presiona para reproducir la locución oficial sintetizada sobre los canales de denuncia.
                         </p>
                     </div>
@@ -3372,8 +3508,8 @@
             </div>
 
             <!-- Pasos de Denuncia Segura en el Idioma Seleccionado -->
-            <h3 style="font-family:var(--font-head); font-size:1.25rem; margin:0 0 1.25rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
-                <i class="fas fa-list-ol" style="color:var(--cyan);"></i> Procedimiento de Denuncia Segura en 4 Pasos
+            <h3 style="font-family:var(--font-head); font-size:1.25rem; margin:0 0 1.25rem; color:var(--navy); display:flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-list-ol" style="color:var(--blue-bright);"></i> Procedimiento de Denuncia Segura en 4 Pasos
             </h3>
 
             <div class="maya-steps-grid" id="mayaStepsContainer">
@@ -3381,10 +3517,10 @@
             </div>
 
             <!-- Garantías de Protección al Denunciante (CNC) -->
-            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(0,194,224,0.2); border-radius:20px; padding:1.5rem; margin-top:2rem;">
+            <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:20px; padding:1.5rem; margin-top:2rem;">
                 <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;">
-                    <i class="fas fa-user-shield" style="color:var(--cyan); font-size:1.4rem;"></i>
-                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:#fff;" id="mayaGuaranteesTitle">
+                    <i class="fas fa-user-shield" style="color:var(--blue-bright); font-size:1.4rem;"></i>
+                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy);" id="mayaGuaranteesTitle">
                         Garantías de Confidencialidad y Protección CNC
                     </h4>
                 </div>
@@ -3395,12 +3531,12 @@
             </div>
 
             <!-- Glosario Multilingüe de Términos de Integridad -->
-            <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1);">
+            <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
-                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
-                        <i class="fas fa-book" style="color:var(--cyan);"></i> Glosario de Términos en Lenguas Mayas
+                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy); display:flex; align-items:center; gap:0.5rem;">
+                        <i class="fas fa-book" style="color:var(--blue-bright);"></i> Glosario de Términos en Lenguas Mayas
                     </h4>
-                    <span style="font-size:0.78rem; color:rgba(255,255,255,0.7);">Haz clic en el altavoz para escuchar la traducción</span>
+                    <span style="font-size:0.78rem; color:var(--text-muted);">Haz clic en el altavoz para escuchar la traducción</span>
                 </div>
 
                 <div class="glossary-maya-grid" id="mayaGlossaryGrid">
@@ -3461,7 +3597,11 @@
             <div class="footer-brand">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
-                <p>Directorio público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo de Guatemala.</p>
+                <p>Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo de Guatemala.</p>
+                <div style="margin-top:0.9rem; padding:0.6rem 0.9rem; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); border-radius:12px; font-size:0.78rem; color:#A7F3D0; line-height:1.45; display:flex; align-items:flex-start; gap:0.5rem;">
+                    <i class="fas fa-user-shield" style="color:var(--green); margin-top:2px; font-size:0.9rem;"></i>
+                    <span><strong>Confidencialidad y Seguridad:</strong> Garantizamos el tratamiento reservado, seguro y protegido de cada denuncia administrativa en apego a los estándares de integridad pública.</span>
+                </div>
             </div>
 
             <div class="footer-col">
@@ -3674,7 +3814,7 @@ function populateTipoFilter() {
         if (ia !== ib) return ia - ib;
         return a.localeCompare(b);
     });
-    $tipoFilter.innerHTML = '<option value="">Todos los tipos de dependencia</option>';
+    $tipoFilter.innerHTML = '<option value="">Todos los tipos de institución</option>';
     allOptions.forEach(t => {
         const o = document.createElement('option');
         o.value = t; o.textContent = t;
@@ -3968,19 +4108,36 @@ document.querySelectorAll('.modal-tabs').forEach(container => {
 });
 
 /* ============================================================
-   RENDER VISTA DE LISTA
+   RENDER VISTA DE LISTA CON PAGINACIÓN (20 en 20)
 ============================================================ */
-function renderList(list) {
+let listCurrentPage = 1;
+const listPageSize = 20;
+
+function renderList(list, page = 1) {
     const $list = document.getElementById('listContainer');
+    const $pagination = document.getElementById('listPaginationContainer');
     if (!$list) return;
     $list.innerHTML = '';
+    if ($pagination) $pagination.innerHTML = '';
 
-    if (!list.length) {
+    if (!list || !list.length) {
         $list.innerHTML = `<div style="background:#fff; border-radius:var(--radius-xl); padding:3rem; text-align:center; color:var(--text-muted); width:100%; border:1px solid var(--border);">No se encontraron instituciones con canales habilitados.</div>`;
         return;
     }
 
-    list.forEach(inst => {
+    const totalRecords = list.length;
+    const totalPages = Math.ceil(totalRecords / listPageSize);
+
+    // Ajustar página activa si está fuera de rango
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    listCurrentPage = page;
+
+    const startIdx = (page - 1) * listPageSize;
+    const endIdx = Math.min(startIdx + listPageSize, totalRecords);
+    const pageItems = list.slice(startIdx, endIdx);
+
+    pageItems.forEach(inst => {
         const phone = cleanPhone(inst.telefono);
         const safe  = inst.institucion.replace(/'/g,"\\'");
         const tieneProtocolo = inst['Protocolo de actuación'] === true;
@@ -4001,7 +4158,10 @@ function renderList(list) {
                 <div><i class="fas fa-clock"></i> <span style="font-size:0.78rem;">${inst.horario || 'Horario no especificado'}</span></div>
             </div>
             <div class="dir-list-avail">
-                <span class="protocolo-badge ${tieneProtocolo ? '' : 'no'}" style="margin:2px 0;"><i class="fas ${tieneProtocolo ? 'fa-check-circle' : 'fa-times-circle'}"></i> Protocolo de actuación</span>
+                <span class="protocolo-badge-list ${tieneProtocolo ? 'emitido' : 'en-proceso'}">
+                    <i class="fas ${tieneProtocolo ? 'fa-check-circle' : 'fa-clock'}"></i>
+                    ${tieneProtocolo ? 'Protocolo de actuación - Emitido' : 'Protocolo de actuación - En proceso'}
+                </span>
             </div>
             <div class="dir-list-actions">
                 <button class="btn-list-action btn-list-details" onclick="window._openModal('${safe}')"><i class="fas fa-info-circle"></i> Detalles</button>
@@ -4010,7 +4170,58 @@ function renderList(list) {
         `;
         $list.appendChild(row);
     });
+
+    // Render de controles de paginación si hay más de 1 página o para info contextual
+    if ($pagination && totalRecords > 0) {
+        let controlsHtml = `
+            <div class="dir-list-pagination">
+                <div class="dir-list-page-info">
+                    Mostrando <strong>${startIdx + 1}</strong> - <strong>${endIdx}</strong> de <strong>${totalRecords}</strong> instituciones
+                    <span style="margin-left:8px; opacity:0.8;">(Página ${page} de ${totalPages})</span>
+                </div>
+                <div class="dir-list-page-controls">
+                    <button class="dir-page-btn" onclick="window._goToDirListPage(${page - 1})" ${page <= 1 ? 'disabled' : ''} title="Página anterior" aria-label="Página anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+        `;
+
+        for (let p = 1; p <= totalPages; p++) {
+            if (totalPages > 7) {
+                if (p !== 1 && p !== totalPages && Math.abs(p - page) > 1) {
+                    if (p === 2 && page > 3) {
+                        controlsHtml += `<span style="padding:0 4px; color:var(--text-muted); font-size:0.85rem;">…</span>`;
+                    } else if (p === totalPages - 1 && page < totalPages - 2) {
+                        controlsHtml += `<span style="padding:0 4px; color:var(--text-muted); font-size:0.85rem;">…</span>`;
+                    }
+                    continue;
+                }
+            }
+            controlsHtml += `
+                <button class="dir-page-btn ${p === page ? 'active' : ''}" onclick="window._goToDirListPage(${p})" aria-label="Ir a página ${p}">
+                    ${p}
+                </button>
+            `;
+        }
+
+        controlsHtml += `
+                    <button class="dir-page-btn" onclick="window._goToDirListPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''} title="Página siguiente" aria-label="Página siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        $pagination.innerHTML = controlsHtml;
+    }
 }
+
+window._goToDirListPage = function(p) {
+    const filtered = filtrar();
+    renderList(filtered, p);
+    const $target = document.getElementById('listViewWrapper');
+    if ($target) {
+        $target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
 
 /* ============================================================
    CAMBIO DE VISTA (TARJETAS / LISTA)
@@ -4446,137 +4657,9 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 /* ============================================================
    VALIDACIÓN DE CALIDAD Y AUDITORÍA DE CANALES
 ============================================================ */
-let globalValAuditResults = { zeroChannels: [], contradictions: [] };
-
 function validarDirectorioCanales(rawData) {
+    // La auditoría de calidad de datos y discrepancias se gestiona en el módulo administrativo
     if (!Array.isArray(rawData)) return;
-
-    const zeroChannels = [];
-    const contradictions = [];
-
-    rawData.forEach((item, idx) => {
-        const nombre = item.institucion || item.nombre_institucion || `Institución #${idx + 1}`;
-        const tel = (item.telefono || '').toString().trim();
-        const mail = (item.correo || '').toString().trim();
-        const form = (item.formulario || (Array.isArray(item.enlaces_solicitud) && item.enlaces_solicitud[0]) || '').toString().trim();
-        const dir = (item.direccion || item.ubicacion || '').toString().trim();
-        const tipocom = (item.tipocom || '').toString().trim();
-        const otro = (item.otro || '').toString().trim();
-
-        let realCount = 0;
-        if (tel) realCount++;
-        if (mail) realCount++;
-        if (form) realCount++;
-        
-        const hasPresencial = dir.length > 0 || (
-            tipocom.toLowerCase().includes('presencial') ||
-            tipocom.toLowerCase().includes('verbal') ||
-            tipocom.toLowerCase().includes('escrita') ||
-            tipocom.toLowerCase().includes('oficina') ||
-            tipocom.toLowerCase().includes('unidad')
-        );
-        if (hasPresencial) realCount++;
-        if (otro) realCount++;
-
-        const declaredCanales = item.canales;
-        const issues = [];
-
-        // 1. Detectar 0 canales
-        if (realCount === 0) {
-            issues.push('0 canales de contacto o denuncia detectados.');
-            zeroChannels.push({ nombre, index: idx, item });
-        }
-
-        // 2. Discrepancia entre canales declarados vs reales
-        if (declaredCanales !== undefined && declaredCanales !== null && Number(declaredCanales) !== realCount) {
-            issues.push(`Declaró ${declaredCanales} canales pero se identificaron ${realCount} vías de contacto registradas.`);
-        }
-
-        // 3. Inconsistencia de formato de correo
-        if (mail && !mail.includes('@')) {
-            issues.push(`Correo registrado con formato atípico ("${mail}").`);
-        }
-
-        // 4. Inconsistencia en teléfono (sin números)
-        if (tel && !/\d/.test(tel)) {
-            issues.push(`Teléfono registrado sin caracteres numéricos ("${tel}").`);
-        }
-
-        if (issues.length > 0) {
-            contradictions.push({
-                nombre,
-                index: idx,
-                declarado: declaredCanales,
-                calculado: realCount,
-                issues
-            });
-        }
-    });
-
-    globalValAuditResults = { zeroChannels, contradictions };
-
-    // Consola de aviso para administradores/desarrolladores
-    if (zeroChannels.length > 0 || contradictions.length > 0) {
-        console.group('%c⚠️ AUDITORÍA DE REGISTRO - CANALES POR LA INTEGRIDAD', 'color: #f59e0b; font-weight: bold; font-size: 12px;');
-        console.warn(`Se analizaron ${rawData.length} registros. Se encontraron ${zeroChannels.length} instituciones sin canales y ${contradictions.length} observaciones de registro.`);
-        if (zeroChannels.length > 0) {
-            console.warn('🔴 Instituciones con 0 canales de denuncia:', zeroChannels);
-        }
-        if (contradictions.length > 0) {
-            console.warn('🟡 Registros con observaciones o datos contradictorios:', contradictions);
-        }
-        console.groupEnd();
-
-        // Mostrar aviso visual en la interfaz de usuario
-        showValidationAlertBar(zeroChannels, contradictions);
-    }
-}
-
-function showValidationAlertBar(zeroList, contradictionsList) {
-    const alertBar = document.getElementById('dataValAlertBar');
-    const alertCountNum = document.getElementById('valAlertCountNum');
-    if (!alertBar) return;
-
-    const totalObs = contradictionsList.length;
-    if (alertCountNum) alertCountNum.textContent = totalObs;
-    alertBar.style.display = 'flex';
-}
-
-function toggleValAlertModal(show) {
-    const modal = document.getElementById('valAlertModal');
-    if (!modal) return;
-    if (show) {
-        const body = document.getElementById('valModalBody');
-        if (body) {
-            const { zeroChannels, contradictions } = globalValAuditResults;
-            let html = `<div style="margin-bottom:1rem; font-size:0.85rem; color:var(--text-muted);">
-                A continuación se detallan las instituciones que presentan observaciones o posibles errores humanos de registro al cargar el JSON:
-            </div>`;
-
-            if (contradictions.length === 0) {
-                html += `<div style="padding:1rem; background:rgba(34,197,94,0.1); border-radius:10px; color:#15803d;">
-                    <i class="fas fa-check-circle"></i> No se detectaron inconsistencias críticas en el registro.
-                </div>`;
-            } else {
-                html += `<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem;">`;
-                contradictions.forEach(item => {
-                    html += `
-                        <li style="background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--amber); border-radius:10px; padding:0.85rem 1rem;">
-                            <strong style="color:var(--text-main); font-size:0.9rem;">${item.nombre}</strong>
-                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
-                                ${item.issues.map(iss => `<div><i class="fas fa-exclamation-circle" style="color:var(--amber);"></i> ${iss}</div>`).join('')}
-                            </div>
-                        </li>
-                    `;
-                });
-                html += `</ul>`;
-            }
-            body.innerHTML = html;
-        }
-        modal.style.display = 'flex';
-    } else {
-        modal.style.display = 'none';
-    }
 }
 
 /* ============================================================
@@ -4670,7 +4753,7 @@ function renderCncCharts(data) {
         donutChartInstance = new Chart(donutCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Adoptaron Protocolo CNC', 'En Proceso / Pendiente'],
+                labels: ['Protocolo de actuación - Emitido', 'Protocolo de actuación - En proceso'],
                 datasets: [{
                     data: [withProtocol, totalInst - withProtocol],
                     backgroundColor: ['#22C55E', '#F5A623'],
@@ -4823,297 +4906,8 @@ function initCncDashboard(data) {
         });
     }
 
-    // 3. Inicializar Mapa Interactivo de Geolocalización
-    initProtocolMap(data);
-
-    // 4. Configurar Toggle de Despliegue/Ocultamiento del Dashboard
+    // 3. Configurar Toggle de Despliegue/Ocultamiento del Dashboard
     setupDashboardToggle(data);
-}
-
-/* ============================================================
-   MAPA INTERACTIVO DE GEOLOCALIZACIÓN CNC (LEAFLET)
-============================================================ */
-let protocolLeafletMap = null;
-let leafletMarkersGroup = null;
-let currentMapFilter = 'prot'; // 'prot' or 'all'
-let globalDirectorioData = [];
-
-const knownCoordsMap = {
-    'MAGA': [14.588, -90.528],
-    'MINECO': [14.636, -90.512],
-    'MICIVI': [14.586, -90.526],
-    'MICUDE': [14.643, -90.513],
-    'MIDES': [14.608, -90.518],
-    'MINDEF': [14.628, -90.485],
-    'MINEDUC': [14.596, -90.510],
-    'MEM': [14.615, -90.550],
-    'MINFIN': [14.631, -90.514],
-    'MINGOB': [14.634, -90.513],
-    'MINEX': [14.594, -90.508],
-    'MSPAS': [14.618, -90.548],
-    'MINTRAB': [14.635, -90.515],
-    'MARN': [14.582, -90.525],
-    'SAAS': [14.640, -90.511],
-    'SBS': [14.611, -90.553],
-    'SCEP': [14.639, -90.513],
-    'SVET': [14.643, -90.513],
-    'SECCATID': [14.602, -90.511],
-    'SGP': [14.641, -90.511],
-    'SENABED': [14.588, -90.506],
-    'SENACYT': [14.634, -90.515],
-    'SOSEP': [14.642, -90.513],
-    'SEPREM': [14.639, -90.514],
-    'SESAN': [14.635, -90.513],
-    'STCNS': [14.642, -90.514],
-    'AMSCLAE': [14.743, -91.157],
-    'CODISRA': [14.633, -90.514],
-    'COPADEH': [14.583, -90.524],
-    'CONJUVE': [14.610, -90.552],
-    'IGSNS': [14.641, -90.515],
-    'INEES': [14.640, -90.516],
-    'VPRG': [14.641, -90.513],
-    'SIE': [14.639, -90.512],
-    'SCSPR': [14.619, -90.516],
-    'GAE': [14.641, -90.512],
-    'SEGEPLAN': [14.637, -90.515],
-    'AMSA': [14.502, -90.589],
-    'CNC': [14.640, -90.510],
-    'DEMI': [14.633, -90.512],
-    'ONSEC': [14.632, -90.516]
-};
-
-const deptCoordsList = [
-    { name: 'Baja Verapaz', coords: [15.103, -90.318] },
-    { name: 'Chimaltenango', coords: [14.662, -90.820] },
-    { name: 'El Progreso', coords: [14.853, -90.069] },
-    { name: 'Escuintla', coords: [14.305, -90.785] },
-    { name: 'Jalapa', coords: [14.634, -89.988] },
-    { name: 'Jutiapa', coords: [14.281, -89.895] },
-    { name: 'Petén', coords: [16.924, -89.894] },
-    { name: 'Quetzaltenango', coords: [14.834, -91.518] },
-    { name: 'Quiché', coords: [15.030, -91.148] },
-    { name: 'Sacatepéquez', coords: [14.558, -90.733] },
-    { name: 'San Marcos', coords: [14.963, -91.794] },
-    { name: 'Suchitepéquez', coords: [14.534, -91.503] },
-    { name: 'Zacapa', coords: [14.972, -89.530] },
-    { name: 'Huehuetenango', coords: [15.319, -91.471] },
-    { name: 'Alta Verapaz', coords: [15.472, -90.372] },
-    { name: 'Chiquimula', coords: [14.798, -89.545] },
-    { name: 'Santa Rosa', coords: [14.276, -90.298] },
-    { name: 'Retalhuleu', coords: [14.535, -91.677] },
-    { name: 'Izabal', coords: [15.727, -88.594] },
-    { name: 'Sololá', coords: [14.773, -91.183] },
-    { name: 'Totonicapán', coords: [14.911, -91.361] },
-    { name: 'Guatemala', coords: [14.638, -90.513] }
-];
-
-function getInstCoords(inst, idx) {
-    const name = inst.institucion;
-    let base = null;
-    const key = Object.keys(knownCoordsMap).find(k => name.includes(k));
-    if (key) {
-        base = knownCoordsMap[key];
-    } else {
-        const deptMatch = deptCoordsList.find(d => name.includes(d.name) || (inst.direccion && inst.direccion.includes(d.name)));
-        if (deptMatch) {
-            base = deptMatch.coords;
-        } else {
-            base = [14.636, -90.512];
-        }
-    }
-    const jitterLat = ((idx * 7) % 17 - 8) * 0.0018;
-    const jitterLng = ((idx * 11) % 17 - 8) * 0.0018;
-    return [base[0] + jitterLat, base[1] + jitterLng];
-}
-
-function initProtocolMap(data) {
-    if (!data || !data.length) return;
-    globalDirectorioData = data;
-
-    const withProtCount = data.filter(i => i['Protocolo de actuación'] === true).length;
-    const badgeEl = document.getElementById('mapProtBadgeCount');
-    const protCountEl = document.getElementById('mapCountProt');
-    const totalCountEl = document.getElementById('mapCountTotal');
-
-    if (badgeEl) badgeEl.textContent = `${withProtCount} Verificadas`;
-    if (protCountEl) protCountEl.textContent = withProtCount;
-    if (totalCountEl) totalCountEl.textContent = data.length;
-
-    const mapContainer = document.getElementById('cncProtocolLeafletMap');
-    if (!mapContainer || typeof L === 'undefined') return;
-
-    if (!protocolLeafletMap) {
-        try {
-            protocolLeafletMap = L.map('cncProtocolLeafletMap', {
-                center: [15.0, -90.5],
-                zoom: 7,
-                zoomControl: true,
-                scrollWheelZoom: false,
-                tap: true
-            });
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-                subdomains: 'abcd',
-                maxZoom: 19
-            }).addTo(protocolLeafletMap);
-
-            leafletMarkersGroup = L.layerGroup().addTo(protocolLeafletMap);
-        } catch (e) {
-            console.error('Error creating Leaflet instance:', e);
-        }
-    }
-
-    renderMapMarkers();
-}
-
-function renderMapMarkers(searchQuery = '') {
-    if (!protocolLeafletMap || typeof L === 'undefined') return;
-    if (!leafletMarkersGroup) {
-        leafletMarkersGroup = L.layerGroup().addTo(protocolLeafletMap);
-    }
-    leafletMarkersGroup.clearLayers();
-
-    if (!globalDirectorioData || !globalDirectorioData.length) return;
-
-    const q = (searchQuery || '').toLowerCase().trim();
-
-    globalDirectorioData.forEach((inst, idx) => {
-        const hasProt = inst['Protocolo de actuación'] === true;
-
-        if (currentMapFilter === 'prot' && !hasProt) return;
-
-        if (q) {
-            const matchName = inst.institucion.toLowerCase().includes(q);
-            const matchDir = (inst.direccion || '').toLowerCase().includes(q);
-            const matchTipo = (inst.tipo || '').toLowerCase().includes(q);
-            if (!matchName && !matchDir && !matchTipo) return;
-        }
-
-        const coords = getInstCoords(inst, idx);
-
-        const markerHtml = hasProt ?
-            `<div style="width:34px; height:34px; border-radius:50%; background:rgba(34,197,94,0.95); border:2px solid #ffffff; box-shadow:0 0 14px rgba(34,197,94,0.85); display:flex; align-items:center; justify-content:center; color:#000; font-size:15px; cursor:pointer;" title="${inst.institucion}">
-                <i class="fas fa-shield-alt"></i>
-            </div>` :
-            `<div style="width:28px; height:28px; border-radius:50%; background:rgba(245,166,35,0.9); border:2px solid #ffffff; box-shadow:0 0 10px rgba(245,166,35,0.7); display:flex; align-items:center; justify-content:center; color:#000; font-size:12px; cursor:pointer;" title="${inst.institucion}">
-                <i class="fas fa-clock"></i>
-            </div>`;
-
-        const icon = L.divIcon({
-            className: hasProt ? 'custom-leaflet-marker-prot' : 'custom-leaflet-marker-pending',
-            html: markerHtml,
-            iconSize: [34, 34],
-            iconAnchor: [17, 17],
-            popupAnchor: [0, -17]
-        });
-
-        const safeName = inst.institucion.replace(/'/g, "\\'");
-
-        const popupContent = `
-            <div style="font-family: 'DM Sans', sans-serif; color: #05111F; min-width: 230px; padding: 4px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:6px;">
-                    <span style="background: ${hasProt ? '#22C55E' : '#F5A623'}; color: ${hasProt ? '#000' : '#000'}; font-size:10px; font-weight:800; padding:2px 8px; border-radius:12px; text-transform:uppercase;">
-                        ${hasProt ? '✓ Protocolo CNC' : 'En Proceso'}
-                    </span>
-                    <span style="font-size:11px; color:#5E7A8E; font-weight:700;">${inst.tipo || 'Ejecutivo'}</span>
-                </div>
-                <h4 style="margin: 0 0 6px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; color: #05111F; line-height:1.3;">
-                    ${inst.institucion}
-                </h4>
-                <p style="margin: 0 0 8px; font-size: 11px; color: #4A5568; line-height:1.4;">
-                    <i class="fas fa-map-marker-alt" style="color:#1A5C8F; margin-right:3px;"></i> ${inst.direccion || 'Ciudad de Guatemala'}
-                </p>
-                <div style="font-size:11px; color:#2D3748; margin-bottom:10px; border-top:1px solid #E2E8F0; padding-top:6px; display:flex; flex-direction:column; gap:3px;">
-                    <div><i class="fas fa-phone-alt" style="color:#0093AA; width:14px;"></i> ${inst.telefono || '1514'}</div>
-                    <div><i class="fas fa-envelope" style="color:#0093AA; width:14px;"></i> ${inst.correo || 'No reportado'}</div>
-                </div>
-                <button onclick="window._openModal('${safeName}')" style="width:100%; padding:8px 10px; background:#05111F; color:#00C2E0; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:background 0.2s;">
-                    <i class="fas fa-broadcast-tower"></i> Ver Canales e Información
-                </button>
-            </div>
-        `;
-
-        const marker = L.marker(coords, { icon: icon }).bindPopup(popupContent);
-        leafletMarkersGroup.addLayer(marker);
-    });
-}
-
-function toggleProtocolMap() {
-    const mapBody = document.getElementById('protocolMapBody');
-    const label = document.getElementById('labelToggleMap');
-    const chevron = document.getElementById('chevronToggleMap');
-
-    if (!mapBody) return;
-
-    const isHidden = mapBody.style.display === 'none' || getComputedStyle(mapBody).display === 'none';
-    if (isHidden) {
-        mapBody.style.display = 'block';
-        if (label) label.textContent = 'Ocultar Mapa';
-        if (chevron) chevron.style.transform = 'rotate(180deg)';
-
-        if (!protocolLeafletMap) {
-            initProtocolMap(globalDirectorioData);
-        } else {
-            renderMapMarkers();
-        }
-
-        const resizeMap = () => {
-            if (protocolLeafletMap) {
-                protocolLeafletMap.invalidateSize(true);
-            }
-        };
-
-        requestAnimationFrame(resizeMap);
-        setTimeout(resizeMap, 60);
-        setTimeout(resizeMap, 200);
-        setTimeout(resizeMap, 500);
-    } else {
-        mapBody.style.display = 'none';
-        if (label) label.textContent = 'Desplegar Mapa';
-        if (chevron) chevron.style.transform = 'rotate(0deg)';
-    }
-}
-
-function filterMapMarkers(type) {
-    currentMapFilter = type;
-    const btnProt = document.getElementById('btnMapFilterWithProt');
-    const btnAll = document.getElementById('btnMapFilterAll');
-
-    if (type === 'prot') {
-        if (btnProt) {
-            btnProt.classList.add('active');
-            btnProt.style.background = 'rgba(34,197,94,0.2)';
-            btnProt.style.borderColor = 'rgba(34,197,94,0.4)';
-            btnProt.style.color = '#fff';
-        }
-        if (btnAll) {
-            btnAll.classList.remove('active');
-            btnAll.style.background = 'rgba(255,255,255,0.05)';
-            btnAll.style.borderColor = 'rgba(255,255,255,0.2)';
-            btnAll.style.color = 'var(--text-light)';
-        }
-    } else {
-        if (btnAll) {
-            btnAll.classList.add('active');
-            btnAll.style.background = 'rgba(0,194,224,0.2)';
-            btnAll.style.borderColor = 'rgba(0,194,224,0.4)';
-            btnAll.style.color = '#fff';
-        }
-        if (btnProt) {
-            btnProt.classList.remove('active');
-            btnProt.style.background = 'rgba(255,255,255,0.05)';
-            btnProt.style.borderColor = 'rgba(255,255,255,0.2)';
-            btnProt.style.color = 'var(--text-light)';
-        }
-    }
-
-    const searchInput = document.getElementById('mapSearchInput');
-    renderMapMarkers(searchInput ? searchInput.value : '');
-}
-
-function searchMapMarkers(val) {
-    renderMapMarkers(val);
 }
 
 function setupDashboardToggle(data) {
@@ -5137,9 +4931,6 @@ function setupDashboardToggle(data) {
             // Renderizar gráficos cuando el contenedor se hace visible
             setTimeout(() => {
                 renderCncCharts(data);
-                if (protocolLeafletMap) {
-                    protocolLeafletMap.invalidateSize(true);
-                }
             }, 50);
         } else {
             container.style.display = 'none';
@@ -5188,8 +4979,8 @@ function renderCncTable(data, filterVal, searchQ) {
     tbody.innerHTML = filtered.map(item => {
         const hasProt = item['Protocolo de actuación'] === true;
         const protBadge = hasProt 
-            ? `<span class="badge-prot-yes"><i class="fas fa-check-circle"></i> Adoptado CNC</span>`
-            : `<span class="badge-prot-no"><i class="fas fa-clock"></i> En proceso</span>`;
+            ? `<span class="badge-prot-yes"><i class="fas fa-check-circle"></i> Protocolo de actuación - Emitido</span>`
+            : `<span class="badge-prot-no"><i class="fas fa-clock"></i> Protocolo de actuación - En proceso</span>`;
         
         let mainChannel = 'Telefónico / Presencial';
         if (item.formulario) mainChannel = 'Formulario Web';
@@ -5446,12 +5237,12 @@ function renderMayaLangContent(langKey) {
     if (guaranteesGrid) {
         guaranteesGrid.innerHTML = data.guarantees.map(g => `
             <div style="display:flex; gap:0.85rem; align-items:flex-start;">
-                <div style="width:36px; height:36px; border-radius:10px; background:rgba(0,194,224,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <div style="width:36px; height:36px; border-radius:10px; background:rgba(43,130,201,0.1); color:var(--blue-bright); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <i class="fas ${g.icon}"></i>
                 </div>
                 <div>
-                    <strong style="color:#fff; font-size:0.9rem; font-family:var(--font-head); display:block; margin-bottom:0.2rem;">${g.title}</strong>
-                    <p style="margin:0; font-size:0.8rem; color:rgba(255,255,255,0.75); line-height:1.4;">${g.desc}</p>
+                    <strong style="color:var(--navy); font-size:0.9rem; font-family:var(--font-head); display:block; margin-bottom:0.2rem;">${g.title}</strong>
+                    <p style="margin:0; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">${g.desc}</p>
                 </div>
             </div>
         `).join('');

@@ -1,28 +1,12 @@
-// data-service-register.js - Registro del Service Worker
-
-// Verificar si el navegador soporta Service Workers
+// data-service-register.js - Desregistro de Service Worker y limpieza de caché
 if ('serviceWorker' in navigator) {
-  // Ruta del Service Worker (en la raíz para interceptar todos los paths)
-  const swPath = '/data-service-worker.js';
-  
-  // Registrar el Service Worker
-  navigator.serviceWorker.register(swPath)
-    .then((registration) => {
-      console.log('Data Service Worker registrado:', registration.scope);
-      
-      // Escuchar mensajes del Service Worker
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data.type === 'MOCK_DATA_UPDATED') {
-          console.log('Datos mock actualizados:', event.data.payload);
-        }
-      });
-    })
-    .catch((error) => {
-      console.error('Error registrando Service Worker:', error);
-    });
-  
-  // Función para actualizar datos mock (usada desde el módulo administrativo)
-  function updateMockData(path, data) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach(r => r.unregister().catch(() => {}));
+  }).catch(() => {});
+}
+
+// Función para actualizar datos mock (usada desde el módulo administrativo)
+function updateMockData(path, data) {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({
         type: 'UPDATE_MOCK_DATA',
