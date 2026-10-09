@@ -1700,7 +1700,17 @@ app.get('/data-service-worker.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
   res.setHeader('Service-Worker-Allowed', '/');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.sendFile(path.join(__dirname, 'data-service-worker.js'));
+  res.send(`
+    self.addEventListener('install', () => self.skipWaiting());
+    self.addEventListener('activate', (e) => {
+      e.waitUntil(
+        caches.keys().then((keys) => Promise.all(keys.map(k => caches.delete(k))))
+          .then(() => self.registration.unregister())
+          .then(() => self.clients.claim())
+      );
+    });
+    self.addEventListener('fetch', () => {});
+  `);
 });
 
 app.use('/img', express.static(path.join(__dirname, 'img')));

@@ -49,8 +49,13 @@
         // Attach Event Listeners
         attachEventListeners();
 
-        // Fetch Initial Config
-        fetchConfig();
+        // Render Initial Suggestions
+        renderSuggestionChips([
+            "¿Cómo presento una denuncia anónima?",
+            "¿Dónde veo el directorio de ministros?",
+            "Verificar placa de vehículo oficial",
+            "Estadísticas del Gobierno en Números"
+        ]);
     }
 
     function renderChatbotHTML() {
@@ -511,31 +516,12 @@
     }
 
     async function fetchConfig() {
-        // Pre-render default suggestion chips immediately so UI is always ready
         renderSuggestionChips([
             "¿Cómo presento una denuncia anónima?",
             "¿Dónde veo el directorio de ministros?",
             "Verificar placa de vehículo oficial",
             "Estadísticas del Gobierno en Números"
         ]);
-
-        try {
-            const url = window.location.origin + '/api/chatbot/config';
-            const res = await window.fetch(url, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
-                cache: 'no-store'
-            }).catch(() => null);
-
-            if (res && res.ok) {
-                const data = await res.json().catch(() => null);
-                if (data && data.faqs && Array.isArray(data.faqs)) {
-                    renderSuggestionChips(data.faqs);
-                }
-            }
-        } catch (_) {
-            // Handled safely without error bubbling
-        }
     }
 
     function renderSuggestionChips(faqs) {
@@ -681,7 +667,12 @@
                     <span class="pia-cb-timestamp">${getCurrentTimeString()}</span>
                 </div>
             `;
-            fetchConfig();
+            renderSuggestionChips([
+                "¿Cómo presento una denuncia anónima?",
+                "¿Dónde veo el directorio de ministros?",
+                "Verificar placa de vehículo oficial",
+                "Estadísticas del Gobierno en Números"
+            ]);
         }
     }
 
